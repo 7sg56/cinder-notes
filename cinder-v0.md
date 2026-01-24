@@ -1,23 +1,23 @@
 # Minimal Modal Note App (Tauri) — Design & Plan
 
-A compact, resume-worthy desktop note-taking app with Neovim-like modal keybindings, local-first storage, optional per-file encryption, and export options. Designed to be minimal, fast, and privacy-respecting.
+A compact, resume-worthy desktop note-taking app focused on local-first storage, a VS Code-like filesystem tree under a single .cinder directory, Neovim-like modal editing (optional), per-file AES-256-GCM encryption, and flexible export options. Designed to be minimal, fast, privacy-respecting, and highly keyboard-driven.
 
 ## Core Features
 
-- Filesystem-backed plain-text notes (one file per note) with YAML frontmatter for metadata (id, tags, created, modified).
-- Modal editing (Normal / Insert / Visual) with Neovim-like keybindings (hjkl, gg/G, dd, yy, p, /, :w, :q).
-- Command palette and leader-key system for quick actions (new note, toggle encryption, export, fuzzy-open).
-- File tree sidebar with drag & drop, create/rename/delete, and per-folder views.
-- Fuzzy file open and simple global search across note contents and metadata.
-- Per-file AES-256-GCM encryption toggle; encrypted files store header (version, nonce) + ciphertext.
-- Export single or multiple notes to Markdown, HTML, and PDF (via headless Chromium or backend renderer).
-- Bundled export (ZIP) with optional passphrase-based encryption for transfer.
-- Lightweight settings (editor font, tab size, default notes dir, keymap customizations) and session restore.
+- Filesystem tree (VS Code-style) rooted at a single top-level .cinder directory; users can create multiple workspace trees under .cinder.
+- Notes authored as Markdown content with YAML frontmatter for metadata (id, tags, created, modified).
+- GUI editor with a simple visual editing experience plus an optional modal editing mode (Neovim-like) toggled by a shortcut (zenvim or Option+Cmd+V) to enable hjkl, dd, yy, p and other modal motions.
+- Notion-like inline formatting helpers and an "option search" dialog to quickly change the current line to heading, subheading, etc.
+- Command palette and leader-key system for quick actions (new note, toggle encryption, export, fuzzy-open, fuzzy search).
+- Fuzzy file open and global fuzzy search across note contents and YAML metadata.
+- Per-file AES-256-GCM encryption/password protection (salt/nonce/auth tag stored with file); key derived from passphrase (Argon2/PBKDF2) with zero-knowledge intent.
+- Export single or grouped notes to Markdown, HTML, and PDF (grouped PDF export supported); bundle export to ZIP with optional encryption.
+- Lightweight settings (editor font, tab size, default notes dir, keymap customizations), session restore, and simple preferences UI.
 
 ## Tech Stack
 
 - Tauri (Rust backend + WebView frontend) for cross-platform native desktop app.
-- Frontend: Svelte (recommended for small footprint) or React/Vue as alternatives.
+- Frontend: React + vite + typescript
 - Editor component: CodeMirror or Monaco configured for modal keymap; optional headless Neovim integration for full fidelity.
 - Storage: filesystem (user-selected notes directory), optional SQLite or JSON index for metadata and fast search.
 - Crypto: Rust crates (aes-gcm, rand) for AES-256-GCM; key derivation with Argon2 or PBKDF2 for passphrases.
@@ -48,18 +48,10 @@ A compact, resume-worthy desktop note-taking app with Neovim-like modal keybindi
 - Bulk export: select folder or tag and export to ZIP; optional encrypt ZIP with password.
 - Interop: keep plain-text notes compatible with other editors; expose import/export for common formats.
 
-## Resume/Impact Bullets
-
-- Built a cross-platform desktop app using Tauri (Rust + Svelte), focusing on performance and small bundle size.
-- Implemented modal editing with Neovim-like keybindings and a command palette for power users.
-- Designed and implemented per-file AES-256-GCM encryption and secure key derivation (Argon2/PBKDF2).
-- Engineered filesystem-backed local-first storage and metadata indexing for fast search and reliability.
-- Added Markdown/HTML/PDF export and CI packaging for macOS/Windows/Linux.
-
 ## Implementation Plan (Milestones)
 
 1. Project scaffold
-   - Initialize Tauri project and frontend scaffold (Svelte recommended).
+   - Initialize Tauri project and frontend scaffold (React + Vite + TypeScript).
    - Set up project structure, linting, and CI metadata.
 
 2. File I/O & Note Model
