@@ -1,73 +1,54 @@
-# React + TypeScript + Rust
+# Cinder Notes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the Cinder Notes project.
 
-Currently, two official plugins are available:
+## Project Status: Scaffolding
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+We are currently in the **scaffolding stage** of development. The core infrastructure and design patterns are being established to support the application's growth.
 
-## React Compiler
+## Roadmap & Next Steps
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Our immediate development focus is on the filesystem integration:
 
-## Expanding the ESLint configuration
+### 1. File Tree Implementation
+We are implementing the file explorer and tree structure. Use Tauri's `fs` (FileSystem) APIs to read directories, manage files, and populate the file tree.
+- **Goal**: Create a fully functional file browser within the app.
+- **Tech**: Tauri FS / Node.js.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 2. Feature Additions
+Once the file system foundation is in place, we will proceed with adding core note-taking features, rich text editing, and other planned functionality.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 3. UI/UX Improvements
+We will continue to refine the user interface and experience, ensuring it is intuitive and user-friendly.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 4. Encryption
+We will implement encryption for sensitive data to ensure user privacy and security.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 5. To be decided
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Timeline
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### v0.1 Alpha
+Expected v0.1 release date: Feb 2026
+
+### v1.0
+Expected v1 release date: Q2 2026
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+## Contributing
+
+Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to the project.
+
+
+## Authors
+
+- **7sg56** - [GitHub](https://github.com/7sg56)
+
+*This document will be updated as the project evolves.*
