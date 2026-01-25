@@ -7,12 +7,14 @@ interface AppState {
     activeFileId: string | null;
     openFiles: string[]; // List of file IDs that are open as tabs
     activeFileContent: string;
+    isExplorerCollapsed: boolean;
 
     // Actions
     selectFile: (fileId: string) => void;
     closeFile: (fileId: string) => void;
     updateFileContent: (fileId: string, content: string) => void;
     findFile: (id: string, nodes?: FileNode[]) => FileNode | null;
+    toggleExplorerCollapsed: () => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -20,6 +22,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     activeFileId: null,
     openFiles: [],
     activeFileContent: '',
+    isExplorerCollapsed: false,
 
     findFile: (id: string, nodes = get().files): FileNode | null => {
         for (const node of nodes) {
@@ -70,5 +73,11 @@ export const useAppStore = create<AppState>((set, get) => ({
             }
             return {};
         });
+    },
+
+    toggleExplorerCollapsed: () => {
+        set((state) => ({
+            isExplorerCollapsed: !state.isExplorerCollapsed
+        }));
     },
 }));

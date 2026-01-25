@@ -1,21 +1,45 @@
 import { Settings, HelpCircle, Archive } from 'lucide-react';
+import { ThemeSwitcher } from '../../ThemeSwitcher';
 
 export function ExplorerFooter() {
     return (
-        <div className="flex items-center justify-between bg-[#1e1f1c] border-t border-[#2d2e28] px-2 py-1.5">
+        <div 
+            className="flex items-center justify-between border-t px-2 py-1.5"
+            style={{
+                backgroundColor: 'var(--bg-primary)',
+                borderColor: 'var(--border-secondary)'
+            }}
+        >
             {/* Cinder Vault */}
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-[#2d2e28] px-2 py-1 rounded group transition-colors">
-                <Archive size={14} className="text-[#a6e22e] opacity-80 group-hover:opacity-100" />
-                <span className="text-[12px] text-[#cfcfc2] font-medium opacity-80 group-hover:opacity-100">Cinder Vault</span>
+            <div 
+                className="flex items-center gap-2 cursor-pointer px-2 py-1 rounded group transition-colors"
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+                <Archive size={14} className="opacity-80 group-hover:opacity-100" style={{ color: '#a6e22e' }} />
+                <span className="text-[12px] font-medium opacity-80 group-hover:opacity-100" style={{ color: 'var(--text-primary)' }}>Cinder Vault</span>
             </div>
 
-            {/* Settings & Help */}
+            {/* Settings, Theme & Help */}
             <div className="flex items-center gap-0.5">
-                <div className="p-1.5 cursor-pointer hover:bg-[#3e3d32] rounded group transition-colors" title="Settings">
-                    <Settings size={14} className="text-[#cfcfc2] opacity-60 group-hover:opacity-100" />
+                <ThemeSwitcher />
+                <div 
+                    className="p-1.5 cursor-pointer rounded group transition-colors" 
+                    style={{ color: 'var(--text-primary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    title="Settings"
+                >
+                    <Settings size={14} className="opacity-60 group-hover:opacity-100" />
                 </div>
-                <div className="p-1.5 cursor-pointer hover:bg-[#3e3d32] rounded group transition-colors" title="Help">
-                    <HelpCircle size={14} className="text-[#cfcfc2] opacity-60 group-hover:opacity-100" />
+                <div 
+                    className="p-1.5 cursor-pointer rounded group transition-colors" 
+                    style={{ color: 'var(--text-primary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    title="Help"
+                >
+                    <HelpCircle size={14} className="opacity-60 group-hover:opacity-100" />
                 </div>
             </div>
         </div>
