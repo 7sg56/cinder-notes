@@ -1,80 +1,67 @@
 # Contributing to Cinder Notes
 
-First off, thanks for taking the time to contribute!
+Thank you for your interest in contributing to Cinder Notes! We welcome contributions from everyone.
 
-The following is a set of guidelines for contributing to Cinder Notes. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+## Before you start
+- **Star the repo** ⭐: It's optional but really appreciated!
+- **Check existing issues**: Before opening a new one, please check if it has already been reported or discussed.
 
 ## Development Setup
 
-To get started with contributing, you'll need to set up your development environment.
+### 1. Install Prerequisites
 
-### Prerequisites
+#### Node.js
+You need Node.js (LTS version recommended) to manage frontend dependencies.
+- [Download Node.js](https://nodejs.org/)
 
-- **Node.js**: Ensure you have Node.js installed (LTS version recommended).
-- **Rust & Cargo**: Required for Tauri. Follow the [official Tauri prerequisites guide](https://tauri.app/v1/guides/getting-started/prerequisites) to install Rust and other system dependencies.
-
-### Installation
-
-1. **Clone the repository**:
+#### Rust & Cargo
+Since this is a Tauri app, you need the Rust toolchain installed.
+1. **Install via Rustup**:
+   Run the following in your terminal (macOS/Linux):
    ```bash
-   git clone https://github.com/7sg56/cinder-notes.git
-   cd cinder-notes
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+   *For Windows, download the executable from [rustup.rs](https://rustup.rs).*
+
+2. **Verify Installation**:
+   Restart your terminal and run:
+   ```bash
+   rustc --version
+   cargo --version
    ```
 
-2. **Install dependencies**:
+> **Linux Users**: You'll likely need system webkit dependencies. Please run:
+> `sudo apt-get install libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev`
+> *(See [Tauri Linux Guide](https://tauri.app/v1/guides/getting-started/prerequisites#linux) for other distros)*
+
+### 2. Project Setup
    ```bash
+   # Clone the repository
+   git clone https://github.com/7sg56/cinder-notes.git
+   cd cinder-notes
+
+   # Install dependencies
    npm install
    ```
 
-3. **Run the development server**:
+3. **Running**:
    ```bash
+   # Start the app in development mode
    npm run tauri:dev
    ```
-   This will start the frontend dev server and the Tauri application window.
 
-4. **Build for production**:
-   To ensure the application builds correctly before submitting a PR:
-   ```bash
-   npm run tauri:build
-   ```
+## How to contribute
+1. **Fork the repo** to your GitHub account.
+2. **Create a new branch** for your feature or fix.
+   - Use the format: `feat/your-feature-name` or `fix/bug-name`
+3. **Make your changes** in the codebase.
+4. **Open a Pull Request** (PR) to the `main` branch.
 
-## How Can I Contribute?
+## Code rules
+- **Keep code readable**: Write clean, self-documenting code.
+- **Follow existing style**: Consistency is key.
+- **Comment complex logic**: If it's hard to write, it's hard to read. Explain the *why*, not just the *how*.
 
-### Reporting Bugs
-
-This section guides you through submitting a bug report for Cinder Notes. Following these guidelines helps maintainers and the community understand your report, reproduce the behavior, and find related reports.
-
-- **Use a clear and descriptive title** for the issue to identify the problem.
-- **Describe the exact steps which reproduce the problem** in as many details as possible.
-- **Provide specific examples** to demonstrate the steps.
-
-### Suggesting Enhancements
-
-This section guides you through submitting an enhancement suggestion for Cinder Notes, including completely new features and minor improvements to existing functionality.
-
-- **Use a clear and descriptive title** for the issue to identify the suggestion.
-- **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
-- **Explain why this enhancement would be useful** to most Cinder Notes users.
-
-### Pull Requests
-
-1. Fork the repo and create your branch from `main`.
-2. If you've added code that should be tested, add tests.
-3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes.
-5. Make sure your code lints.
-6. Issue that pull request!
-
-## Styleguides
-
-### Git Commit Messages
-
-- Use the present tense ("Add feature" not "Added feature")
-- Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
-- Limit the first line to 72 characters or less
-- Reference issues and pull requests liberally after the first line
-
-### Coding Standards
-
-- Follow the existing code style (Prettier/ESLint configurations are provided).
-- Write clean, maintainable, and self-documenting code.
+## What NOT to do
+- ❌ **No unrelated refactors**: keep your PR focused on the specific feature or fix.
+- ❌ **No breaking changes** without prior discussion in an issue.

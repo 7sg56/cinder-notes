@@ -1,0 +1,69 @@
+name: Bug Report
+description: File a bug report to help us improve Cinder Notes
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: I clicked the X button and the app froze.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: The window should close.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Video
+      description: If applicable, add screenshots to help explain your problem.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which OS are you running?
+      options:
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App Version
+      description: What version of Cinder Notes are you using?
+      placeholder: v0.1.0
+    validations:
+      required: false
