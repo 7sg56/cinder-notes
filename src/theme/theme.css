@@ -433,3 +433,313 @@
   --filetree-bg-hover: #2e3147;
   --filetree-icon: #565f89;
 }
+
+/* ============================================
+   LIGHT THEME
+   ============================================ */
+:root.theme-light {
+  /* General Background Colors */
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #ebebeb;
+  --bg-hover: #e8e8e8;
+  --bg-active: #e0e0e0;
+
+  /* Text Colors */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --text-white: #000000;
+  --text-light-gray: #cccccc;
+
+  /* Border Colors */
+  --border-primary: #d0d0d0;
+  --border-secondary: #e0e0e0;
+  --border-hover: #0066ff;
+
+  /* Markdown/Editor Colors */
+  --markdown-heading: #0066ff;
+  --markdown-link: #0066ff;
+  --markdown-code: #d73a49;
+  --markdown-code-bg: #f6f8fa;
+  --markdown-strong: #d73a49;
+  --markdown-list: #0066ff;
+
+  /* Button & Interactive Colors */
+  --button-bg-hover: #e0e0e0;
+  --button-text-default: #666666;
+  --button-text-hover: #000000;
+
+  /* ActivityBar Colors */
+  --activity-bar-bg: #ffffff;
+  --activity-bar-border: #d0d0d0;
+  
+  /* ActivityBar Item Colors */
+  --activity-item-text-default: #666666;
+  --activity-item-text-hover: #000000;
+  --activity-item-text-active: #000000;
+  --activity-item-bg-active: transparent;
+  --activity-item-border-active: #0066ff;
+
+  /* Editor Colors */
+  --editor-bg: #ffffff;
+  --editor-text: #333333;
+  --editor-button-bg: rgba(0, 0, 0, 0.05);
+  --editor-button-hover-bg: rgba(0, 0, 0, 0.1);
+  --editor-selection-bg: #add6ff;
+
+  /* File Tree Colors */
+  --filetree-text: #333333;
+  --filetree-text-active: #000000;
+  --filetree-bg-active: #e0e0e0;
+  --filetree-bg-hover: #f0f0f0;
+  --filetree-icon: #666666;
+}
+
+/* ============================================
+   GITHUB LIGHT THEME
+   ============================================ */
+:root.theme-github-light {
+  /* General Background Colors */
+  --bg-primary: #f6f8fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eaeef2;
+  --bg-hover: #f0f2f5;
+  --bg-active: #eaeef2;
+
+  /* Text Colors */
+  --text-primary: #24292f;
+  --text-secondary: #57606a;
+  --text-tertiary: #8c959f;
+  --text-white: #000000;
+  --text-light-gray: #d0d7de;
+
+  /* Border Colors */
+  --border-primary: #d0d7de;
+  --border-secondary: #eaeef2;
+  --border-hover: #0969da;
+
+  /* Markdown/Editor Colors */
+  --markdown-heading: #0969da;
+  --markdown-link: #0969da;
+  --markdown-code: #cf222e;
+  --markdown-code-bg: #f6f8fa;
+  --markdown-strong: #cf222e;
+  --markdown-list: #0969da;
+
+  /* Button & Interactive Colors */
+  --button-bg-hover: #eaeef2;
+  --button-text-default: #57606a;
+  --button-text-hover: #24292f;
+
+  /* ActivityBar Colors */
+  --activity-bar-bg: #ffffff;
+  --activity-bar-border: #d0d7de;
+  
+  /* ActivityBar Item Colors */
+  --activity-item-text-default: #57606a;
+  --activity-item-text-hover: #24292f;
+  --activity-item-text-active: #24292f;
+  --activity-item-bg-active: transparent;
+  --activity-item-border-active: #0969da;
+
+  /* Editor Colors */
+  --editor-bg: #ffffff;
+  --editor-text: #24292f;
+  --editor-button-bg: rgba(9, 105, 218, 0.05);
+  --editor-button-hover-bg: rgba(9, 105, 218, 0.1);
+  --editor-selection-bg: #cce5ff;
+
+  /* File Tree Colors */
+  --filetree-text: #24292f;
+  --filetree-text-active: #000000;
+  --filetree-bg-active: #eaeef2;
+  --filetree-bg-hover: #f0f2f5;
+  --filetree-icon: #57606a;
+}
+
+/* ============================================
+   SOLARIZED LIGHT THEME
+   ============================================ */
+:root.theme-solarized-light {
+  /* General Background Colors */
+  --bg-primary: #fdf6e3;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eee8d5;
+  --bg-hover: #eee8d5;
+  --bg-active: #eee8d5;
+
+  /* Text Colors */
+  --text-primary: #657b83;
+  --text-secondary: #839496;
+  --text-tertiary: #93a1a1;
+  --text-white: #002b36;
+  --text-light-gray: #d6d0c8;
+
+  /* Border Colors */
+  --border-primary: #eee8d5;
+  --border-secondary: #eee8d5;
+  --border-hover: #268bd2;
+
+  /* Markdown/Editor Colors */
+  --markdown-heading: #268bd2;
+  --markdown-link: #268bd2;
+  --markdown-code: #2aa198;
+  --markdown-code-bg: #eee8d5;
+  --markdown-strong: #cb4b16;
+  --markdown-list: #268bd2;
+
+  /* Button & Interactive Colors */
+  --button-bg-hover: #eee8d5;
+  --button-text-default: #839496;
+  --button-text-hover: #657b83;
+
+  /* ActivityBar Colors */
+  --activity-bar-bg: #ffffff;
+  --activity-bar-border: #eee8d5;
+  
+  /* ActivityBar Item Colors */
+  --activity-item-text-default: #839496;
+  --activity-item-text-hover: #657b83;
+  --activity-item-text-active: #657b83;
+  --activity-item-bg-active: transparent;
+  --activity-item-border-active: #268bd2;
+
+  /* Editor Colors */
+  --editor-bg: #ffffff;
+  --editor-text: #657b83;
+  --editor-button-bg: rgba(38, 139, 210, 0.05);
+  --editor-button-hover-bg: rgba(38, 139, 210, 0.1);
+  --editor-selection-bg: #eee8d5;
+
+  /* File Tree Colors */
+  --filetree-text: #657b83;
+  --filetree-text-active: #002b36;
+  --filetree-bg-active: #eee8d5;
+  --filetree-bg-hover: #f5f0e8;
+  --filetree-icon: #839496;
+}
+
+/* ============================================
+   ONE LIGHT THEME
+   ============================================ */
+:root.theme-one-light {
+  /* General Background Colors */
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f0f0f1;
+  --bg-hover: #f5f5f6;
+  --bg-active: #e8e8e9;
+
+  /* Text Colors */
+  --text-primary: #383a42;
+  --text-secondary: #a0a1a7;
+  --text-tertiary: #9ca0a4;
+  --text-white: #000000;
+  --text-light-gray: #e1e1e6;
+
+  /* Border Colors */
+  --border-primary: #e1e1e6;
+  --border-secondary: #e8e8e9;
+  --border-hover: #4078f2;
+
+  /* Markdown/Editor Colors */
+  --markdown-heading: #4078f2;
+  --markdown-link: #4078f2;
+  --markdown-code: #e45649;
+  --markdown-code-bg: #f0f0f1;
+  --markdown-strong: #c18401;
+  --markdown-list: #4078f2;
+
+  /* Button & Interactive Colors */
+  --button-bg-hover: #e8e8e9;
+  --button-text-default: #a0a1a7;
+  --button-text-hover: #383a42;
+
+  /* ActivityBar Colors */
+  --activity-bar-bg: #ffffff;
+  --activity-bar-border: #e1e1e6;
+  
+  /* ActivityBar Item Colors */
+  --activity-item-text-default: #a0a1a7;
+  --activity-item-text-hover: #383a42;
+  --activity-item-text-active: #383a42;
+  --activity-item-bg-active: transparent;
+  --activity-item-border-active: #4078f2;
+
+  /* Editor Colors */
+  --editor-bg: #ffffff;
+  --editor-text: #383a42;
+  --editor-button-bg: rgba(64, 120, 242, 0.05);
+  --editor-button-hover-bg: rgba(64, 120, 242, 0.1);
+  --editor-selection-bg: #e0e4f7;
+
+  /* File Tree Colors */
+  --filetree-text: #383a42;
+  --filetree-text-active: #000000;
+  --filetree-bg-active: #e8e8e9;
+  --filetree-bg-hover: #f5f5f6;
+  --filetree-icon: #a0a1a7;
+}
+
+/* ============================================
+   MATERIAL DARK THEME
+   ============================================ */
+:root.theme-material-dark {
+  /* General Background Colors */
+  --bg-primary: #263238;
+  --bg-secondary: #37474f;
+  --bg-tertiary: #455a64;
+  --bg-hover: #455a64;
+  --bg-active: #455a64;
+
+  /* Text Colors */
+  --text-primary: #eeffff;
+  --text-secondary: #b0bec5;
+  --text-tertiary: #90a4ae;
+  --text-white: #ffffff;
+  --text-light-gray: #546e7a;
+
+  /* Border Colors */
+  --border-primary: #37474f;
+  --border-secondary: #455a64;
+  --border-hover: #64b5f6;
+
+  /* Markdown/Editor Colors */
+  --markdown-heading: #64b5f6;
+  --markdown-link: #64b5f6;
+  --markdown-code: #f78c6b;
+  --markdown-code-bg: #1e272c;
+  --markdown-strong: #f78c6b;
+  --markdown-list: #64b5f6;
+
+  /* Button & Interactive Colors */
+  --button-bg-hover: #455a64;
+  --button-text-default: #b0bec5;
+  --button-text-hover: #eeffff;
+
+  /* ActivityBar Colors */
+  --activity-bar-bg: #37474f;
+  --activity-bar-border: #263238;
+  
+  /* ActivityBar Item Colors */
+  --activity-item-text-default: #b0bec5;
+  --activity-item-text-hover: #eeffff;
+  --activity-item-text-active: #eeffff;
+  --activity-item-bg-active: transparent;
+  --activity-item-border-active: #64b5f6;
+
+  /* Editor Colors */
+  --editor-bg: #263238;
+  --editor-text: #eeffff;
+  --editor-button-bg: rgba(100, 181, 246, 0.15);
+  --editor-button-hover-bg: rgba(100, 181, 246, 0.25);
+  --editor-selection-bg: #546e7a;
+
+  /* File Tree Colors */
+  --filetree-text: #eeffff;
+  --filetree-text-active: #ffffff;
+  --filetree-bg-active: #455a64;
+  --filetree-bg-hover: #37474f;
+  --filetree-icon: #b0bec5;
+}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Palette, ChevronUp } from 'lucide-react';
 
 const THEMES = [
+  // Dark Themes
   { name: 'Monokai', value: '' },
   { name: 'Dracula', value: 'theme-dracula' },
   { name: 'Nord', value: 'theme-nord' },
@@ -9,6 +10,12 @@ const THEMES = [
   { name: 'One Dark', value: 'theme-one-dark' },
   { name: 'Gruvbox Dark', value: 'theme-gruvbox-dark' },
   { name: 'Tokyo Night', value: 'theme-tokyo-night' },
+  { name: 'Material Dark', value: 'theme-material-dark' },
+  // Light Themes
+  { name: 'Light', value: 'theme-light' },
+  { name: 'GitHub Light', value: 'theme-github-light' },
+  { name: 'Solarized Light', value: 'theme-solarized-light' },
+  { name: 'One Light', value: 'theme-one-light' },
 ];
 
 export function ThemeSwitcher() {
