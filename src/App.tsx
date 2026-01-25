@@ -1,13 +1,13 @@
 import './App.css'
 import { MainLayout } from './components/layout/MainLayout'
 import { FileExplorer } from './components/layout/explorer/FileExplorer'
-import { Editor } from './components/layout/editor/Editor'
+import { EditorPane } from './components/layout/editor/EditorPane'
 
 function App() {
   return (
     <MainLayout
       sidebarContent={<FileExplorer />}
-      editorContent={<Editor />}
+      editorContent={<EditorPane />}
     />
   )
 }

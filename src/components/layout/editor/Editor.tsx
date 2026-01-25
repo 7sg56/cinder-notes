@@ -2,53 +2,18 @@ import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Eye, Edit2, X } from 'lucide-react';
-
-function EditorTabs() {
-    const { openFiles, activeFileId, selectFile, closeFile, findFile } = useAppStore();
-
-    if (openFiles.length === 0) return null;
-
-    return (
-        <div className="flex bg-[#1e1f1c] border-b border-[#171717]/50 overflow-x-auto no-scrollbar">
-            {openFiles.map(fileId => {
-                const file = findFile(fileId);
-                const isActive = activeFileId === fileId;
-                if (!file) return null;
-
-                return (
-                    <div
-                        key={fileId}
-                        onClick={() => selectFile(fileId)}
-                        className={`
-                            group flex items-center min-w-[120px] max-w-[200px] h-[35px] px-3 border-r border-[#171717]/50 cursor-pointer text-[13px] select-none
-                            ${isActive ? 'bg-[#272822] text-[#f8f8f2]' : 'bg-[#1e1f1c] text-[#75715e] hover:bg-[#272822]/50'}
-                        `}
-                    >
-                        <span className="truncate flex-1 mr-2">{file.name}</span>
-                        <span
-                            onClick={(e) => { e.stopPropagation(); closeFile(fileId); }}
-                            className={`opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-[#3e3d32] ${isActive ? 'text-[#f8f8f2]' : ''}`}
-                        >
-                            <X size={12} />
-                        </span>
-                    </div>
-                )
-            })}
-        </div>
-    )
-}
+import { Eye, Edit2 } from 'lucide-react';
 
 export function Editor() {
     const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
     const [isPreview, setIsPreview] = useState(false);
 
-    // If no active file, just show tabs (if any) or empty state in main area
-    // But we should always render the tabs container if we want VS Code style persistence
+    // If no active file, just show empty state in main area
+    // Tabs are now handled by EditorPane
 
     return (
         <div className="h-full flex flex-col bg-[#272822] relative group">
-            <EditorTabs />
+
 
             {!activeFileId ? (
                 <div className="flex-1 flex items-center justify-center bg-[#272822] text-[#75715e]">

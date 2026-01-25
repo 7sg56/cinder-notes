@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Panel, Group, Separator } from 'react-resizable-panels';
 import { ActivityBar } from './ActivityBar';
-import { StatusBar } from './StatusBar';
 import { TitleBar } from './TitleBar';
 
 interface MainLayoutProps {
@@ -42,8 +41,6 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                 <ActivityBar />
 
             </div>
-
-            <StatusBar />
 
         </div>
     );
