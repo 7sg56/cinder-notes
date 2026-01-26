@@ -1,4 +1,4 @@
-import { Settings, HelpCircle, Archive } from 'lucide-react';
+import { Settings, Archive } from 'lucide-react';
 import { ThemeSwitcher } from '../../ThemeSwitcher';
 
 
