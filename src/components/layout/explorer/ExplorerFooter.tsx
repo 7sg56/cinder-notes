@@ -1,5 +1,4 @@
 import { Settings, HelpCircle, Archive } from 'lucide-react';
-import { ThemeSwitcher } from '../../ThemeSwitcher';
 
 export function ExplorerFooter() {
     return (
@@ -22,7 +21,6 @@ export function ExplorerFooter() {
 
             {/* Settings, Theme & Help */}
             <div className="flex items-center gap-0.5">
-                <ThemeSwitcher />
                 <div 
                     className="p-1.5 cursor-pointer rounded group transition-colors" 
                     style={{ color: 'var(--text-primary)' }}

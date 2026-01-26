@@ -1,12 +1,18 @@
-import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Eye, Edit2, ChevronLeft, FileText, Save, Sparkles } from 'lucide-react';
+import { Eye, ChevronLeft, FileText, Save, Sparkles } from 'lucide-react';
 
-export function Editor() {
+interface EditorProps {
+    isPreview: boolean;
+    onPreviewChange?: (isPreview: boolean) => void;
+}
+
+export function Editor({ isPreview }: EditorProps) {
     const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
-    const [isPreview, setIsPreview] = useState(false);
+
+    // Check if this is a blank tab
+    const isBlankTab = activeFileId?.startsWith('new-tab-');
 
     // If no active file, just show empty state in main area
     // Tabs are now handled by EditorPane
@@ -18,7 +24,7 @@ export function Editor() {
         >
 
 
-            {!activeFileId ? (
+            {!activeFileId || isBlankTab ? (
                 <div 
                     className="flex-1 flex items-center justify-center"
                     style={{
@@ -53,21 +59,6 @@ export function Editor() {
                 </div>
             ) : (
                 <div className="flex-1 relative flex flex-col min-h-0">
-                    {/* Toolbar/Toggle */}
-                    <button
-                        onClick={() => setIsPreview(!isPreview)}
-                        className="absolute top-4 right-4 z-10 p-2 rounded transition-opacity opacity-0 group-hover:opacity-100"
-                        style={{
-                            backgroundColor: 'var(--editor-button-bg)',
-                            color: 'var(--editor-text)'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--editor-button-hover-bg)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--editor-button-bg)'}
-                        title={isPreview ? "Edit" : "Preview"}
-                    >
-                        {isPreview ? <Edit2 size={16} /> : <Eye size={16} />}
-                    </button>
-
                     {isPreview ? (
                         <div className="flex-1 w-full h-full p-8 overflow-y-auto prose prose-invert prose-stone max-w-none" style={{ color: 'var(--editor-text)' }}>
                             <style>{`

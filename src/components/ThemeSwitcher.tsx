@@ -40,7 +40,7 @@ export function ThemeSwitcher() {
     setIsOpen(false);
   };
 
-  const currentThemeName = THEMES.find(t => t.value === currentTheme)?.name || 'Monokai';
+  // const currentThemeName = THEMES.find(t => t.value === currentTheme)?.name || 'Monokai';
 
   return (
     <div className="relative">

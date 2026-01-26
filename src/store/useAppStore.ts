@@ -8,6 +8,7 @@ interface AppState {
     openFiles: string[]; // List of file IDs that are open as tabs
     activeFileContent: string;
     isExplorerCollapsed: boolean;
+    newTabCounter: number; // Counter for generating unique blank tab IDs
 
     // Actions
     selectFile: (fileId: string) => void;
@@ -15,6 +16,7 @@ interface AppState {
     updateFileContent: (fileId: string, content: string) => void;
     findFile: (id: string, nodes?: FileNode[]) => FileNode | null;
     toggleExplorerCollapsed: () => void;
+    createNewTab: () => void; // Create a new blank tab
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -23,6 +25,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     openFiles: [],
     activeFileContent: '',
     isExplorerCollapsed: false,
+    newTabCounter: 0,
 
     findFile: (id: string, nodes = get().files): FileNode | null => {
         for (const node of nodes) {
@@ -36,6 +39,15 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
 
     selectFile: (fileId: string) => {
+        // Handle blank tabs
+        if (fileId.startsWith('new-tab-')) {
+            set({
+                activeFileId: fileId,
+                activeFileContent: ''
+            });
+            return;
+        }
+
         const file = get().findFile(fileId);
         if (file && file.type === 'file') {
             const { openFiles } = get();
@@ -79,5 +91,17 @@ export const useAppStore = create<AppState>((set, get) => ({
         set((state) => ({
             isExplorerCollapsed: !state.isExplorerCollapsed
         }));
+    },
+
+    createNewTab: () => {
+        const { openFiles, newTabCounter } = get();
+        const newTabId = `new-tab-${newTabCounter}`;
+        
+        set({
+            activeFileId: newTabId,
+            openFiles: [...openFiles, newTabId],
+            activeFileContent: '',
+            newTabCounter: newTabCounter + 1
+        });
     },
 }));
