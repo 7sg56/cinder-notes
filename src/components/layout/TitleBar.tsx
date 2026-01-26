@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { ThemeSwitcher } from '../ThemeSwitcher';
 
 export function TitleBar() {
@@ -18,7 +19,7 @@ export function TitleBar() {
                 Cinder Notes
             </span>
 
-            <div className="flex items-center justify-end w-8" style={{ WebkitAppRegion: 'no-drag' } as any}>
+            <div className="flex items-center justify-end w-8" style={{ WebkitAppRegion: 'no-drag' } as CSSProperties & { WebkitAppRegion?: string }}>
                 <ThemeSwitcher />
             </div>
         </div>
