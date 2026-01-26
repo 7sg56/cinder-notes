@@ -7,7 +7,24 @@ interface ActivityBarItemProps {
 
 export function ActivityBarItem({ icon: Icon, active = false }: ActivityBarItemProps) {
     return (
-        <div className={`p-3 cursor-pointer hover:text-white transition-colors ${active ? 'text-white border-l-2 border-[#f92672]' : 'text-[#8f908a]'}`}>
+        <div 
+            className={`p-3 cursor-pointer transition-colors ${active ? 'border-l-2' : ''}`}
+            style={{
+                color: active ? 'var(--activity-item-text-active)' : 'var(--activity-item-text-default)',
+                backgroundColor: active ? 'var(--activity-item-bg-active)' : 'transparent',
+                borderLeft: active ? `2px solid var(--activity-item-border-active)` : 'none',
+            }}
+            onMouseEnter={(e) => {
+                if (!active) {
+                    e.currentTarget.style.color = 'var(--activity-item-text-hover)';
+                }
+            }}
+            onMouseLeave={(e) => {
+                if (!active) {
+                    e.currentTarget.style.color = 'var(--activity-item-text-default)';
+                }
+            }}
+        >
             <Icon size={24} strokeWidth={1.5} />
         </div>
     );

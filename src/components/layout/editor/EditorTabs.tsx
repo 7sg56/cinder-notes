@@ -1,38 +1,76 @@
-
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
 
 export function EditorTabs() {
-    const { openFiles, activeFileId, selectFile, closeFile, findFile } = useAppStore();
-
-    if (openFiles.length === 0) return null;
+    const { openFiles, activeFileId, selectFile, closeFile, findFile, createNewTab } = useAppStore();
 
     return (
-        <div className="flex bg-[#1e1f1c] border-b border-[#171717]/50 overflow-x-auto no-scrollbar shrink-0">
+        <div 
+            className="flex overflow-x-auto no-scrollbar shrink-0 border-b"
+            style={{
+                backgroundColor: 'var(--bg-primary)',
+                borderColor: 'var(--border-primary)',
+                minHeight: '35px'
+            }}
+        >
             {openFiles.map(fileId => {
                 const file = findFile(fileId);
                 const isActive = activeFileId === fileId;
-                if (!file) return null;
+                
+                // Check if this is a blank tab (new-tab-X format)
+                const isBlankTab = fileId.startsWith('new-tab-');
+                const tabName = isBlankTab ? 'New Tab' : file?.name;
 
                 return (
                     <div
                         key={fileId}
                         onClick={() => selectFile(fileId)}
-                        className={`
-                            group flex items-center min-w-[120px] max-w-[200px] h-[35px] px-3 border-r border-[#171717]/50 cursor-pointer text-[13px] select-none
-                            ${isActive ? 'bg-[#272822] text-[#f8f8f2]' : 'bg-[#1e1f1c] text-[#75715e] hover:bg-[#272822]/50'}
-                        `}
+                        className={`group flex items-center min-w-[120px] max-w-[200px] h-[35px] px-3 border-r cursor-pointer text-[13px] select-none transition-colors`}
+                        style={{
+                            borderColor: 'var(--border-primary)',
+                            backgroundColor: isActive ? 'var(--bg-secondary)' : 'transparent',
+                            color: isActive ? 'var(--text-white)' : 'var(--text-tertiary)',
+                            fontStyle: isBlankTab && !isActive ? 'italic' : 'normal',
+                            opacity: isBlankTab && !isActive ? 0.8 : 1
+                        }}
+                        onMouseEnter={(e) => {
+                            if (!isActive) {
+                                e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!isActive) {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                            }
+                        }}
                     >
-                        <span className="truncate flex-1 mr-2">{file.name}</span>
+                        <span className="truncate flex-1 mr-2">{tabName}</span>
                         <span
                             onClick={(e) => { e.stopPropagation(); closeFile(fileId); }}
-                            className={`opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-[#3e3d32] ${isActive ? 'text-[#f8f8f2]' : ''}`}
+                            className={`opacity-0 group-hover:opacity-100 p-0.5 rounded transition-colors`}
+                            style={{
+                                color: isActive ? 'var(--text-white)' : 'var(--text-tertiary)'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
                             <X size={12} />
                         </span>
                     </div>
                 )
             })}
+            <button
+                onClick={createNewTab}
+                className="flex items-center justify-center h-[35px] px-3 transition-colors"
+                style={{
+                    color: 'var(--text-tertiary)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-tertiary)'}
+                title="New Tab"
+            >
+                <Plus size={16} />
+            </button>
         </div>
     )
 }

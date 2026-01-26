@@ -3,7 +3,14 @@ import { EditorStatusBarItem } from './EditorStatusBarItem';
 
 export function EditorStatusBar() {
     return (
-        <div className="h-[22px] bg-[#1e1f1c] border-t border-[#171717] text-[#75715e] flex items-center justify-between px-2 select-none z-10 text-[11px] font-medium tracking-wide">
+        <div 
+            className="h-[22px] border-t text-[11px] font-medium tracking-wide flex items-center justify-between px-2 select-none z-10"
+            style={{
+                backgroundColor: 'var(--bg-primary)',
+                borderColor: 'var(--border-primary)',
+                color: 'var(--text-tertiary)'
+            }}
+        >
             <div className="flex items-center h-full">
                 <EditorStatusBarItem>
                     <GitBranch size={10} className="mr-1" />

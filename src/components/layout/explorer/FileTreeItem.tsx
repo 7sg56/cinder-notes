@@ -28,17 +28,29 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         <div>
             <div
                 onClick={handleClick}
-                style={{ paddingLeft }}
-                className={`
-          group flex items-center py-1 cursor-pointer text-[13px] select-none
-          ${isActive ? 'bg-[#3e3d32] text-white' : 'text-[#cfcfc2] hover:bg-[#2b2b2b]'}
-        `}
+                style={{ 
+                    paddingLeft,
+                    backgroundColor: isActive ? 'var(--filetree-bg-active)' : 'transparent',
+                    color: isActive ? 'var(--filetree-text-active)' : 'var(--filetree-text)'
+                }}
+                className={`group flex items-center py-1 cursor-pointer text-[13px] select-none transition-colors`}
+                onMouseEnter={(e) => {
+                    if (!isActive) {
+                        e.currentTarget.style.backgroundColor = 'var(--filetree-bg-hover)';
+                    }
+                }}
+                onMouseLeave={(e) => {
+                    if (!isActive) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                }}
             >
                 <span className="mr-1.5 opacity-80 group-hover:opacity-100 flex-shrink-0">
                     {node.type === 'folder' ? (
                         <ChevronRight
                             size={14}
-                            className={`transition-transform duration-200 ${isOpen ? 'rotate-90' : ''} text-[#8f908a]`}
+                            className={`transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
+                            style={{ color: 'var(--filetree-icon)' }}
                         />
                     ) : (
                         <span className="w-3.5 inline-block" />
@@ -47,9 +59,9 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
 
                 <span className="mr-1.5 opacity-70">
                     {node.type === 'folder' ? (
-                        isOpen ? <FolderOpen size={14} className="text-[#8f908a]" /> : <Folder size={14} className="text-[#8f908a]" />
+                        isOpen ? <FolderOpen size={14} style={{ color: 'var(--filetree-icon)' }} /> : <Folder size={14} style={{ color: 'var(--filetree-icon)' }} />
                     ) : (
-                        <FileText size={14} className="text-[#8f908a]" />
+                        <FileText size={14} style={{ color: 'var(--filetree-icon)' }} />
                     )}
                 </span>
 

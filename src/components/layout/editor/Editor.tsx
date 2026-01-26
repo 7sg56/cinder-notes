@@ -1,59 +1,97 @@
-import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Eye, Edit2 } from 'lucide-react';
+import { Eye, ChevronLeft, FileText, Save, Sparkles } from 'lucide-react';
 
-export function Editor() {
+interface EditorProps {
+    isPreview: boolean;
+    onPreviewChange?: (isPreview: boolean) => void;
+}
+
+export function Editor({ isPreview }: EditorProps) {
     const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
-    const [isPreview, setIsPreview] = useState(false);
+
+    // Check if this is a blank tab
+    const isBlankTab = activeFileId?.startsWith('new-tab-');
 
     // If no active file, just show empty state in main area
     // Tabs are now handled by EditorPane
 
     return (
-        <div className="h-full flex flex-col bg-[#272822] relative group">
+        <div 
+            className="h-full flex flex-col relative group"
+            style={{ backgroundColor: 'var(--editor-bg)' }}
+        >
 
 
-            {!activeFileId ? (
-                <div className="flex-1 flex items-center justify-center bg-[#272822] text-[#75715e]">
+            {!activeFileId || isBlankTab ? (
+                <div 
+                    className="flex-1 flex items-center justify-center"
+                    style={{
+                        backgroundColor: 'var(--editor-bg)',
+                        color: 'var(--text-tertiary)'
+                    }}
+                >
                     <div className="text-center">
-                        <p className="mb-2 text-lg font-medium opacity-50">No file selected</p>
+                        <div className="mb-6 flex justify-center">
+                            <Sparkles size={32} className="text-[#cfcfc2] opacity-70" />
+                        </div>
+                        <p className="mb-6 text-2xl font-semibold opacity-60">Cinder Notes</p>
+                        <div className="space-y-4 text-sm opacity-50 max-w-md">
+                            <div className="flex items-center gap-3 justify-center">
+                                <ChevronLeft size={18} className="text-[#cfcfc2]" />
+                                <p><span className="text-[#cfcfc2]">Select a file</span> from the explorer to start editing</p>
+                            </div>
+                            <div className="flex items-center gap-3 justify-center">
+                                <FileText size={18} className="text-[#cfcfc2]" />
+                                <p><span className="text-[#cfcfc2]">Create new notes</span> in Markdown format</p>
+                            </div>
+                            <div className="flex items-center gap-3 justify-center">
+                                <Eye size={18} className="text-[#cfcfc2]" />
+                                <p><span className="text-[#cfcfc2]">Toggle preview mode</span> to see rendered content</p>
+                            </div>
+                            <div className="flex items-center gap-3 justify-center">
+                                <Save size={18} className="text-[#cfcfc2]" />
+                                <p><span className="text-[#cfcfc2]">Auto-saves</span> as you type</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : (
                 <div className="flex-1 relative flex flex-col min-h-0">
-                    {/* Toolbar/Toggle */}
-                    <button
-                        onClick={() => setIsPreview(!isPreview)}
-                        className="absolute top-4 right-4 z-10 p-2 rounded bg-black/20 hover:bg-black/40 text-[#f8f8f2] transition-opacity opacity-0 group-hover:opacity-100"
-                        title={isPreview ? "Edit" : "Preview"}
-                    >
-                        {isPreview ? <Edit2 size={16} /> : <Eye size={16} />}
-                    </button>
-
                     {isPreview ? (
-                        <div className="flex-1 w-full h-full p-8 overflow-y-auto prose prose-invert prose-stone max-w-none text-[#f8f8f2]">
+                        <div className="flex-1 w-full h-full p-8 overflow-y-auto prose prose-invert prose-stone max-w-none" style={{ color: 'var(--editor-text)' }}>
                             <style>{`
-                        .prose h1, .prose h2, .prose h3, .prose h4 { color: #f92672; }
-                        .prose a { color: #66d9ef; }
-                        .prose code { color: #ae81ff; background: #23241f; padding: 2px 4px; border-radius: 4px; }
-                        .prose pre { background: #23241f; }
-                        .prose strong { color: #f92672; }
-                        .prose ul > li::marker { color: #66d9ef; }
+                        .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--markdown-heading); }
+                        .prose a { color: var(--markdown-link); }
+                        .prose code { color: var(--markdown-code); background: var(--markdown-code-bg); padding: 2px 4px; border-radius: 4px; }
+                        .prose pre { background: var(--markdown-code-bg); }
+                        .prose strong { color: var(--markdown-strong); }
+                        .prose ul > li::marker { color: var(--markdown-list); }
                     `}</style>
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {activeFileContent}
                             </ReactMarkdown>
                         </div>
                     ) : (
-                        <textarea
-                            className="flex-1 w-full h-full bg-[#272822] text-[#f8f8f2] p-8 outline-none resize-none font-mono text-[14px] leading-relaxed selection:bg-[#49483e]"
-                            value={activeFileContent}
-                            onChange={(e) => updateFileContent(activeFileId, e.target.value)}
-                            spellCheck={false}
-                            placeholder="Start writing..."
-                        />
+                        <>
+                            <style>{`
+                                textarea::selection {
+                                    background-color: var(--editor-selection-bg);
+                                }
+                            `}</style>
+                            <textarea
+                                className="flex-1 w-full h-full p-8 outline-none resize-none font-mono text-[14px] leading-relaxed"
+                                style={{
+                                    backgroundColor: 'var(--editor-bg)',
+                                    color: 'var(--editor-text)'
+                                }}
+                                value={activeFileContent}
+                                onChange={(e) => updateFileContent(activeFileId, e.target.value)}
+                                spellCheck={false}
+                                placeholder="Start writing..."
+                            />
+                        </>
                     )}
                 </div>
             )}
