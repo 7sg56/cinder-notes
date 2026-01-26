@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Palette, ChevronUp } from 'lucide-react';
 
 const THEMES = [
@@ -20,23 +20,30 @@ const THEMES = [
 
 export function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState('');
+  // Initialize from localStorage or default to empty string (default theme)
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    return localStorage.getItem('cinder-theme') || '';
+  });
 
-  const handleThemeChange = (themeValue: string) => {
-    setCurrentTheme(themeValue);
-    
-    // Remove all theme classes
+  // Apply theme on mount and when it changes
+  // We can do this in the render phase or effect, effect is safer for hydration but this is SPA.
+  // Let's use a useEffect to ensure body class is synced on mount.
+  useEffect(() => {
+    // Remove all known themes
     THEMES.forEach(theme => {
       if (theme.value) {
         document.documentElement.classList.remove(theme.value);
       }
     });
-    
-    // Add selected theme class
-    if (themeValue) {
-      document.documentElement.classList.add(themeValue);
+    // Add current theme
+    if (currentTheme) {
+      document.documentElement.classList.add(currentTheme);
     }
-    
+  }, [currentTheme]);
+
+  const handleThemeChange = (themeValue: string) => {
+    setCurrentTheme(themeValue);
+    localStorage.setItem('cinder-theme', themeValue);
     setIsOpen(false);
   };
 
@@ -58,7 +65,7 @@ export function ThemeSwitcher() {
 
       {isOpen && (
         <div
-          className="absolute bottom-full right-0 mb-1 rounded border shadow-lg z-50 min-w-[150px]"
+          className="absolute top-full right-0 mt-1 rounded border shadow-lg z-50 min-w-[150px]"
           style={{
             backgroundColor: 'var(--bg-secondary)',
             borderColor: 'var(--border-primary)',
@@ -69,9 +76,8 @@ export function ThemeSwitcher() {
             <button
               key={theme.value}
               onClick={() => handleThemeChange(theme.value)}
-              className={`w-full text-left px-3 py-1.5 text-[12px] transition-colors flex items-center justify-between ${
-                currentTheme === theme.value ? 'font-semibold' : ''
-              }`}
+              className={`w-full text-left px-3 py-1.5 text-[12px] transition-colors flex items-center justify-between ${currentTheme === theme.value ? 'font-semibold' : ''
+                }`}
               style={{
                 backgroundColor: currentTheme === theme.value ? 'var(--bg-tertiary)' : 'transparent',
                 color: currentTheme === theme.value ? 'var(--text-primary)' : 'var(--text-secondary)',
