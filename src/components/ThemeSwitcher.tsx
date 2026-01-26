@@ -65,11 +65,11 @@ export function ThemeSwitcher() {
 
       {isOpen && (
         <div
-          className="absolute top-full right-0 mt-1 rounded border shadow-lg z-50 min-w-[150px]"
+          className="absolute bottom-full right-0 mb-1 rounded border shadow-lg z-50 min-w-[150px]"
           style={{
             backgroundColor: 'var(--bg-secondary)',
             borderColor: 'var(--border-primary)',
-            boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.3)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
           }}
         >
           {THEMES.map((theme) => (

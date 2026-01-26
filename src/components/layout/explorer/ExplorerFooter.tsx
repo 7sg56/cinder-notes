@@ -1,4 +1,6 @@
 import { Settings, HelpCircle, Archive } from 'lucide-react';
+import { ThemeSwitcher } from '../../ThemeSwitcher';
+
 
 export function ExplorerFooter() {
     return (
@@ -37,7 +39,7 @@ export function ExplorerFooter() {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     title="Help"
                 >
-                    <HelpCircle size={14} className="opacity-60 group-hover:opacity-100" />
+                   <ThemeSwitcher />
                 </div>
             </div>
         </div>
