@@ -6,6 +6,11 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    "core:window:allow-set-size",
+    "core:window:allow-center",
+    "core:window:allow-set-position",
+    "core:window:allow-outer-size",
+    "core:window:allow-current-monitor"
   ]
 }
