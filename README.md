@@ -30,10 +30,10 @@ We will implement encryption for sensitive data to ensure user privacy and secur
 
 ## Timeline
 
-### v0.1 Alpha
-Expected v0.1 release date: Feb 2026
+### v1 Alpha
+Expected v1 release date: Feb 2026
 
-### v1.0
+### v1 Stable
 Expected v1 release date: Q2 2026
 
 
