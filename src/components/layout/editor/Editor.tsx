@@ -11,64 +11,67 @@ interface EditorProps {
 export function Editor({ isPreview }: EditorProps) {
     const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
 
-    // Check if this is a blank tab
     const isBlankTab = activeFileId?.startsWith('new-tab-');
-
-    // If no active file, just show empty state in main area
-    // Tabs are now handled by EditorPane
 
     return (
         <div 
-            className="h-full flex flex-col relative group"
+            className="h-full flex flex-col relative group transition-colors duration-300"
             style={{ backgroundColor: 'var(--editor-bg)' }}
         >
-
-
             {!activeFileId || isBlankTab ? (
+                /* --- EMPTY STATE --- */
                 <div 
                     className="flex-1 flex items-center justify-center"
-                    style={{
-                        backgroundColor: 'var(--editor-bg)',
-                        color: 'var(--text-tertiary)'
-                    }}
+                    style={{ backgroundColor: 'var(--editor-bg)' }}
                 >
-                    <div className="text-center">
-                        <div className="mb-6 flex justify-center">
-                            <Sparkles size={32} className="text-[#cfcfc2] opacity-70" />
+                    <div className="text-center max-w-md px-6">
+                        <div className="mb-8 flex justify-center">
+                            <div className="p-4 rounded-2xl bg-[var(--editor-header-accent)]/5 border border-[var(--editor-header-accent)]/10">
+                                <Sparkles size={40} style={{ color: 'var(--editor-header-accent)' }} className="opacity-80" />
+                            </div>
                         </div>
-                        <p className="mb-6 text-2xl font-semibold opacity-60">Cinder Notes</p>
-                        <div className="space-y-4 text-sm opacity-50 max-w-md">
-                            <div className="flex items-center gap-3 justify-center">
-                                <ChevronLeft size={18} className="text-[#cfcfc2]" />
-                                <p><span className="text-[#cfcfc2]">Select a file</span> from the explorer to start editing</p>
-                            </div>
-                            <div className="flex items-center gap-3 justify-center">
-                                <FileText size={18} className="text-[#cfcfc2]" />
-                                <p><span className="text-[#cfcfc2]">Create new notes</span> in Markdown format</p>
-                            </div>
-                            <div className="flex items-center gap-3 justify-center">
-                                <Eye size={18} className="text-[#cfcfc2]" />
-                                <p><span className="text-[#cfcfc2]">Toggle preview mode</span> to see rendered content</p>
-                            </div>
-                            <div className="flex items-center gap-3 justify-center">
-                                <Save size={18} className="text-[#cfcfc2]" />
-                                <p><span className="text-[#cfcfc2]">Auto-saves</span> as you type</p>
-                            </div>
+                        
+                        <h1 className="mb-2 text-3xl font-bold tracking-tight" style={{ color: 'var(--text-white)' }}>
+                            Cinder Notes
+                        </h1>
+                        <p className="mb-10 text-[11px] uppercase tracking-[0.2em] font-bold opacity-40" style={{ color: 'var(--text-secondary)' }}>
+                            Distraction-free writing
+                        </p>
+
+                        <div className="space-y-5 text-sm">
+                            {[
+                                { icon: ChevronLeft, text: "Select a file", highlight: "from the explorer" },
+                                { icon: FileText, text: "Markdown", highlight: "format support" },
+                                { icon: Eye, text: "Toggle preview", highlight: "to render content" },
+                                { icon: Save, text: "Auto-saves", highlight: "locally as you type" }
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-center gap-4 text-left group/item cursor-default">
+                                    <div className="p-2 rounded-lg bg-white/5 group-hover/item:bg-[var(--editor-header-accent)]/10 transition-colors">
+                                        <item.icon size={16} style={{ color: 'var(--text-secondary)' }} />
+                                    </div>
+                                    <p style={{ color: 'var(--text-secondary)' }}>
+                                        <span style={{ color: 'var(--text-primary)' }} className="font-medium">{item.text}</span> {item.highlight}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             ) : (
+                /* --- EDITOR / PREVIEW CONTENT --- */
                 <div className="flex-1 relative flex flex-col min-h-0">
                     {isPreview ? (
-                        <div className="flex-1 w-full h-full p-8 overflow-y-auto prose prose-invert prose-stone max-w-none" style={{ color: 'var(--editor-text)' }}>
+                        <div className="flex-1 w-full h-full p-10 overflow-y-auto prose prose-invert max-w-none scrollbar-thin" style={{ color: 'var(--editor-text)' }}>
                             <style>{`
-                        .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--markdown-heading); }
-                        .prose a { color: var(--markdown-link); }
-                        .prose code { color: var(--markdown-code); background: var(--markdown-code-bg); padding: 2px 4px; border-radius: 4px; }
-                        .prose pre { background: var(--markdown-code-bg); }
-                        .prose strong { color: var(--markdown-strong); }
-                        .prose ul > li::marker { color: var(--markdown-list); }
-                    `}</style>
+                                .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--markdown-heading); font-weight: 700; border-bottom: 1px solid var(--border-secondary); padding-bottom: 0.3em; }
+                                .prose a { color: var(--markdown-link); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+                                .prose a:hover { border-color: var(--markdown-link); }
+                                .prose code { color: var(--markdown-code); background: var(--markdown-code-bg); padding: 0.2em 0.4em; border-radius: 6px; font-size: 0.9em; }
+                                .prose pre { background: var(--markdown-code-bg); border: 1px solid var(--border-secondary); border-radius: 8px; }
+                                .prose strong { color: var(--markdown-strong); }
+                                .prose ul > li::marker { color: var(--markdown-list); }
+                                .prose blockquote { border-left-color: var(--editor-header-accent); background: var(--bg-secondary); padding: 1rem; border-radius: 0 8px 8px 0; }
+                            `}</style>
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {activeFileContent}
                             </ReactMarkdown>
@@ -76,12 +79,12 @@ export function Editor({ isPreview }: EditorProps) {
                     ) : (
                         <>
                             <style>{`
-                                textarea::selection {
-                                    background-color: var(--editor-selection-bg);
-                                }
+                                textarea::selection { background-color: var(--editor-selection-bg); color: var(--text-white); }
+                                textarea::-webkit-scrollbar { width: 8px; }
+                                textarea::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 10px; }
                             `}</style>
                             <textarea
-                                className="flex-1 w-full h-full p-8 outline-none resize-none font-mono text-[14px] leading-relaxed"
+                                className="flex-1 w-full h-full p-10 outline-none resize-none font-mono text-[14px] leading-[1.8] transition-colors"
                                 style={{
                                     backgroundColor: 'var(--editor-bg)',
                                     color: 'var(--editor-text)'
@@ -89,7 +92,7 @@ export function Editor({ isPreview }: EditorProps) {
                                 value={activeFileContent}
                                 onChange={(e) => updateFileContent(activeFileId, e.target.value)}
                                 spellCheck={false}
-                                placeholder="Start writing..."
+                                placeholder="Type your markdown here..."
                             />
                         </>
                     )}

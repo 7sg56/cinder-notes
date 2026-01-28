@@ -1,102 +1,95 @@
-import { useState, useEffect } from 'react';
-import { Palette, ChevronUp } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react'; // Fixed the broken import here
+import { Palette, ChevronDown, Check } from 'lucide-react';
 
 const THEMES = [
-  // Dark Themes
   { name: 'Monokai', value: '' },
   { name: 'Dracula', value: 'theme-dracula' },
   { name: 'Nord', value: 'theme-nord' },
+  { name: 'Tokyo Night', value: 'theme-tokyo-night' },
+  { name: 'Github Light', value: 'theme-github-light' },
   { name: 'Solarized Dark', value: 'theme-solarized-dark' },
   { name: 'One Dark', value: 'theme-one-dark' },
   { name: 'Gruvbox Dark', value: 'theme-gruvbox-dark' },
-  { name: 'Tokyo Night', value: 'theme-tokyo-night' },
   { name: 'Material Dark', value: 'theme-material-dark' },
-  // Light Themes
-  { name: 'Light', value: 'theme-light' },
-  { name: 'GitHub Light', value: 'theme-github-light' },
-  { name: 'Solarized Light', value: 'theme-solarized-light' },
-  { name: 'One Light', value: 'theme-one-light' },
 ];
 
 export function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
-  // Initialize from localStorage or default to empty string (default theme)
-  const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem('cinder-theme') || '';
-  });
+  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem('cinder-theme') || '');
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Apply theme on mount and when it changes
-  // We can do this in the render phase or effect, effect is safer for hydration but this is SPA.
-  // Let's use a useEffect to ensure body class is synced on mount.
+  // Close when clicking outside
   useEffect(() => {
-    // Remove all known themes
-    THEMES.forEach(theme => {
-      if (theme.value) {
-        document.documentElement.classList.remove(theme.value);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
       }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Apply theme to document element
+  useEffect(() => {
+    // 1. Remove all possible theme classes
+    THEMES.forEach(t => {
+      if (t.value) document.documentElement.classList.remove(t.value);
     });
-    // Add current theme
+    
+    // 2. Add current theme class
     if (currentTheme) {
       document.documentElement.classList.add(currentTheme);
     }
+    
+    // 3. Persist
+    localStorage.setItem('cinder-theme', currentTheme);
   }, [currentTheme]);
 
-  const handleThemeChange = (themeValue: string) => {
-    setCurrentTheme(themeValue);
-    localStorage.setItem('cinder-theme', themeValue);
-    setIsOpen(false);
-  };
-
-  // const currentThemeName = THEMES.find(t => t.value === currentTheme)?.name || 'Monokai';
-
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1.5 cursor-pointer rounded group transition-colors flex items-center gap-1"
-        style={{ color: 'var(--text-primary)' }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        title="Theme"
+        className="flex items-center gap-2 px-2 py-1.5 rounded-md transition-all hover:bg-white/5 active:bg-white/10"
+        style={{ color: 'var(--text-secondary)' }}
       >
-        <Palette size={14} className="opacity-60 group-hover:opacity-100" />
-        {isOpen && <ChevronUp size={12} className="opacity-60" />}
+        <Palette size={14} className={isOpen ? 'text-[var(--editor-header-accent)]' : ''} />
+        <span className="text-[11px] font-semibold tracking-wide uppercase">Theme</span>
+        <ChevronDown size={12} className={`transition-transform duration-200 ${isOpen ? 'rotate-180 text-[var(--editor-header-accent)]' : ''}`} />
       </button>
 
       {isOpen && (
         <div
-          className="absolute bottom-full right-0 mb-1 rounded border shadow-lg z-50 min-w-[150px]"
+          className="absolute top-[calc(100%+8px)] right-0 w-48 rounded-lg border shadow-2xl py-2 z-[999] backdrop-blur-xl animate-in fade-in zoom-in duration-150"
           style={{
-            backgroundColor: 'var(--bg-secondary)',
-            borderColor: 'var(--border-primary)',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            backgroundColor: 'var(--bg-tertiary)',
+            borderColor: 'var(--border-secondary)',
+            boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)'
           }}
         >
-          {THEMES.map((theme) => (
-            <button
-              key={theme.value}
-              onClick={() => handleThemeChange(theme.value)}
-              className={`w-full text-left px-3 py-1.5 text-[12px] transition-colors flex items-center justify-between ${currentTheme === theme.value ? 'font-semibold' : ''
-                }`}
-              style={{
-                backgroundColor: currentTheme === theme.value ? 'var(--bg-tertiary)' : 'transparent',
-                color: currentTheme === theme.value ? 'var(--text-primary)' : 'var(--text-secondary)',
-              }}
-              onMouseEnter={(e) => {
-                if (currentTheme !== theme.value) {
-                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentTheme !== theme.value) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
-            >
-              {theme.name}
-              {currentTheme === theme.value && <span className="text-[10px]">✓</span>}
-            </button>
-          ))}
+          <div className="px-3 pb-2 mb-1 border-b text-[10px] uppercase tracking-widest font-bold opacity-30" style={{ borderColor: 'var(--border-primary)' }}>
+            Studio Themes
+          </div>
+          
+          <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+            {THEMES.map((theme) => (
+              <button
+                key={theme.name}
+                onClick={() => {
+                  setCurrentTheme(theme.value);
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-white/5 transition-colors group"
+                style={{
+                  color: currentTheme === theme.value ? 'var(--editor-header-accent)' : 'var(--text-primary)'
+                }}
+              >
+                <span className={currentTheme === theme.value ? 'font-bold' : 'font-medium'}>
+                  {theme.name}
+                </span>
+                {currentTheme === theme.value && <Check size={14} strokeWidth={3} />}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
