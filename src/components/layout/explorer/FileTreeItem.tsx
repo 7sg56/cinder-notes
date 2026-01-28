@@ -10,14 +10,14 @@ interface FileTreeItemProps {
 
 export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const { selectFile, activeFileId } = useAppStore();
+    const { openFileInNewTab, activeFileId } = useAppStore();
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (node.type === 'folder') {
             setIsOpen(!isOpen);
         } else {
-            selectFile(node.id);
+            openFileInNewTab(node.id);
         }
     };
 

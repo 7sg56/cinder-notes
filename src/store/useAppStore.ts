@@ -12,9 +12,11 @@ interface AppState {
 
     // Actions
     selectFile: (fileId: string) => void;
+    openFileInNewTab: (fileId: string) => void;
     closeFile: (fileId: string) => void;
     updateFileContent: (fileId: string, content: string) => void;
     findFile: (id: string, nodes?: FileNode[]) => FileNode | null;
+    getFileBreadcrumb: (fileId: string) => FileNode[];
     toggleExplorerCollapsed: () => void;
     createNewTab: () => void; // Create a new blank tab
 }
@@ -38,6 +40,27 @@ export const useAppStore = create<AppState>((set, get) => ({
         return null;
     },
 
+    getFileBreadcrumb: (fileId: string): FileNode[] => {
+        const breadcrumb: FileNode[] = [];
+        
+        const traverse = (nodes: FileNode[]): boolean => {
+            for (const node of nodes) {
+                breadcrumb.push(node);
+                if (node.id === fileId) {
+                    return true;
+                }
+                if (node.children && traverse(node.children)) {
+                    return true;
+                }
+                breadcrumb.pop();
+            }
+            return false;
+        };
+        
+        traverse(get().files);
+        return breadcrumb;
+    },
+
     selectFile: (fileId: string) => {
         // Handle blank tabs
         if (fileId.startsWith('new-tab-')) {
@@ -50,14 +73,50 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         const file = get().findFile(fileId);
         if (file && file.type === 'file') {
-            const { openFiles } = get();
-            const needsToOpen = !openFiles.includes(fileId);
+            const { openFiles, activeFileId } = get();
+            
+            // If currently on a blank tab, replace it instead of opening a new tab
+            if (activeFileId && activeFileId.startsWith('new-tab-')) {
+                const newOpenFiles = openFiles.map(id => id === activeFileId ? fileId : id);
+                set({
+                    activeFileId: fileId,
+                    activeFileContent: file.content || '',
+                    openFiles: newOpenFiles
+                });
+            } else {
+                // Otherwise, open in new tab if not already open
+                const needsToOpen = !openFiles.includes(fileId);
+                set({
+                    activeFileId: fileId,
+                    activeFileContent: file.content || '',
+                    openFiles: needsToOpen ? [...openFiles, fileId] : openFiles
+                });
+            }
+        }
+    },
 
-            set({
-                activeFileId: fileId,
-                activeFileContent: file.content || '',
-                openFiles: needsToOpen ? [...openFiles, fileId] : openFiles
-            });
+    openFileInNewTab: (fileId: string) => {
+        const file = get().findFile(fileId);
+        if (file && file.type === 'file') {
+            const { openFiles, activeFileId } = get();
+            
+            // If currently on a blank tab, replace it instead of opening a new tab
+            if (activeFileId && activeFileId.startsWith('new-tab-')) {
+                const newOpenFiles = openFiles.map(id => id === activeFileId ? fileId : id);
+                set({
+                    activeFileId: fileId,
+                    activeFileContent: file.content || '',
+                    openFiles: newOpenFiles
+                });
+            } else {
+                // Otherwise, open in new tab if not already open
+                const needsToOpen = !openFiles.includes(fileId);
+                set({
+                    activeFileId: fileId,
+                    activeFileContent: file.content || '',
+                    openFiles: needsToOpen ? [...openFiles, fileId] : openFiles
+                });
+            }
         }
     },
 

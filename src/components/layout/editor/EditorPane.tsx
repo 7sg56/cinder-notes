@@ -17,7 +17,7 @@ export function EditorPane() {
             <div className="flex-1 min-h-0 relative">
                 <Editor isPreview={isPreview} />
             </div>
-            <EditorStatusBar />
+            <EditorStatusBar isPreview={isPreview} />
         </div>
     );
 }
