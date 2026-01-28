@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Panel, Group, Separator } from 'react-resizable-panels';
 import { ActivityBar } from './ActivityBar';
-import { TitleBar } from './TitleBar';
 import { useAppStore } from '../../store/useAppStore';
 import { ChevronRight } from 'lucide-react';
 
@@ -21,9 +20,6 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                 color: 'var(--text-primary)'
             }}
         >
-
-            <TitleBar />
-
             {/* Main Content Area */}
             <div className="flex-1 flex min-h-0 relative">
 
