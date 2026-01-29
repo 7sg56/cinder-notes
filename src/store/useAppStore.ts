@@ -8,6 +8,7 @@ interface AppState {
     openFiles: string[]; // List of file IDs that are open as tabs
     activeFileContent: string;
     isExplorerCollapsed: boolean;
+    sidebarWidth: number;
     newTabCounter: number; // Counter for generating unique blank tab IDs
 
     // Actions
@@ -18,6 +19,8 @@ interface AppState {
     findFile: (id: string, nodes?: FileNode[]) => FileNode | null;
     getFileBreadcrumb: (fileId: string) => FileNode[];
     toggleExplorerCollapsed: () => void;
+    setExplorerCollapsed: (isCollapsed: boolean) => void;
+    setSidebarWidth: (width: number) => void;
     createNewTab: () => void; // Create a new blank tab
 }
 
@@ -147,15 +150,42 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
 
     toggleExplorerCollapsed: () => {
-        set((state) => ({
-            isExplorerCollapsed: !state.isExplorerCollapsed
-        }));
+        set((state) => {
+            const willExpand = state.isExplorerCollapsed;
+            let newWidth = state.sidebarWidth;
+
+            // If expanding and current width is too small (e.g. it was dragged to collapse boundary)
+            // Restore to a large default (50%)
+            if (willExpand && newWidth < 20) {
+                newWidth = 50;
+            }
+
+            return {
+                isExplorerCollapsed: !state.isExplorerCollapsed,
+                sidebarWidth: newWidth
+            };
+        });
+    },
+
+    setExplorerCollapsed: (isCollapsed: boolean) => {
+        set((state) => {
+            // If manual set to expanded, also check width
+            if (!isCollapsed && state.sidebarWidth < 20) {
+                return { isExplorerCollapsed: isCollapsed, sidebarWidth: 50 };
+            }
+            return { isExplorerCollapsed: isCollapsed };
+        });
+    },
+
+    sidebarWidth: 20,
+    setSidebarWidth: (width: number) => {
+        set({ sidebarWidth: width });
     },
 
     createNewTab: () => {
         const { openFiles, newTabCounter } = get();
         const newTabId = `new-tab-${newTabCounter}`;
-        
+
         set({
             activeFileId: newTabId,
             openFiles: [...openFiles, newTabId],
