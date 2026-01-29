@@ -23,8 +23,8 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
     files: mockFileSystem,
-    activeFileId: null,
-    openFiles: [],
+    activeFileId: 'welcome',
+    openFiles: ['welcome'],
     activeFileContent: '',
     isExplorerCollapsed: false,
     newTabCounter: 0,
@@ -42,7 +42,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     getFileBreadcrumb: (fileId: string): FileNode[] => {
         const breadcrumb: FileNode[] = [];
-        
+
         const traverse = (nodes: FileNode[]): boolean => {
             for (const node of nodes) {
                 breadcrumb.push(node);
@@ -56,7 +56,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             }
             return false;
         };
-        
+
         traverse(get().files);
         return breadcrumb;
     },
@@ -64,9 +64,19 @@ export const useAppStore = create<AppState>((set, get) => ({
     selectFile: (fileId: string) => {
         // Handle blank tabs
         if (fileId.startsWith('new-tab-')) {
-            set({
-                activeFileId: fileId,
-                activeFileContent: ''
+            set((state) => {
+                // If currently on welcome page, replace it
+                if (state.activeFileId === 'welcome') {
+                    return {
+                        activeFileId: fileId,
+                        activeFileContent: '',
+                        openFiles: [fileId] // Replace welcome entirely
+                    };
+                }
+                return {
+                    activeFileId: fileId,
+                    activeFileContent: ''
+                };
             });
             return;
         }
@@ -74,9 +84,9 @@ export const useAppStore = create<AppState>((set, get) => ({
         const file = get().findFile(fileId);
         if (file && file.type === 'file') {
             const { openFiles, activeFileId } = get();
-            
-            // If currently on a blank tab, replace it instead of opening a new tab
-            if (activeFileId && activeFileId.startsWith('new-tab-')) {
+
+            // If currently on a blank tab OR welcome tab, replace it
+            if (activeFileId && (activeFileId.startsWith('new-tab-') || activeFileId === 'welcome')) {
                 const newOpenFiles = openFiles.map(id => id === activeFileId ? fileId : id);
                 set({
                     activeFileId: fileId,
@@ -99,9 +109,9 @@ export const useAppStore = create<AppState>((set, get) => ({
         const file = get().findFile(fileId);
         if (file && file.type === 'file') {
             const { openFiles, activeFileId } = get();
-            
-            // If currently on a blank tab, replace it instead of opening a new tab
-            if (activeFileId && activeFileId.startsWith('new-tab-')) {
+
+            // If currently on a blank tab OR welcome tab, replace it
+            if (activeFileId && (activeFileId.startsWith('new-tab-') || activeFileId === 'welcome')) {
                 const newOpenFiles = openFiles.map(id => id === activeFileId ? fileId : id);
                 set({
                     activeFileId: fileId,
@@ -130,7 +140,8 @@ export const useAppStore = create<AppState>((set, get) => ({
                 get().selectFile(nextActive);
             } else {
                 set({ activeFileId: null, activeFileContent: '' });
-                // We update openFiles below, so it's fine
+                // If we closed the last tab, we might want to show empty state or Welcome?
+                // For now, empty state is fine.
             }
         }
 
@@ -153,14 +164,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
 
     createNewTab: () => {
-        const { openFiles, newTabCounter } = get();
+        const { openFiles, newTabCounter, activeFileId } = get();
         const newTabId = `new-tab-${newTabCounter}`;
-        
-        set({
-            activeFileId: newTabId,
-            openFiles: [...openFiles, newTabId],
-            activeFileContent: '',
-            newTabCounter: newTabCounter + 1
-        });
+
+        // If welcome tab is open, replace it
+        if (activeFileId === 'welcome') {
+            set({
+                activeFileId: newTabId,
+                openFiles: [newTabId], // Resetting openFiles to just this new one removes welcome
+                activeFileContent: '',
+                newTabCounter: newTabCounter + 1
+            });
+        } else {
+            set({
+                activeFileId: newTabId,
+                openFiles: [...openFiles, newTabId],
+                activeFileContent: '',
+                newTabCounter: newTabCounter + 1
+            });
+        }
     },
 }));
