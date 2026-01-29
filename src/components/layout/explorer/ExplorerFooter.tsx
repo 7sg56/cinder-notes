@@ -18,7 +18,7 @@ export function ExplorerFooter() {
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
                 <Archive size={14} className="opacity-80 group-hover:opacity-100" style={{ color: '#a6e22e' }} />
-                <span className="text-[12px] font-medium opacity-80 group-hover:opacity-100" style={{ color: 'var(--text-primary)' }}>Cinder Vault</span>
+                <span className="text-[12px] font-medium opacity-80 group-hover:opacity-100" style={{ color: 'white' }}>Cinder Vault</span>
             </div>
 
             {/* Settings, Theme & Help */}
@@ -32,15 +32,7 @@ export function ExplorerFooter() {
                 >
                     <Settings size={14} className="opacity-60 group-hover:opacity-100" />
                 </div>
-                <div 
-                    className="p-1.5 cursor-pointer rounded group transition-colors" 
-                    style={{ color: 'var(--text-primary)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    title="Help"
-                >
-                   <ThemeSwitcher />
-                </div>
+                <ThemeSwitcher />
             </div>
         </div>
     );
