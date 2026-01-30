@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState } from 'react';
-import { ActivityBar } from '../features/activity-bar/ActivityBar';
+// import { ActivityBar } from '../features/activity-bar/ActivityBar';
 import { useAppStore } from '../../store/useAppStore';
 import { ChevronRight } from 'lucide-react';
 
@@ -79,7 +79,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
             {/* Main Content Area */}
             <div className="flex-1 flex min-h-0 relative">
 
-                <ActivityBar />
+                {/* <ActivityBar /> */}
 
                 {/* Sidebar Area */}
                 <div

@@ -12,6 +12,7 @@ interface AppState {
     newTabCounter: number; // Counter for generating unique blank tab IDs
     renamingFileId: string | null;
     lastSidebarWidth: number;
+    expandedFolderIds: string[]; // List of folder IDs that are expanded
 
     // Actions
     selectFile: (fileId: string) => void;
@@ -26,6 +27,11 @@ interface AppState {
     createNewTab: () => void; // Create a new blank tab
     setRenamingFileId: (id: string | null) => void;
     renameFile: (id: string, newName: string) => void;
+
+    // Folder Actions
+    toggleFolder: (folderId: string) => void;
+    expandFolder: (folderId: string) => void;
+    collapseFolder: (folderId: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -37,6 +43,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     newTabCounter: 0,
     renamingFileId: null,
     lastSidebarWidth: 20,
+    expandedFolderIds: [],
 
     findFile: (id: string, nodes = get().files): FileNode | null => {
         for (const node of nodes) {
@@ -281,4 +288,28 @@ export const useAppStore = create<AppState>((set, get) => ({
             renamingFileId: null
         }));
     },
+
+    toggleFolder: (folderId: string) => {
+        set((state) => {
+            const isExpanded = state.expandedFolderIds.includes(folderId);
+            return {
+                expandedFolderIds: isExpanded
+                    ? state.expandedFolderIds.filter(id => id !== folderId)
+                    : [...state.expandedFolderIds, folderId]
+            };
+        });
+    },
+
+    expandFolder: (folderId: string) => {
+        set((state) => {
+            if (state.expandedFolderIds.includes(folderId)) return {};
+            return { expandedFolderIds: [...state.expandedFolderIds, folderId] };
+        });
+    },
+
+    collapseFolder: (folderId: string) => {
+        set((state) => ({
+            expandedFolderIds: state.expandedFolderIds.filter(id => id !== folderId)
+        }));
+    }
 }));
