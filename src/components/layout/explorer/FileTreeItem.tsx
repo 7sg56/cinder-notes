@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { FileNode } from '../../../data/mockFileSystem';
 import { useAppStore } from '../../../store/useAppStore';
 import { ChevronRight, FileText, Folder, FolderOpen } from 'lucide-react';
@@ -10,7 +10,24 @@ interface FileTreeItemProps {
 
 export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const { openFileInNewTab, activeFileId } = useAppStore();
+    const { openFileInNewTab, activeFileId, renamingFileId, setRenamingFileId, renameFile } = useAppStore();
+    const [renameValue, setRenameValue] = useState(node.name);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const isRenaming = renamingFileId === node.id;
+
+    useEffect(() => {
+        if (isRenaming) {
+            setRenameValue(node.name);
+            // Wait for render to focus
+            setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                    inputRef.current.select();
+                }
+            }, 0);
+        }
+    }, [isRenaming, node.name]);
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -21,6 +38,30 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         }
     };
 
+    const handleDoubleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (node.type === 'file') {
+            setRenamingFileId(node.id);
+        }
+    };
+
+    const handleRenameSubmit = () => {
+        if (renameValue.trim()) {
+            renameFile(node.id, renameValue.trim());
+        } else {
+            setRenamingFileId(null); // Cancel if empty
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleRenameSubmit();
+        } else if (e.key === 'Escape') {
+            setRenamingFileId(null);
+            setRenameValue(node.name);
+        }
+    };
+
     const isActive = activeFileId === node.id;
     const paddingLeft = `${depth * 12 + 12}px`;
 
@@ -28,7 +69,8 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         <div>
             <div
                 onClick={handleClick}
-                style={{ 
+                onDoubleClick={handleDoubleClick}
+                style={{
                     paddingLeft,
                     backgroundColor: isActive ? 'var(--filetree-bg-active)' : 'transparent',
                     color: isActive ? 'var(--filetree-text-active)' : 'var(--filetree-text)'
@@ -65,7 +107,21 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                     )}
                 </span>
 
-                <span className="truncate font-normal tracking-wide">{node.name}</span>
+                {isRenaming ? (
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onBlur={handleRenameSubmit}
+                        onKeyDown={handleKeyDown}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-1 bg-transparent border border-[var(--editor-header-accent)] rounded-sm outline-none px-1 py-0 text-[13px] leading-none min-w-0"
+                        style={{ color: 'var(--text-primary)' }}
+                    />
+                ) : (
+                    <span className="truncate font-normal tracking-wide">{node.name}</span>
+                )}
             </div>
 
             {node.type === 'folder' && isOpen && node.children && (

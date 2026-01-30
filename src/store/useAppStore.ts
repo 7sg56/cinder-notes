@@ -10,6 +10,7 @@ interface AppState {
     isExplorerCollapsed: boolean;
     sidebarWidth: number;
     newTabCounter: number; // Counter for generating unique blank tab IDs
+    renamingFileId: string | null;
 
     // Actions
     selectFile: (fileId: string) => void;
@@ -22,6 +23,8 @@ interface AppState {
     setExplorerCollapsed: (isCollapsed: boolean) => void;
     setSidebarWidth: (width: number) => void;
     createNewTab: () => void; // Create a new blank tab
+    setRenamingFileId: (id: string | null) => void;
+    renameFile: (id: string, newName: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -31,6 +34,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     activeFileContent: '',
     isExplorerCollapsed: false,
     newTabCounter: 0,
+    renamingFileId: null,
 
     findFile: (id: string, nodes = get().files): FileNode | null => {
         for (const node of nodes) {
@@ -194,24 +198,82 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
 
     createNewTab: () => {
-        const { openFiles, newTabCounter, activeFileId } = get();
-        const newTabId = `new-tab-${newTabCounter}`;
+        const { files, openFiles, activeFileId } = get();
 
-        // If welcome tab is open, replace it
+        // Find a unique name
+        let nameCounter = 0;
+        let baseName = 'untitled';
+        let extension = '.md';
+        let newName = `${baseName}${extension}`;
+
+        const checkNameExists = (name: string, nodes: FileNode[]): boolean => {
+            for (const node of nodes) {
+                if (node.name === name) return true;
+                if (node.children && checkNameExists(name, node.children)) return true;
+            }
+            return false;
+        };
+
+        while (checkNameExists(newName, files)) {
+            nameCounter++;
+            newName = `${baseName}-${nameCounter}${extension}`;
+        }
+
+        const newFileId = `file-${Date.now()}`;
+        const newFile: FileNode = {
+            id: newFileId,
+            name: newName,
+            type: 'file',
+            content: '',
+        };
+
+        // Add to root of file tree (specifically inside the root folder if it exists, otherwise top level)
+        // Adjusting logic to add to the first folder found (usually 'root' in mock) or top level
+        let newFiles = [...files];
+        if (newFiles.length > 0 && newFiles[0].children) {
+            newFiles[0].children = [...newFiles[0].children, newFile];
+        } else {
+            newFiles = [...newFiles, newFile];
+        }
+
+        // Logic to replace welcome tab or open new tab
         if (activeFileId === 'welcome') {
             set({
-                activeFileId: newTabId,
-                openFiles: [newTabId], // Resetting openFiles to just this new one removes welcome
+                files: newFiles,
+                activeFileId: newFileId,
+                openFiles: [newFileId],
                 activeFileContent: '',
-                newTabCounter: newTabCounter + 1
+                renamingFileId: newFileId // Start renaming immediately
             });
         } else {
             set({
-                activeFileId: newTabId,
-                openFiles: [...openFiles, newTabId],
+                files: newFiles,
+                activeFileId: newFileId,
+                openFiles: [...openFiles, newFileId],
                 activeFileContent: '',
-                newTabCounter: newTabCounter + 1
+                renamingFileId: newFileId // Start renaming immediately
             });
         }
+    },
+
+    setRenamingFileId: (id) => set({ renamingFileId: id }),
+
+    renameFile: (id, newName) => {
+        const updateName = (nodes: FileNode[]): FileNode[] => {
+            return nodes.map(node => {
+                if (node.id === id) {
+                    return { ...node, name: newName };
+                }
+                if (node.children) {
+                    return { ...node, children: updateName(node.children) };
+                }
+                return node;
+            });
+        };
+
+        set(state => ({
+            files: updateName(state.files),
+            renamingFileId: null
+        }));
     },
 }));
