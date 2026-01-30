@@ -31,7 +31,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
         } else {
             panel.expand();
         }
-    }, [isExplorerCollapsed, panelRef]);
+    }, [isExplorerCollapsed, sidebarWidth, groupRef]);
 
     return (
         <div
@@ -79,9 +79,18 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                         orientation="horizontal"
                         onLayoutChanged={(layout) => {
                             const sidebarSize = layout['sidebar'];
-                            if (typeof sidebarSize === 'number') {
-                                if (sidebarSize < 1) {
-                                    if (!isExplorerCollapsed) setExplorerCollapsed(true);
+                            if (typeof sidebarSize === 'number' && sidebarSize > 0) {
+                                setSidebarWidth(sidebarSize);
+                                setExplorerCollapsed(false);
+                            }
+                        }}
+                        onLayoutChanged={() => {
+                            const layout = groupRef.current?.getLayout();
+                            const finalSidebarSize = layout?.['sidebar'];
+
+                            if (typeof finalSidebarSize === 'number') {
+                                if (finalSidebarSize < 5) {
+                                    setExplorerCollapsed(true);
                                 } else {
                                     if (isExplorerCollapsed) setExplorerCollapsed(false);
                                     setSidebarWidth(sidebarSize);
@@ -105,6 +114,20 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                                     backgroundColor: 'var(--bg-primary)'
                                 }}
                             >
+                                {/* Collapse button at top of sidebar */}
+                                <div className="flex justify-end p-2">
+                                    <button
+                                        onClick={() => {
+                                            console.log('Collapse button clicked');
+                                            toggleExplorerCollapsed();
+                                        }}
+                                        className="p-1.5 rounded bg-red-500 hover:bg-red-600 text-white transition-colors"
+                                        title="Collapse Explorer"
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                </div>
+
                                 {sidebarContent}
                             </div>
                         </Panel>
