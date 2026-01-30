@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { Panel, Group, Separator, usePanelRef, useGroupRef } from 'react-resizable-panels';
+import { useRef, useCallback, useState } from 'react';
 import { ActivityBar } from '../features/activity-bar/ActivityBar';
 import { useAppStore } from '../../store/useAppStore';
 import { ChevronRight } from 'lucide-react';
@@ -12,26 +11,62 @@ interface MainLayoutProps {
 export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
     const {
         isExplorerCollapsed,
-        toggleExplorerCollapsed,
         setExplorerCollapsed,
         sidebarWidth,
         setSidebarWidth
     } = useAppStore();
 
-    const panelRef = usePanelRef();
-    const groupRef = useGroupRef();
+    const isResizingRef = useRef(false);
+    const sidebarRef = useRef<HTMLDivElement>(null);
+    const [isResizing, setIsResizing] = useState(false);
 
-    // Sync collapsed state with imperative API via Panel Ref
-    useEffect(() => {
-        const panel = panelRef.current;
-        if (!panel) return;
+    const startResizing = useCallback((e: React.MouseEvent) => {
+        isResizingRef.current = true;
+        setIsResizing(true);
+        e.preventDefault();
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
 
-        if (isExplorerCollapsed) {
-            panel.collapse();
-        } else {
-            panel.expand();
-        }
-    }, [isExplorerCollapsed, sidebarWidth, groupRef]);
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isResizingRef.current || !sidebarRef.current) return;
+
+            // Calculate width relative to sidebar start
+            const sidebarRect = sidebarRef.current.getBoundingClientRect();
+            const sidebarLeft = sidebarRect.left;
+            const newWidthPx = e.clientX - sidebarLeft;
+
+            const windowWidth = window.innerWidth;
+            const computedWidth = (newWidthPx / windowWidth) * 100;
+
+            if (computedWidth < 10) {
+                if (!useAppStore.getState().isExplorerCollapsed) {
+                    setExplorerCollapsed(true);
+                }
+            } else {
+                if (useAppStore.getState().isExplorerCollapsed) {
+                    setExplorerCollapsed(false);
+                }
+                const constrainedWidth = Math.min(Math.max(computedWidth, 15), 50);
+                setSidebarWidth(constrainedWidth);
+            }
+        };
+
+        const handleMouseUp = () => {
+            isResizingRef.current = false;
+            setIsResizing(false);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+    }, [setExplorerCollapsed, setSidebarWidth]);
+
+    const toggleSidebar = () => {
+        setExplorerCollapsed(!isExplorerCollapsed);
+    };
 
     return (
         <div
@@ -46,121 +81,61 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
 
                 <ActivityBar />
 
-                {/* Collapsed Sidebar Strip - Moved outside Group */}
-                {isExplorerCollapsed && (
-                    <div
-                        className="w-[35px] shrink-0 flex flex-col items-center py-3 gap-2 transition-colors border-r"
-                        style={{
-                            backgroundColor: 'var(--bg-primary)',
-                            borderColor: 'var(--border-secondary)'
-                        }}
-                    >
-                        <button
-                            onClick={() => {
-                                toggleExplorerCollapsed();
-                            }}
-                            className="p-2 rounded transition-colors group bg-blue-500 hover:bg-blue-600 text-white"
+                {/* Sidebar Area */}
+                <div
+                    ref={sidebarRef}
+                    className="flex flex-col h-full overflow-hidden relative transition-all duration-75 ease-out"
+                    style={{
+                        width: isExplorerCollapsed ? '50px' : `${sidebarWidth}%`,
+                        backgroundColor: 'var(--bg-primary)',
+                        transition: isResizing ? 'none' : 'width 200ms ease-in-out'
+                    }}
+                >
+                    {isExplorerCollapsed ? (
+                        <div
+                            className="w-full h-full flex flex-col items-center py-3 gap-2 transition-colors border-r"
                             style={{
-                                color: 'white',
+                                borderColor: 'var(--border-secondary)'
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-                            title="Expand Explorer"
                         >
-                            <ChevronRight size={18} />
-                        </button>
-                    </div>
-                )}
-
-                {/* Resizable Panels */}
-                <div className="flex-1 flex min-w-0 h-full">
-                    <Group
-                        groupRef={groupRef}
-                        orientation="horizontal"
-                        onLayoutChanged={(layout) => {
-                            const sidebarSize = layout['sidebar'];
-                            if (typeof sidebarSize === 'number' && sidebarSize > 0) {
-                                setSidebarWidth(sidebarSize);
-                                setExplorerCollapsed(false);
-                            }
-                        }}
-                        onLayoutChanged={() => {
-                            const layout = groupRef.current?.getLayout();
-                            const finalSidebarSize = layout?.['sidebar'];
-
-                            if (typeof finalSidebarSize === 'number') {
-                                if (finalSidebarSize < 5) {
-                                    setExplorerCollapsed(true);
-                                } else {
-                                    if (isExplorerCollapsed) setExplorerCollapsed(false);
-                                    setSidebarWidth(sidebarSize);
-                                }
-                            }
-                        }}
-                    >
-                        {/* Sidebar Panel */}
-                        <Panel
-                            id="sidebar"
-                            panelRef={panelRef}
-                            defaultSize={`${sidebarWidth}`}
-                            minSize="20"
-                            maxSize="30"
-                            collapsible={true}
-                            collapsedSize={0}
-                        >
-                            <div
-                                className="flex flex-col h-full w-full overflow-hidden relative"
+                            <button
+                                onClick={toggleSidebar}
+                                className="p-2 rounded transition-colors group bg-blue-500 hover:bg-blue-600 text-white"
                                 style={{
-                                    backgroundColor: 'var(--bg-primary)'
+                                    color: 'white',
                                 }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                                title="Expand Explorer"
                             >
-                                {/* Collapse button at top of sidebar */}
-                                <div className="flex justify-end p-2">
-                                    <button
-                                        onClick={() => {
-                                            console.log('Collapse button clicked');
-                                            toggleExplorerCollapsed();
-                                        }}
-                                        className="p-1.5 rounded bg-red-500 hover:bg-red-600 text-white transition-colors"
-                                        title="Collapse Explorer"
-                                    >
-                                        <ChevronLeft size={16} />
-                                    </button>
-                                </div>
-
-                                {sidebarContent}
-                            </div>
-                        </Panel>
-
-                        {/* Resize Handle */}
-                        <Separator
-                            id="resize-handle"
-                            className={`w-[6px] transition-colors cursor-col-resize z-50 shrink-0 ${isExplorerCollapsed ? 'hidden' : ''
-                                } hover:bg-blue-400 hover:opacity-60`}
-                            style={{
-                                backgroundColor: 'var(--border-primary)',
-                            }}
-                            onDoubleClick={() => {
-                                toggleExplorerCollapsed();
-                            }}
-                        />
-
-                        {/* Editor Panel */}
-                        <Panel id="editor" minSize={10}>
-                            <div
-                                className="flex flex-col h-full w-full"
-                                style={{ backgroundColor: 'var(--bg-secondary)' }}
-                            >
-                                {editorContent}
-                            </div>
-                        </Panel>
-                    </Group>
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col h-full w-full">
+                            {sidebarContent}
+                        </div>
+                    )}
                 </div>
 
+                {/* Resize Handle */}
+                <div
+                    className={`w-[6px] h-full cursor-col-resize z-50 shrink-0 transition-colors ${isResizing ? 'bg-blue-500 opacity-100' : 'hover:bg-blue-400 hover:opacity-60'}`}
+                    style={{
+                        backgroundColor: isResizing ? 'var(--accent-primary, #3b82f6)' : 'var(--border-primary)',
+                    }}
+                    onMouseDown={startResizing}
+                    onDoubleClick={toggleSidebar}
+                />
 
-
+                {/* Editor Area */}
+                <div
+                    className="flex-1 min-w-0 h-full flex flex-col"
+                    style={{ backgroundColor: 'var(--bg-secondary)' }}
+                >
+                    {editorContent}
+                </div>
             </div>
-
         </div>
     );
 }

@@ -11,6 +11,7 @@ interface AppState {
     sidebarWidth: number;
     newTabCounter: number; // Counter for generating unique blank tab IDs
     renamingFileId: string | null;
+    lastSidebarWidth: number;
 
     // Actions
     selectFile: (fileId: string) => void;
@@ -35,6 +36,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     isExplorerCollapsed: false,
     newTabCounter: 0,
     renamingFileId: null,
+    lastSidebarWidth: 20,
 
     findFile: (id: string, nodes = get().files): FileNode | null => {
         for (const node of nodes) {
@@ -170,9 +172,9 @@ export const useAppStore = create<AppState>((set, get) => ({
             let newWidth = state.sidebarWidth;
 
             // If expanding and current width is too small (e.g. it was dragged to collapse boundary)
-            // Restore to a large default (50%)
+            // Restore to last good size
             if (willExpand && newWidth < 20) {
-                newWidth = 50;
+                newWidth = state.lastSidebarWidth || 20;
             }
 
             return {
@@ -186,7 +188,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         set((state) => {
             // If manual set to expanded, also check width
             if (!isCollapsed && state.sidebarWidth < 20) {
-                return { isExplorerCollapsed: isCollapsed, sidebarWidth: 50 };
+                return { isExplorerCollapsed: isCollapsed, sidebarWidth: state.lastSidebarWidth || 20 };
             }
             return { isExplorerCollapsed: isCollapsed };
         });
@@ -194,7 +196,10 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     sidebarWidth: 20,
     setSidebarWidth: (width: number) => {
-        set({ sidebarWidth: width });
+        set((state) => ({
+            sidebarWidth: width,
+            lastSidebarWidth: width >= 20 ? width : state.lastSidebarWidth
+        }));
     },
 
     createNewTab: () => {
