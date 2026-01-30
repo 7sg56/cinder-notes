@@ -45,7 +45,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                     }
                 }}
             >
-                <span className="mr-1.5 opacity-80 group-hover:opacity-100 flex-shrink-0">
+                <span className="mr-1.5 opacity-80 group-hover:opacity-100 shrink-0">
                     {node.type === 'folder' ? (
                         <ChevronRight
                             size={14}
