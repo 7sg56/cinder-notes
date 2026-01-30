@@ -42,7 +42,6 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                 color: 'var(--text-primary)'
             }}
         >
-
             {/* Main Content Area */}
             <div className="flex-1 flex min-h-0 relative">
 

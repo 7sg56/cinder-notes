@@ -1,14 +1,14 @@
-import { X, Plus, FileText } from 'lucide-react';
+import { X, Plus, FileText, Sparkles } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
 
 export function EditorTabs() {
     const { openFiles, activeFileId, selectFile, closeFile, findFile, createNewTab } = useAppStore();
 
     return (
-        <div 
+        <div
             className="flex overflow-x-auto no-scrollbar shrink-0 border-b transition-colors duration-300"
             style={{
-                backgroundColor: 'var(--bg-secondary)', 
+                backgroundColor: 'var(--bg-secondary)',
                 borderColor: 'var(--border-primary)',
                 minHeight: '40px'
             }}
@@ -17,7 +17,8 @@ export function EditorTabs() {
                 const file = findFile(fileId);
                 const isActive = activeFileId === fileId;
                 const isBlankTab = fileId.startsWith('new-tab-');
-                const tabName = isBlankTab ? 'Untitled' : file?.name;
+                const isWelcomeTab = fileId === 'welcome';
+                const tabName = isWelcomeTab ? 'Welcome' : (isBlankTab ? 'Untitled' : file?.name);
 
                 return (
                     <div
@@ -32,15 +33,25 @@ export function EditorTabs() {
                     >
                         {/* Orange top border removed from here */}
 
-                        <FileText 
-                            size={14} 
-                            className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`} 
-                            style={{ 
-                                // Accent is now only on the icon for a cleaner look
-                                color: isActive ? 'var(--editor-header-accent)' : 'inherit' 
-                            }}
-                        />
-                        
+                        {isWelcomeTab ? (
+                            <Sparkles
+                                size={14}
+                                className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
+                                style={{
+                                    color: isActive ? 'var(--editor-header-accent)' : 'inherit'
+                                }}
+                            />
+                        ) : (
+                            <FileText
+                                size={14}
+                                className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
+                                style={{
+                                    // Accent is now only on the icon for a cleaner look
+                                    color: isActive ? 'var(--editor-header-accent)' : 'inherit'
+                                }}
+                            />
+                        )}
+
                         <span className={`truncate flex-1 ${isBlankTab ? 'italic opacity-60' : ''}`}>
                             {tabName}
                         </span>
