@@ -13,7 +13,6 @@ export function FileExplorer() {
             style={{ backgroundColor: 'var(--bg-primary)' }}
         >
             {/* Quick Actions Header */}
-            {/* ExplorerActions removed, actions moved to Folders header */}
 
             {/* Main File List */}
             <div className="flex-1 overflow-y-auto no-scrollbar pt-2">
