@@ -32,7 +32,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
             // Ensure we use the stored percentage
             group.setLayout({ 'sidebar': sidebarWidth, 'editor': 100 - sidebarWidth });
         }
-    }, [isExplorerCollapsed, sidebarWidth]);
+    }, [isExplorerCollapsed, sidebarWidth, groupRef]);
 
     return (
         <div
@@ -87,7 +87,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                         onLayoutChanged={() => {
                             const layout = groupRef.current?.getLayout();
                             const finalSidebarSize = layout?.['sidebar'];
-                            
+
                             if (typeof finalSidebarSize === 'number') {
                                 if (finalSidebarSize < 5) {
                                     setExplorerCollapsed(true);
@@ -133,7 +133,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                                         <ChevronLeft size={16} />
                                     </button>
                                 </div>
-                                
+
                                 {sidebarContent}
                             </div>
                         </Panel>
@@ -141,9 +141,8 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                         {/* Resize Handle */}
                         <Separator
                             id="resize-handle"
-                            className={`w-[6px] transition-colors cursor-col-resize z-50 shrink-0 ${
-                                isExplorerCollapsed ? 'hidden' : ''
-                            } hover:bg-blue-400 hover:opacity-60`}
+                            className={`w-[6px] transition-colors cursor-col-resize z-50 shrink-0 ${isExplorerCollapsed ? 'hidden' : ''
+                                } hover:bg-blue-400 hover:opacity-60`}
                             style={{
                                 backgroundColor: 'var(--border-primary)',
                             }}

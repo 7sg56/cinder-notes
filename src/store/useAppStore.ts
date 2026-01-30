@@ -202,8 +202,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         // Find a unique name
         let nameCounter = 0;
-        let baseName = 'untitled';
-        let extension = '.md';
+        const baseName = 'untitled';
+        const extension = '.md';
         let newName = `${baseName}${extension}`;
 
         const checkNameExists = (name: string, nodes: FileNode[]): boolean => {

@@ -18,7 +18,6 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
 
     useEffect(() => {
         if (isRenaming) {
-            setRenameValue(node.name);
             // Wait for render to focus
             setTimeout(() => {
                 if (inputRef.current) {
@@ -27,7 +26,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                 }
             }, 0);
         }
-    }, [isRenaming, node.name]);
+    }, [isRenaming]);
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
