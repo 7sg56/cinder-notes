@@ -1,9 +1,9 @@
-import { Files, Search, GitBranch, CircleUser, Lock } from 'lucide-react';
+import { Files, Search, GitBranch, CircleUser, Lock, Settings } from 'lucide-react';
 import { ActivityBarItem } from './ActivityBarItem';
 
 export function ActivityBar() {
     return (
-        <div 
+        <div
             className="w-[50px] flex-shrink-0 flex flex-col items-center py-2 z-10"
             style={{
                 backgroundColor: 'var(--activity-bar-bg)',
@@ -17,6 +17,7 @@ export function ActivityBar() {
                 <ActivityBarItem icon={Lock} />
             </div>
             <div className="flex flex-col gap-2 pb-2">
+                <ActivityBarItem icon={Settings} />
                 <ActivityBarItem icon={CircleUser} />
             </div>
         </div>

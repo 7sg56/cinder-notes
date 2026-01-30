@@ -1,5 +1,5 @@
 import { Settings, Archive } from 'lucide-react';
-import { ThemeSwitcher } from '../../ThemeSwitcher';
+import { ThemeSwitcher } from '../../features/ThemeSwitcher';
 
 
 export function ExplorerFooter() {

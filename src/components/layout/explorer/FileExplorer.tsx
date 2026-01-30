@@ -1,10 +1,11 @@
 import { useAppStore } from '../../../store/useAppStore';
 import { FileTreeItem } from './FileTreeItem';
 import { ExplorerFooter } from './ExplorerFooter';
-import { FilePlus, FolderPlus, RefreshCw, ChevronLeft } from 'lucide-react';
+
+import { FilePlus, FolderPlus, RefreshCw } from 'lucide-react';
 
 export function FileExplorer() {
-    const { files, toggleExplorerCollapsed } = useAppStore();
+    const { files } = useAppStore();
 
     return (
         <div
@@ -24,17 +25,7 @@ export function FileExplorer() {
                         marginBottom: '4px'
                     }}
                 >
-                    <span className="uppercase tracking-widest text-[11px] font-bold opacity-80">Folders</span>
-                    
-                    <button
-                        onClick={() => toggleExplorerCollapsed()}
-                        className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        style={{ color: 'var(--text-secondary)' }}
-                        title="Collapse Explorer"
-                    >
-                        <ChevronLeft size={14} />
-                    </button>
-
+                    <span className="text-[11px] font-bold tracking-wider opacity-80 uppercase">Explorer</span>
                     <div className="flex items-center gap-0.5">
                         <button
                             className="p-1 rounded group/btn transition-colors"
@@ -61,18 +52,6 @@ export function FileExplorer() {
                             <RefreshCw size={14} className="opacity-70 group-hover/btn:opacity-100 transition-opacity" />
                         </button>
                     </div>
-
-                    <div className="flex-1" />
-
-                    <button
-                        onClick={() => toggleExplorerCollapsed()}
-                        className="p-1 rounded group/btn transition-colors"
-                        title="Collapse"
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                        <ChevronLeft size={14} className="opacity-70 group-hover/btn:opacity-100 transition-opacity" />
-                    </button>
                 </div>
                 <div>
                     {files.map((node) => (
@@ -80,8 +59,6 @@ export function FileExplorer() {
                     ))}
                 </div>
             </div>
-
-            {/* Footer */}
             <ExplorerFooter />
         </div>
     );
