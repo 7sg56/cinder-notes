@@ -13,6 +13,18 @@
 
 
 ### Installing Rust & Cargo
+
+#### 🍎 macOS & 🐧 Linux
+Run the following command in your terminal:
+
+```bash
+# Install rustup (the Rust installer)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Configure your current shell
+source $HOME/.cargo/env
+```
+
 ## Contribution Workflow
 
 We follow a classic open-source workflow using Forks and Pull Requests.
@@ -39,27 +51,6 @@ We follow a classic open-source workflow using Forks and Pull Requests.
 6.  **Open a Pull Request**: Go to the original `cinder-notes` repository and you'll see a prompt to open a PR from your branch. Target the `main` branch.
 
 - `main` is the primary branch. All PRs should target `main`.
-
-## Prerequisites
-
--   **Node.js**: LTS version recommended ([Download](https://nodejs.org/)).
--   **Rust & Cargo**: Follow instructions at [rustup.rs](https://rustup.rs).
--   **System Dependencies**:
-    -   **Linux**: `libwebkit2gtk-4.0-dev`, `build-essential`, `libssl-dev`, `libgtk-3-dev`, etc. (See [Tauri Guide](https://tauri.app/v1/guides/getting-started/prerequisites#linux))
-    -   **Windows/macOS**: Generally straightforward, ensure you have build tools installed (VS C++ Build Tools or Xcode).
-
-### Installing Rust & Cargo
-
-#### 🍎 macOS & 🐧 Linux
-Run the following command in your terminal:
-
-```bash
-# Install rustup (the Rust installer)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Configure your current shell
-source $HOME/.cargo/env
-```
 
 ## Local Setup
 
