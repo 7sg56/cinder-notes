@@ -3,6 +3,53 @@ import type { FileNode } from '../../../data/mockFileSystem';
 import { useAppStore } from '../../../store/useAppStore';
 import { VscChevronRight } from 'react-icons/vsc';
 
+
+interface RenameInputProps {
+    initialValue: string;
+    onRename: (newName: string) => void;
+    onCancel: () => void;
+}
+
+function RenameInput({ initialValue, onRename, onCancel }: RenameInputProps) {
+    const [value, setValue] = useState(initialValue);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+            inputRef.current.select();
+        }
+    }, []);
+
+    const handleSubmit = () => {
+        onRename(value);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.stopPropagation();
+            handleSubmit();
+        } else if (e.key === 'Escape') {
+            e.stopPropagation();
+            onCancel();
+        }
+    };
+
+    return (
+        <input
+            ref={inputRef}
+            type="text"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={handleSubmit}
+            onKeyDown={handleKeyDown}
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 bg-transparent border border-[var(--editor-header-accent)] rounded-sm outline-none px-1 py-0 text-[13px] leading-none min-w-0"
+            style={{ color: 'var(--text-primary)' }}
+        />
+    );
+}
+
 interface FileTreeItemProps {
     node: FileNode;
     depth?: number;
@@ -23,28 +70,11 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
 
     // Derived state from store
     const isOpen = expandedFolderIds.includes(node.id);
-
-    // Initialize with name minus extension
-    const [renameValue, setRenameValue] = useState(node.name.replace(/\.md$/, ''));
     const [isDragOver, setIsDragOver] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
 
     // Allow renaming in explorer if it is explicitly an explorer rename (including new files)
     const isRenaming = renamingFileId === node.id && renameSource === 'explorer';
 
-    useEffect(() => {
-        if (isRenaming) {
-            // Reset value when entering rename mode
-            setRenameValue(node.name.replace(/\.md$/, ''));
-            // Wait for render to focus
-            setTimeout(() => {
-                if (inputRef.current) {
-                    inputRef.current.focus();
-                    inputRef.current.select();
-                }
-            }, 0);
-        }
-    }, [isRenaming, node.name]);
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -62,8 +92,8 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         }
     };
 
-    const handleRenameSubmit = () => {
-        const trimmed = renameValue.trim();
+    const finalizeRename = (newName: string) => {
+        const trimmed = newName.trim();
         if (trimmed) {
             // Re-append extension if it's a file and doesn't have it
             let finalName = trimmed;
@@ -76,14 +106,6 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleRenameSubmit();
-        } else if (e.key === 'Escape') {
-            setRenamingFileId(null);
-            setRenameValue(node.name);
-        }
-    };
 
     // Drag and Drop Handlers
     const handleDragStart = (e: React.DragEvent) => {
@@ -188,16 +210,10 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                 </span>
 
                 {isRenaming ? (
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        value={renameValue}
-                        onChange={(e) => setRenameValue(e.target.value)}
-                        onBlur={handleRenameSubmit}
-                        onKeyDown={handleKeyDown}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex-1 bg-transparent border border-[var(--editor-header-accent)] rounded-sm outline-none px-1 py-0 text-[13px] leading-none min-w-0"
-                        style={{ color: 'var(--text-primary)' }}
+                    <RenameInput
+                        initialValue={node.name.replace(/\.md$/, '')}
+                        onRename={finalizeRename}
+                        onCancel={() => setRenamingFileId(null)}
                     />
                 ) : (
                     <span

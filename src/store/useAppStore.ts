@@ -534,25 +534,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             };
 
             // 2. Validate move (prevent moving folder into self or descendant)
-            const isDescendant = (parentId: string, targetId: string, nodes: FileNode[]): boolean => {
-                for (const node of nodes) {
-                    if (node.id === parentId) {
-                        // Check if target is inside this node
-                        const checkChildren = (children: FileNode[]): boolean => {
-                            for (const child of children) {
-                                if (child.id === targetId) return true;
-                                if (child.children && checkChildren(child.children)) return true;
-                            }
-                            return false;
-                        };
-                        return node.children ? checkChildren(node.children) : false;
-                    }
-                    if (node.children) {
-                        if (isDescendant(parentId, targetId, node.children)) return true;
-                    }
-                }
-                return false;
-            };
+
 
             // If source is a folder, check if target is inside source
             // But wait, we need to find the source node first to know if it is a folder.

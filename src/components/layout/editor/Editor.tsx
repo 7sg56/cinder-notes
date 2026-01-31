@@ -117,9 +117,9 @@ export function Editor({ isPreview }: EditorProps) {
 
 // Hook to track previous value
 function usePrevious<T>(value: T): T | undefined {
-    const ref = React.useRef<T | undefined>(undefined);
-    React.useEffect(() => {
-        ref.current = value;
-    });
-    return ref.current;
+    const [tuple, setTuple] = React.useState<[T | undefined, T]>([undefined, value]);
+    if (tuple[1] !== value) {
+        setTuple([tuple[1], value]);
+    }
+    return tuple[0];
 }
