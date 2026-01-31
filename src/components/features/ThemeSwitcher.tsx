@@ -3,15 +3,9 @@ import { createPortal } from 'react-dom';
 import { Palette, Check } from 'lucide-react';
 
 const THEMES = [
-  { name: 'Monokai', value: '' },
-  { name: 'Dracula', value: 'theme-dracula' },
-  { name: 'Nord', value: 'theme-nord' },
-  { name: 'Tokyo Night', value: 'theme-tokyo-night' },
-  { name: 'Github Light', value: 'theme-github-light' },
-  { name: 'Solarized Dark', value: 'theme-solarized-dark' },
-  { name: 'One Dark', value: 'theme-one-dark' },
-  { name: 'Gruvbox Dark', value: 'theme-gruvbox-dark' },
-  { name: 'Material Dark', value: 'theme-material-dark' },
+  { name: 'Cinder Dark', value: '' },
+  { name: 'Cinder Light', value: 'theme-cinder-light' },
+  { name: 'Zen Black', value: 'theme-zen-black' },
 ];
 
 export function ThemeSwitcher() {

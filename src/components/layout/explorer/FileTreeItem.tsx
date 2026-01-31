@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FileNode } from '../../../data/mockFileSystem';
 import { useAppStore } from '../../../store/useAppStore';
-import { VscChevronRight, VscFile, VscFolder, VscFolderOpened } from 'react-icons/vsc';
+import { VscChevronRight } from 'react-icons/vsc';
 
 interface FileTreeItemProps {
     node: FileNode;
@@ -16,19 +16,26 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         setRenamingFileId,
         renameFile,
         expandedFolderIds,
-        toggleFolder
+        toggleFolder,
+        renameSource,
+        moveNode
     } = useAppStore();
 
     // Derived state from store
     const isOpen = expandedFolderIds.includes(node.id);
 
-    const [renameValue, setRenameValue] = useState(node.name);
+    // Initialize with name minus extension
+    const [renameValue, setRenameValue] = useState(node.name.replace(/\.md$/, ''));
+    const [isDragOver, setIsDragOver] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const isRenaming = renamingFileId === node.id;
+    // Allow renaming in explorer if it is explicitly an explorer rename (including new files)
+    const isRenaming = renamingFileId === node.id && renameSource === 'explorer';
 
     useEffect(() => {
         if (isRenaming) {
+            // Reset value when entering rename mode
+            setRenameValue(node.name.replace(/\.md$/, ''));
             // Wait for render to focus
             setTimeout(() => {
                 if (inputRef.current) {
@@ -37,7 +44,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                 }
             }, 0);
         }
-    }, [isRenaming]);
+    }, [isRenaming, node.name]);
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -51,13 +58,19 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
     const handleDoubleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (node.type === 'file') {
-            setRenamingFileId(node.id);
+            setRenamingFileId(node.id, 'explorer');
         }
     };
 
     const handleRenameSubmit = () => {
-        if (renameValue.trim()) {
-            renameFile(node.id, renameValue.trim());
+        const trimmed = renameValue.trim();
+        if (trimmed) {
+            // Re-append extension if it's a file and doesn't have it
+            let finalName = trimmed;
+            if (node.type === 'file' && !finalName.endsWith('.md')) {
+                finalName += '.md';
+            }
+            renameFile(node.id, finalName);
         } else {
             setRenamingFileId(null); // Cancel if empty
         }
@@ -72,6 +85,50 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         }
     };
 
+    // Drag and Drop Handlers
+    const handleDragStart = (e: React.DragEvent) => {
+        e.dataTransfer.setData('sourceId', node.id);
+        e.dataTransfer.effectAllowed = 'move';
+        // Add some transparency or visual feedback if desired
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault(); // Necessary to allow dropping
+        e.stopPropagation();
+
+        // Only allow dropping into folders
+        if (node.type === 'folder') {
+            e.dataTransfer.dropEffect = 'move';
+            setIsDragOver(true);
+
+            // Expand folder on hover (optional, maybe with delay?)
+            // For now, let's just highlight
+        } else {
+            e.dataTransfer.dropEffect = 'none';
+        }
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        const sourceId = e.dataTransfer.getData('sourceId');
+        if (sourceId && sourceId !== node.id) {
+            moveNode(sourceId, node.id);
+            // Auto-expand the target folder if it was closed
+            if (!isOpen) {
+                toggleFolder(node.id);
+            }
+        }
+    };
+
     const isActive = activeFileId === node.id;
     // Increased indentation: 16px per level + 16px base
     const paddingLeft = `${depth * 16 + 16}px`;
@@ -81,10 +138,23 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
             <div
                 onClick={handleClick}
                 onDoubleClick={handleDoubleClick}
+                draggable={!isRenaming} // Allow dragging unless renaming
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
                 style={{
                     paddingLeft,
-                    backgroundColor: isActive ? 'var(--filetree-bg-active)' : 'transparent',
-                    color: isActive ? 'var(--filetree-text-active)' : 'var(--filetree-text)'
+                    // Use active bg if active, OR drag over color if drag over
+                    backgroundColor: isDragOver
+                        ? 'var(--filetree-bg-hover)' // or a specific drop target color
+                        : isActive
+                            ? 'var(--filetree-bg-active)'
+                            : 'transparent',
+                    color: isActive ? 'var(--filetree-text-active)' : 'var(--filetree-text)',
+                    // Add border for drag over visibility
+                    outline: isDragOver ? '1px dashed var(--editor-header-accent)' : 'none',
+                    outlineOffset: '-1px'
                 }}
                 // Removed border-l-2 to fix "bright white border" issue
                 className={`group flex items-center py-1.5 cursor-pointer text-[13px] font-medium select-none transition-colors`}
@@ -117,14 +187,6 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                     )}
                 </span>
 
-                <span className="mr-2 opacity-100 shrink-0 flex items-center">
-                    {node.type === 'folder' ? (
-                        isOpen ? <VscFolderOpened size={16} style={{ color: 'var(--filetree-icon)' }} /> : <VscFolder size={16} style={{ color: 'var(--filetree-icon)' }} />
-                    ) : (
-                        <VscFile size={16} style={{ color: 'var(--filetree-icon)' }} />
-                    )}
-                </span>
-
                 {isRenaming ? (
                     <input
                         ref={inputRef}
@@ -138,7 +200,11 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                         style={{ color: 'var(--text-primary)' }}
                     />
                 ) : (
-                    <span className="truncate font-normal tracking-wide">{node.name}</span>
+                    <span
+                        className={`truncate font-normal tracking-wide ${node.type === 'folder' ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-secondary)]'}`}
+                    >
+                        {node.name.replace(/\.md$/, '')}
+                    </span>
                 )}
             </div>
 

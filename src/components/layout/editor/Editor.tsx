@@ -1,3 +1,4 @@
+import React, { useEffect, useRef } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -9,18 +10,29 @@ interface EditorProps {
 }
 
 export function Editor({ isPreview }: EditorProps) {
-    const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
+    const { activeFileId, activeFileContent, updateFileContent, renamingFileId } = useAppStore();
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const prevRenamingFileId = usePrevious(renamingFileId);
 
     const isBlankTab = activeFileId?.startsWith('new-tab-');
 
+    // Focus editor when renaming finishes
+    useEffect(() => {
+        // If we were renaming (prevRenamingFileId exists) and now we are not (renamingFileId is null)
+        // AND the active file is still the one we were renaming (or just exists)
+        if (prevRenamingFileId && !renamingFileId && !isBlankTab && !isPreview) {
+            textareaRef.current?.focus();
+        }
+    }, [renamingFileId, prevRenamingFileId, isBlankTab, isPreview]);
+
     return (
-        <div 
+        <div
             className="h-full flex flex-col relative group transition-colors duration-300"
             style={{ backgroundColor: 'var(--editor-bg)' }}
         >
-            {!activeFileId || isBlankTab ? (
+            {!activeFileId || activeFileId === 'welcome' ? (
                 /* --- EMPTY STATE --- */
-                <div 
+                <div
                     className="flex-1 flex items-center justify-center"
                     style={{ backgroundColor: 'var(--editor-bg)' }}
                 >
@@ -30,7 +42,7 @@ export function Editor({ isPreview }: EditorProps) {
                                 <Sparkles size={40} style={{ color: 'var(--editor-header-accent)' }} className="opacity-80" />
                             </div>
                         </div>
-                        
+
                         <h1 className="mb-2 text-3xl font-bold tracking-tight" style={{ color: 'var(--text-white)' }}>
                             Cinder Notes
                         </h1>
@@ -84,6 +96,7 @@ export function Editor({ isPreview }: EditorProps) {
                                 textarea::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 10px; }
                             `}</style>
                             <textarea
+                                ref={textareaRef}
                                 className="flex-1 w-full h-full p-10 outline-none resize-none font-mono text-[14px] leading-[1.8] transition-colors"
                                 style={{
                                     backgroundColor: 'var(--editor-bg)',
@@ -99,5 +112,14 @@ export function Editor({ isPreview }: EditorProps) {
                 </div>
             )}
         </div>
-    );
+    )
+}
+
+// Hook to track previous value
+function usePrevious<T>(value: T): T | undefined {
+    const ref = React.useRef<T | undefined>(undefined);
+    React.useEffect(() => {
+        ref.current = value;
+    });
+    return ref.current;
 }

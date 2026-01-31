@@ -18,7 +18,7 @@ export function EditorTabs() {
                 const isActive = activeFileId === fileId;
                 const isBlankTab = fileId.startsWith('new-tab-');
                 const isWelcomeTab = fileId === 'welcome';
-                const tabName = isWelcomeTab ? 'Welcome' : (isBlankTab ? 'Untitled' : file?.name);
+                const tabName = isWelcomeTab ? 'Welcome' : (isBlankTab ? 'Untitled' : file?.name.replace(/\.md$/, ''));
 
                 return (
                     <div

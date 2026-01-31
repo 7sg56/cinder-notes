@@ -1,38 +1,49 @@
-import { Settings, Archive } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { ThemeSwitcher } from '../../features/ThemeSwitcher';
-
+import appIcon from '../../../assets/app-icon.png';
 
 export function ExplorerFooter() {
     return (
-        <div 
-            className="flex items-center justify-between border-t px-2 py-1.5"
+        <div
+            className="flex items-center justify-between border-t h-14 select-none"
             style={{
                 backgroundColor: 'var(--bg-primary)',
-                borderColor: 'var(--border-secondary)'
+                borderColor: 'var(--border-primary)'
             }}
         >
-            {/* Cinder Vault */}
-            <div 
-                className="flex items-center gap-2 cursor-pointer px-2 py-1 rounded group transition-colors"
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-                <Archive size={14} className="opacity-80 group-hover:opacity-100" style={{ color: '#a6e22e' }} />
-                <span className="text-[12px] font-medium opacity-80 group-hover:opacity-100" style={{ color: 'white' }}>Cinder Vault</span>
+            {/* Left: Icon | Vault Name */}
+            <div className="flex items-center h-full">
+                {/* App Icon */}
+                <div className="flex items-center justify-center px-3 h-full">
+                    <img src={appIcon} alt="App Icon" className="h-[40px] w-auto object-contain" />
+                </div>
+
+                {/* Vertical Separator */}
+                <div className="h-full w-px bg-white/10" style={{ backgroundColor: 'var(--border-primary)' }} />
+
+                {/* Vault Name */}
+                <div className="flex items-center px-3 h-full">
+                    <span className="text-[13px] font-medium truncate max-w-[120px]" style={{ color: 'var(--text-primary)' }}>
+                        .cinder
+                    </span>
+                </div>
             </div>
 
-            {/* Settings, Theme & Help */}
-            <div className="flex items-center gap-0.5">
-                <div 
-                    className="p-1.5 cursor-pointer rounded group transition-colors" 
-                    style={{ color: 'var(--text-primary)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    title="Settings"
-                >
-                    <Settings size={14} className="opacity-60 group-hover:opacity-100" />
+            {/* Right: Border | Settings & Theme */}
+            <div className="flex items-center h-full">
+                {/* Vertical Separator */}
+                <div className="h-full w-px bg-white/10 mx-2" style={{ backgroundColor: 'var(--border-primary)' }} />
+
+                <div className="flex items-center gap-1 pr-2">
+                    <div
+                        className="p-1.5 cursor-pointer rounded-md hover:bg-[var(--bg-hover)] transition-colors"
+                        title="Settings"
+                        style={{ color: 'var(--text-secondary)' }}
+                    >
+                        <Settings size={15} />
+                    </div>
+                    <ThemeSwitcher />
                 </div>
-                <ThemeSwitcher />
             </div>
         </div>
     );

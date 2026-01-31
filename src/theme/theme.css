@@ -1,18 +1,26 @@
 /* ============================================
-   GLOBAL & MONOKAI (Default Studio)
+   CINDER DARK (Default)
+   Sidebar: #1f1f23 (Lighter)
+   Editor:  #141417 (Darker)
    ============================================ */
 :root {
   /* Surface hierarchy */
-  --bg-primary: #0a0a0c;      /* Deepest Black - Editor */
-  --bg-secondary: #121214;    /* Sidebar/Status Bar */
-  --bg-tertiary: #1a1a1c;     /* Tabs/Popups */
+  --bg-primary: #141417;
+  /* Editor */
+  --bg-secondary: #1f1f23;
+  /* Sidebar/Status Bar - Lighter */
+  --bg-tertiary: #1a1a1c;
+  /* Tabs/Popups */
   --bg-hover: rgba(255, 255, 255, 0.05);
   --bg-active: rgba(244, 140, 37, 0.1);
 
   /* Text hierarchy */
-  --text-primary: #ffffff;    /* High contrast */
-  --text-secondary: #a1a1aa;  /* Muted metadata */
-  --text-tertiary: #52525b;   /* Low contrast labels */
+  --text-primary: #ffffff;
+  /* High contrast */
+  --text-secondary: #a1a1aa;
+  /* Muted metadata */
+  --text-tertiary: #52525b;
+  /* Low contrast labels */
   --text-white: #ffffff;
   --text-light-gray: #27272a;
 
@@ -39,57 +47,78 @@
   --editor-selection-bg: rgba(244, 140, 37, 0.25);
   --activity-bar-bg: var(--bg-secondary);
   --activity-item-border-active: var(--editor-header-accent);
-  
+
   --filetree-text-active: var(--editor-header-accent);
   --filetree-bg-active: rgba(255, 255, 255, 0.03);
 }
 
 /* ============================================
-   DRACULA STUDIO (Purple Tinted)
+   CINDER LIGHT
+   Sidebar: #f2efe7 (Darker Beige)
+   Editor:  #fdfaf0 (Warm Cream)
    ============================================ */
-:root.theme-dracula {
-  --bg-primary: #1e1f29;
-  --bg-secondary: #282a36;
-  --bg-tertiary: #343746;
-  --text-secondary: #6272a4;
-  --border-primary: rgba(0, 0, 0, 0.3);
-  --markdown-heading: #bd93f9;
-  --editor-selection-bg: rgba(189, 147, 249, 0.3);
+:root.theme-cinder-light {
+  /* Surface hierarchy */
+  --bg-primary: #fdfaf0;
+  /* Editor - Warm Cream */
+  --bg-secondary: #f2efe7;
+  /* Sidebar - Darker Beige */
+  --bg-tertiary: #e8e5dd;
+  /* Tabs/Popups */
+  --bg-hover: rgba(0, 0, 0, 0.05);
+  --bg-active: rgba(244, 140, 37, 0.1);
+
+  /* Text hierarchy */
+  --text-primary: #18181b;
+  /* High contrast */
+  --text-secondary: #52525b;
+  /* Muted metadata */
+  --text-tertiary: #a1a1aa;
+  /* Low contrast labels */
+  --text-white: #ffffff;
+  --text-light-gray: #e4e4e7;
+  /* For reverse contrast needs */
+
+  /* Borders */
+  --border-primary: rgba(0, 0, 0, 0.08);
+  --border-secondary: rgba(0, 0, 0, 0.15);
+  /* --border-hover is inherited */
+
+  /* Markdown */
+  --markdown-heading: #18181b;
+  --markdown-code-bg: #f4f4f5;
+
+  /* Interactive */
+  --editor-bg: var(--bg-primary);
+  --editor-text: var(--text-primary);
+  --editor-selection-bg: rgba(244, 140, 37, 0.2);
+  --activity-bar-bg: var(--bg-secondary);
+
+  --filetree-text-active: #d97706;
+  /* Slightly darker orange for visibility on light */
+  --filetree-bg-active: rgba(0, 0, 0, 0.04);
 }
 
 /* ============================================
-   NORD STUDIO (Frost Tinted)
+   ZEN BLACK
+   Sidebar: #0a0a0a (Lighter)
+   Editor:  #000000 (Darker - Pitch Black)
    ============================================ */
-:root.theme-nord {
-  --bg-primary: #2e3440;
-  --bg-secondary: #3b4252;
-  --bg-tertiary: #434c5e;
-  --text-secondary: #81a1c1;
-  --markdown-heading: #88c0d0;
-  --editor-selection-bg: rgba(136, 192, 208, 0.3);
-}
+:root.theme-zen-black {
+  /* Surface hierarchy */
+  --bg-primary: #000000;
+  /* Pitch Black - Editor */
+  --bg-secondary: #0a0a0a;
+  /* Sidebar - Lighter */
+  --bg-tertiary: #121212;
+  /* Tabs/Popups */
+  --bg-hover: rgba(255, 255, 255, 0.08);
 
-/* ============================================
-   GITHUB LIGHT (Clean Studio)
-   ============================================ */
-:root.theme-github-light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f6f8fa;
-  --bg-tertiary: #eff1f3;
-  --text-primary: #1f2328;
-  --text-secondary: #656d76;
-  --text-tertiary: #8c959f;
-  --border-primary: rgba(31, 35, 40, 0.08);
-  --border-secondary: rgba(31, 35, 40, 0.15);
-  --editor-header-accent: #0969da; /* Blue for light mode accessibility */
-  --editor-bg: #ffffff;
-  --editor-text: #1f2328;
-  --editor-selection-bg: #cce5ff;
-  --markdown-heading: #0969da;
+  /* Borders - More subtle */
+  --border-primary: rgba(255, 255, 255, 0.05);
+  --border-secondary: rgba(255, 255, 255, 0.1);
 
-  --markdown-link: #0969da;
-  --markdown-code: #d73a49;
-  --markdown-code-bg: #f6f8fa;
-  --markdown-strong: #1f2328;
-  --markdown-list: #d73a49;
+  /* Editor specific */
+  --editor-bg: #000000;
+  --activity-bar-bg: var(--bg-secondary);
 }

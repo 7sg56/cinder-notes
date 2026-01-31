@@ -4,7 +4,8 @@ import type { FileNode } from '../../../data/mockFileSystem';
 import { FileTreeItem } from './FileTreeItem';
 import { ExplorerFooter } from './ExplorerFooter';
 
-import { VscSearch, VscAdd } from 'react-icons/vsc';
+import { VscSearch, VscTypeHierarchy } from 'react-icons/vsc';
+import { SquarePen } from 'lucide-react';
 
 // Helper to filter nodes recursively
 const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
@@ -34,7 +35,7 @@ const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
 };
 
 export function FileExplorer() {
-    const { files, createNewTab } = useAppStore();
+    const { files, createFile } = useAppStore();
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredFiles = useMemo(() => {
@@ -49,13 +50,14 @@ export function FileExplorer() {
         >
             {/* Header: Explorer Title (Matches Tab Height) */}
             <div
-                className="h-[40px] shrink-0 flex items-center px-4 border-b select-none"
+                className="h-[40px] shrink-0 flex items-center justify-between px-4 border-b select-none"
                 style={{
                     color: 'var(--text-secondary)',
                     borderColor: 'var(--border-primary)'
                 }}
             >
                 <span className="text-[11px] font-bold tracking-wider opacity-60 uppercase pl-1">Explorer</span>
+                <VscTypeHierarchy size={15} className="opacity-60" />
             </div>
 
             {/* Search Bar Row */}
@@ -79,12 +81,12 @@ export function FileExplorer() {
                 </div>
 
                 <button
-                    onClick={() => createNewTab()}
-                    className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-tertiary)]"
+                    onClick={() => createFile()}
+                    className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
                     style={{ color: 'var(--text-secondary)' }}
-                    title="New File"
+                    title="New Note"
                 >
-                    <VscAdd size={16} />
+                    <SquarePen size={15} strokeWidth={2.5} />
                 </button>
             </div>
 
