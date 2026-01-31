@@ -1,67 +1,125 @@
-# Contributing to Cinder Notes
+# How to contribute to Cinder Notes
 
-Thank you for your interest in contributing to Cinder Notes! We welcome contributions from everyone.
+**Thanks for helping Cinder Notes grow!** Bug fixes, features, docs, performance tuning, accessibility, and any other improvements are welcome through [pull requests](https://github.com/7sg56/cinder-notes/compare/).
 
-## Before you start
-- **Star the repo** ⭐: It's optional but really appreciated!
-- **Check existing issues**: Before opening a new one, please check if it has already been reported or discussed.
+## Prerequisites
 
-## Development Setup
+- **Node.js**: LTS version recommended ([Download](https://nodejs.org/)).
+- **Rust & Cargo**: Follow the installation steps below for your operating system.
+- **System Dependencies**:
+  - **Linux**: `libwebkit2gtk-4.0-dev`, `build-essential`, `libssl-dev`, `libgtk-3-dev`, etc. (See [Tauri Guide](https://tauri.app/v1/guides/getting-started/prerequisites#linux))
+  - **Windows/macOS**: Ensure you have build tools installed (VS C++ Build Tools or Xcode).
 
-### 1. Install Prerequisites
 
-#### Node.js
-You need Node.js (LTS version recommended) to manage frontend dependencies.
-- [Download Node.js](https://nodejs.org/)
 
-#### Rust & Cargo
-Since this is a Tauri app, you need the Rust toolchain installed.
-1. **Install via Rustup**:
-   Run the following in your terminal (macOS/Linux):
-   ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   ```
-   *For Windows, download the executable from [rustup.rs](https://rustup.rs).*
+### Installing Rust & Cargo
+## Contribution Workflow
 
-2. **Verify Installation**:
-   Restart your terminal and run:
-   ```bash
-   rustc --version
-   cargo --version
-   ```
+We follow a classic open-source workflow using Forks and Pull Requests.
 
-> **Linux Users**: You'll likely need system webkit dependencies. Please run:
-> `sudo apt-get install libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev`
-> *(See [Tauri Linux Guide](https://tauri.app/v1/guides/getting-started/prerequisites#linux) for other distros)*
+1.  **Fork the repository**: Click the "Fork" button on the top right of the repository page to create your own copy.
+2.  **Clone your fork**:
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/cinder-notes.git
+    cd cinder-notes
+    ```
+3.  **Create a Branch**: Always create a new branch for your changes.
+    ```bash
+    git checkout -b feat/your-feature-name
+    ```
+4.  **Make Changes & Commit**:
+    ```bash
+    git add .
+    git commit -m "feat: add amazing feature"
+    ```
+5.  **Push to your Fork**:
+    ```bash
+    git push origin feat/your-feature-name
+    ```
+6.  **Open a Pull Request**: Go to the original `cinder-notes` repository and you'll see a prompt to open a PR from your branch. Target the `main` branch.
 
-### 2. Project Setup
-   ```bash
-   # Clone the repository
-   git clone https://github.com/7sg56/cinder-notes.git
-   cd cinder-notes
+- `main` is the primary branch. All PRs should target `main`.
 
-   # Install dependencies
-   npm install
-   ```
+## Prerequisites
 
-3. **Running**:
-   ```bash
-   # Start the app in development mode
-   npm run tauri:dev
-   ```
+-   **Node.js**: LTS version recommended ([Download](https://nodejs.org/)).
+-   **Rust & Cargo**: Follow instructions at [rustup.rs](https://rustup.rs).
+-   **System Dependencies**:
+    -   **Linux**: `libwebkit2gtk-4.0-dev`, `build-essential`, `libssl-dev`, `libgtk-3-dev`, etc. (See [Tauri Guide](https://tauri.app/v1/guides/getting-started/prerequisites#linux))
+    -   **Windows/macOS**: Generally straightforward, ensure you have build tools installed (VS C++ Build Tools or Xcode).
 
-## How to contribute
-1. **Fork the repo** to your GitHub account.
-2. **Create a new branch** for your feature or fix.
-   - Use the format: `feat/your-feature-name` or `fix/bug-name`
-3. **Make your changes** in the codebase.
-4. **Open a Pull Request** (PR) to the `main` branch.
+### Installing Rust & Cargo
 
-## Code rules
-- **Keep code readable**: Write clean, self-documenting code.
-- **Follow existing style**: Consistency is key.
-- **Comment complex logic**: If it's hard to write, it's hard to read. Explain the *why*, not just the *how*.
+#### 🍎 macOS & 🐧 Linux
+Run the following command in your terminal:
 
-## What NOT to do
-- ❌ **No unrelated refactors**: keep your PR focused on the specific feature or fix.
-- ❌ **No breaking changes** without prior discussion in an issue.
+```bash
+# Install rustup (the Rust installer)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Configure your current shell
+source $HOME/.cargo/env
+```
+
+## Local Setup
+
+1.  **Clone your fork** (as described above):
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/cinder-notes.git
+    cd cinder-notes
+    ```
+
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+
+3.  **Verify Environment**:
+    Ensure `rustc --version` and `cargo --version` return valid versions.
+
+## Build & Run
+
+-   **Development Mode**:
+    ```bash
+    npm run tauri:dev
+    ```
+    This command starts the frontend server and the Tauri backend in watch mode.
+
+-   **Production Build**:
+    ```bash
+    npm run tauri:build
+    ```
+    Artifacts will be in `src-tauri/target/release/`.
+
+## Code Style & Quality
+
+-   **Linting**:
+    -   Run `npm run lint` to check for code style issues.
+    -   Run `npm run typecheck` to verify TypeScript types.
+-   **Formatting**:
+    -   We use Prettier. Ensure your editor is configured to format on save, or run `npm run format` (if script exists) or use your IDE's formatter.
+-   **Scope**: Keep diffs focused. Avoid committing `node_modules`, `src-tauri/target`, or other ignored paths.
+-   **Visual Verification**: If you modify UI, include a screenshot or short video in your PR description so reviewers can verify the change quickly.
+
+## Commit & Pull Requests
+
+-   **Commit Messages**: Use the [Conventional Commits](https://www.conventionalcommits.org/) format (e.g., `feat: add welcome page`, `fix: resolve file renaming bug`).
+-   **Squash**: Squash unrelated changes into separate commits/PRs.
+-   **Rebase**: Ensure your branch is updated with the latest `main` before requesting review.
+-   **PR Template**: Fill in the PR template and describe testing steps (manual or automated).
+
+## Issues & Feature Ideas
+
+-   **Discussion**: For sizeable features, open a discussion/issue first so we can align on scope and UX.
+-   **Bugs**: When reporting bugs, include the OS version, app version, reproduction steps, and relevant logs if available.
+-   **Minor Fixes**: Typos or minor doc fixes can go straight to PRs without an issue.
+
+## Release Build
+
+To build a release version locally for testing:
+```bash
+npm run tauri:build
+```
+This typically requires setup for code signing particularly on macOS. For local testing, ad-hoc signatures often suffice or you can run in dev mode.
+
+Thank you for investing time in Cinder Notes! ❤️
