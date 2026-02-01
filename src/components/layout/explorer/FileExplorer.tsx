@@ -23,10 +23,6 @@ const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
             const matchesName = node.name.toLowerCase().includes(query.toLowerCase());
 
             if (matchesName || filteredChildren.length > 0) {
-                // If folder name matches, show all children? Or just filtered ones?
-                // Usually search filters strictly.
-                // We'll return the node with filtered children (unless folder name matched, maybe we want to show context? 
-                // Let's strict filter children for now to find specific files.
                 acc.push({ ...node, children: filteredChildren });
             }
         }
@@ -35,13 +31,28 @@ const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
 };
 
 export function FileExplorer() {
-    const { files, createFile } = useAppStore();
+    const { files, createFile, moveNode } = useAppStore();
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredFiles = useMemo(() => {
         if (!searchQuery.trim()) return files;
         return filterNodes(files, searchQuery.trim());
     }, [files, searchQuery]);
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const sourceId = e.dataTransfer.getData('sourceId');
+        if (sourceId) {
+            moveNode(sourceId, 'root', 'root');
+        }
+    };
 
     return (
         <div
@@ -91,7 +102,11 @@ export function FileExplorer() {
             </div>
 
             {/* Main File List */}
-            <div className="flex-1 overflow-y-auto no-scrollbar pt-0 px-2 pb-2">
+            <div
+                className="flex-1 overflow-y-auto no-scrollbar pt-0 px-2 pb-2"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+            >
                 {filteredFiles.length === 0 ? (
                     <div className="px-4 py-4 text-center text-[12px] opacity-50 select-none">
                         No matches found

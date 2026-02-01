@@ -1,6 +1,6 @@
 import { Settings } from 'lucide-react';
 import { ThemeSwitcher } from '../../features/ThemeSwitcher';
-import appIcon from '../../../assets/app-icon.png';
+
 
 export function ExplorerFooter() {
     return (
@@ -11,18 +11,10 @@ export function ExplorerFooter() {
                 borderColor: 'var(--border-primary)'
             }}
         >
-            {/* Left: Icon | Vault Name */}
+            {/* Left: Vault Name */}
             <div className="flex items-center h-full">
-                {/* App Icon */}
-                <div className="flex items-center justify-center px-3 h-full">
-                    <img src={appIcon} alt="App Icon" className="h-[40px] w-auto object-contain" />
-                </div>
-
-                {/* Vertical Separator */}
-                <div className="h-full w-px bg-white/10" style={{ backgroundColor: 'var(--border-primary)' }} />
-
                 {/* Vault Name */}
-                <div className="flex items-center px-3 h-full">
+                <div className="flex items-center px-4 h-full">
                     <span className="text-[13px] font-medium truncate max-w-[120px]" style={{ color: 'var(--text-primary)' }}>
                         .cinder
                     </span>

@@ -36,7 +36,7 @@ interface AppState {
     toggleFolder: (folderId: string) => void;
     expandFolder: (folderId: string) => void;
     collapseFolder: (folderId: string) => void;
-    moveNode: (sourceId: string, targetFolderId: string) => void;
+    moveNode: (sourceId: string, targetId: string, position: 'inside' | 'before' | 'after' | 'root') => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -504,12 +504,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         }));
     },
 
-    moveNode: (sourceId: string, targetFolderId: string) => {
+    moveNode: (sourceId: string, targetId: string, position: 'inside' | 'before' | 'after' | 'root') => {
         set((state) => {
-            // 1. Find and clone the files tree
             const files = [...state.files];
 
-            // Helper to find and remove a node
+            // 1. Find and Remove Source
+            console.log(`[moveNode] Moving ${sourceId} -> ${targetId} (${position})`);
             let detachedNode: FileNode | null = null;
 
             const removeNode = (nodes: FileNode[]): FileNode[] => {
@@ -517,7 +517,7 @@ export const useAppStore = create<AppState>((set, get) => ({
                 for (const node of nodes) {
                     if (node.id === sourceId) {
                         detachedNode = node;
-                        continue;
+                        continue; // Remove it
                     }
                     if (node.children) {
                         const newChildren = removeNode(node.children);
@@ -533,89 +533,72 @@ export const useAppStore = create<AppState>((set, get) => ({
                 return result;
             };
 
-            // 2. Validate move (prevent moving folder into self or descendant)
-
-
-            // If source is a folder, check if target is inside source
-            // But wait, we need to find the source node first to know if it is a folder.
-            // Let's do a find first.
-            const findNode = (id: string, nodes: FileNode[]): FileNode | null => {
-                for (const node of nodes) {
-                    if (node.id === id) return node;
-                    if (node.children) {
-                        const found = findNode(id, node.children);
-                        if (found) return found;
-                    }
-                }
-                return null;
-            };
-
-            const sourceNode = findNode(sourceId, files);
-            if (!sourceNode) return {}; // Source not found
-
-            if (sourceNode.id === targetFolderId) return {}; // Can't move into self
-
-            if (sourceNode.type === 'folder') {
-                // Check if target is a descendant of source
-                // A simple way is to traverse the sourceNode's children and see if target is there
-                const isTargetDescendant = (node: FileNode): boolean => {
-                    if (!node.children) return false;
-                    for (const child of node.children) {
-                        if (child.id === targetFolderId) return true;
-                        if (isTargetDescendant(child)) return true;
-                    }
-                    return false;
-                };
-                if (isTargetDescendant(sourceNode)) {
-                    console.warn('Cannot move folder into its own descendant');
-                    return {};
-                }
-            }
-
-            // 3. Remove node from old location
             const newFilesWithoutSource = removeNode(files);
 
-            if (!detachedNode) return {}; // Should not happen if sourceNode found
-
-            // 4. Add to new location
-            const insertNode = (nodes: FileNode[]): FileNode[] => {
-                return nodes.map(node => {
-                    if (node.id === targetFolderId) {
-                        // Check for name collision in target
-                        let finalName = detachedNode!.name;
-                        let counter = 0;
-                        const baseName = finalName.replace(/\.md$/, '');
-                        const ext = finalName.endsWith('.md') ? '.md' : '';
-
-                        const exists = (name: string) => node.children?.some(c => c.name === name);
-
-                        while (exists(finalName)) {
-                            counter++;
-                            finalName = `${baseName} ${counter}${ext}`;
-                        }
-
-                        return {
-                            ...node,
-                            children: node.children ? [...node.children, { ...detachedNode!, name: finalName }] : [{ ...detachedNode!, name: finalName }]
-                        };
-                    }
-                    if (node.children) {
-                        return { ...node, children: insertNode(node.children) };
-                    }
-                    return node;
-                });
-            };
-
-            // Special case: moving to root
-            if (targetFolderId === 'root') {
-                // The root folder is usually not in the files array itself if files is struct as content of root
-                // Wait, mockFileSystem is `FileNode[]`. 
-                // And root is `mockFileSystem[0]`.
-                // So if target is 'root', we insert into `mockFileSystem[0].children`.
-                // Our recursion handles it if 'root' is one of the nodes.
+            if (!detachedNode) {
+                console.error('[moveNode] Source node not found:', sourceId);
+                return {};
             }
 
-            const finalFiles = insertNode(newFilesWithoutSource);
+            // 2. Validate Target & Insert
+            if (targetId === 'root') {
+                console.log('[moveNode] Dropping at root');
+                return { files: [...newFilesWithoutSource, detachedNode!] };
+            }
+
+            let inserted = false;
+
+            // We need a pass to insert, then maybe a pass to fix names?
+            // Merging insertion and name fix is tricky with immutable recursive structure.
+            // Let's rely on `insertNode` for structural change.
+            // Warning: `insertNode` as written above for 'before/after' returns a flattened list for that level.
+            // But we need to update `newFilesWithoutSource` recursively.
+
+            // Re-write insertion to be cleaner
+            const insertRecursive = (list: FileNode[]): FileNode[] => {
+                const newList: FileNode[] = [];
+
+                for (const node of list) {
+                    if (node.id === targetId) {
+                        console.log('[moveNode] Target found:', node.id);
+                        inserted = true;
+                        // Prepare node to insert (detachedNode)
+                        // We don't check name collision here optimally but let's assume UI handles it or we fix it later
+                        // For now, inserted node gets raw name.
+
+                        if (position === 'before') {
+                            newList.push(detachedNode!);
+                            newList.push(node);
+                        } else if (position === 'after') {
+                            newList.push(node);
+                            newList.push(detachedNode!);
+                        } else if (position === 'inside') {
+                            const children = node.children || [];
+                            const newChildren = [...children, detachedNode!];
+                            newList.push({ ...node, children: newChildren });
+                        }
+                    } else {
+                        if (node.children) {
+                            const newChildren = insertRecursive(node.children);
+                            if (newChildren !== node.children) {
+                                newList.push({ ...node, children: newChildren });
+                            } else {
+                                newList.push(node);
+                            }
+                        } else {
+                            newList.push(node);
+                        }
+                    }
+                }
+                return newList;
+            };
+
+            const finalFiles = insertRecursive(newFilesWithoutSource);
+
+            if (!inserted) {
+                console.error('[moveNode] Target node not found, aborting move to prevent data loss:', targetId);
+                return {}; // Return nothing to keep original state
+            }
 
             return { files: finalFiles };
         });

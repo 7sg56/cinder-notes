@@ -10,41 +10,20 @@ export interface FileNode {
 
 export const mockFileSystem: FileNode[] = [
   {
-    id: 'root',
-    name: '.cinder',
+    id: 'folder-1',
+    name: 'Project Alpha',
     type: 'folder',
     children: [
-      {
-        id: '1',
-        name: 'Welcome.md',
-        type: 'file',
-        content: '# Welcome to Cinder Notes\n\nThis is a minimal modal note app.',
-      },
-      {
-        id: '2',
-        name: 'Todo',
-        type: 'folder',
-        children: [
-          {
-            id: '2-1',
-            name: 'Personal.md',
-            type: 'file',
-            content: '# Personal Todos\n\n- [ ] Buy groceries\n- [ ] Call mom',
-          },
-          {
-            id: '2-2',
-            name: 'Work.md',
-            type: 'file',
-            content: '# Work Todos\n\n- [ ] Finish scaffolding\n- [ ] Review PRs',
-          },
-        ],
-      },
-      {
-        id: '3',
-        name: 'Ideas.md',
-        type: 'file',
-        content: '# App Ideas\n\n- [ ] Add dark mode\n- [ ] Add vim mode',
-      },
-    ],
+      { id: 'file-1-1', name: 'Notes.md', type: 'file', content: '# Alpha Notes\n- Important item' },
+      { id: 'file-1-2', name: 'Specs.md', type: 'file', content: '# Specifications\n- v1.0' },
+    ]
   },
+  {
+    id: 'folder-2',
+    name: 'Personal',
+    type: 'folder',
+    children: []
+  },
+  { id: 'file-root-1', name: 'Todo.md', type: 'file', content: '- [ ] Buy milk' },
+  { id: 'file-root-2', name: 'Ideas.md', type: 'file', content: '# Ideas\n- New app' }
 ];
