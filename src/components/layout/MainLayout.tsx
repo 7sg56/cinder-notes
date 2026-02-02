@@ -1,7 +1,6 @@
 import { useRef, useCallback, useState } from 'react';
 // import { ActivityBar } from '../features/activity-bar/ActivityBar';
 import { useAppStore } from '../../store/useAppStore';
-import { ChevronRight } from 'lucide-react';
 
 interface MainLayoutProps {
     sidebarContent: React.ReactNode;
@@ -38,7 +37,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
             const windowWidth = window.innerWidth;
             const computedWidth = (newWidthPx / windowWidth) * 100;
 
-            if (computedWidth < 10) {
+            if (computedWidth < 12) {
                 if (!useAppStore.getState().isExplorerCollapsed) {
                     setExplorerCollapsed(true);
                 }
@@ -62,7 +61,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
 
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
-    }, [setExplorerCollapsed, setSidebarWidth]);
+    }, [setSidebarWidth, setExplorerCollapsed]);
 
     const toggleSidebar = () => {
         setExplorerCollapsed(!isExplorerCollapsed);
@@ -86,36 +85,14 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
                     ref={sidebarRef}
                     className="flex flex-col h-full overflow-hidden relative transition-all duration-75 ease-out"
                     style={{
-                        width: isExplorerCollapsed ? '50px' : `${sidebarWidth}%`,
+                        width: isExplorerCollapsed ? '0px' : `${sidebarWidth}%`,
                         backgroundColor: 'var(--bg-primary)',
                         transition: isResizing ? 'none' : 'width 200ms ease-in-out'
                     }}
                 >
-                    {isExplorerCollapsed ? (
-                        <div
-                            className="w-full h-full flex flex-col items-center py-3 gap-2 transition-colors border-r"
-                            style={{
-                                borderColor: 'var(--border-secondary)'
-                            }}
-                        >
-                            <button
-                                onClick={toggleSidebar}
-                                className="p-2 rounded transition-colors group bg-blue-500 hover:bg-blue-600 text-white"
-                                style={{
-                                    color: 'white',
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-                                title="Expand Explorer"
-                            >
-                                <ChevronRight size={18} />
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col h-full w-full">
-                            {sidebarContent}
-                        </div>
-                    )}
+                    <div className="flex flex-col h-full w-full min-w-[200px]">
+                        {sidebarContent}
+                    </div>
                 </div>
 
                 {/* Resize Handle */}

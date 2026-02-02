@@ -1,4 +1,4 @@
-import { FilePlus, FolderOpen, Settings, Sparkles, Command, Blocks } from 'lucide-react';
+import { FilePlus, FolderOpen, Settings, Command, Blocks } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 
 export function WelcomePage() {
@@ -27,19 +27,6 @@ export function WelcomePage() {
 
             {/* Main Centered Content Wrapper */}
             <div className="flex flex-col items-center w-full max-w-[400px]">
-
-                {/* Logo & Header */}
-                <div className="mb-16 flex flex-col items-center text-center">
-                    <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 mb-6 shadow-xl shadow-orange-500/5">
-                        <Sparkles size={48} className="text-orange-500" />
-                    </div>
-                    <h1 className="text-4xl font-bold tracking-tight mb-2 text-white">
-                        Welcome to Cinder
-                    </h1>
-                    <p className="text-sm text-gray-500 italic">
-                        The editor for what's next.
-                    </p>
-                </div>
 
                 {/* Actions List */}
                 <div className="w-full space-y-12">

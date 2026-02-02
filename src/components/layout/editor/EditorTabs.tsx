@@ -1,4 +1,4 @@
-import { X, Plus, FileText, Sparkles, PanelLeft } from 'lucide-react';
+import { X, Plus, FileText, PanelLeft, Gift } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
 
 export function EditorTabs() {
@@ -44,7 +44,7 @@ export function EditorTabs() {
                             )}
 
                             {isWelcomeTab && (
-                                <Sparkles
+                                <Gift
                                     size={14}
                                     className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
                                     style={{

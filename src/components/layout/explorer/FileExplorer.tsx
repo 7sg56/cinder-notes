@@ -48,7 +48,7 @@ export function FileExplorer() {
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        const sourceId = e.dataTransfer.getData('sourceId');
+        const sourceId = e.dataTransfer.getData('text/plain');
         if (sourceId) {
             moveNode(sourceId, 'root', 'root');
         }
@@ -72,9 +72,9 @@ export function FileExplorer() {
             </div>
 
             {/* Search Bar Row */}
-            <div className="shrink-0 px-4 py-3 flex items-center gap-2">
+            <div className="shrink-0 px-3 py-3 flex items-center gap-1.5">
                 <div
-                    className="flex-1 flex items-center h-[28px] rounded-md px-2 gap-1.5 transition-colors focus-within:bg-[var(--bg-secondary)]"
+                    className="flex-1 min-w-0 flex items-center h-[28px] rounded-md px-2 gap-1.5 transition-colors focus-within:bg-[var(--bg-secondary)]"
                     style={{
                         backgroundColor: 'var(--bg-tertiary)',
                         border: '1px solid transparent'

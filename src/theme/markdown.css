@@ -1,0 +1,240 @@
+/* =====================================================
+   MARKDOWN PREVIEW — PROFESSIONAL NOTES APP STYLE
+   Soft, readable, calm, theme-aware
+   ===================================================== */
+
+.markdown-preview {
+  color: var(--editor-text);
+  line-height: 1.85;
+  font-size: 1rem;
+  max-width: 780px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Vertical rhythm */
+.markdown-preview > * + * {
+  margin-top: 1.2em;
+}
+
+/* =====================================================
+   HEADINGS
+   ===================================================== */
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  color: var(--markdown-heading);
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-preview h1 { font-size: 1.9em; }
+.markdown-preview h2 { font-size: 1.45em; }
+.markdown-preview h3 { font-size: 1.25em; }
+.markdown-preview h4 { font-size: 1.1em; }
+
+/* =====================================================
+   TEXT
+   ===================================================== */
+.markdown-preview p {
+  margin: 0;
+}
+
+.markdown-preview strong {
+  color: var(--markdown-strong);
+  font-weight: 600;
+}
+
+.markdown-preview em {
+  opacity: 0.9;
+}
+
+.markdown-preview del {
+  opacity: 0.6;
+}
+
+/* =====================================================
+   LINKS
+   ===================================================== */
+.markdown-preview a {
+  color: var(--markdown-link);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.markdown-preview a:hover {
+  border-bottom-color: var(--markdown-link);
+  opacity: 0.85;
+}
+
+/* =====================================================
+   LISTS
+   ===================================================== */
+.markdown-preview ul,
+.markdown-preview ol {
+  padding-left: 1.6em;
+}
+
+.markdown-preview li {
+  margin-bottom: 0.45em;
+}
+
+.markdown-preview ul > li::marker,
+.markdown-preview ol > li::marker {
+  color: var(--markdown-list);
+  opacity: 0.75;
+}
+
+/* Task Lists */
+.markdown-preview input[type="checkbox"] {
+  accent-color: var(--editor-header-accent);
+  margin-right: 0.5em;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+/* =====================================================
+   INLINE CODE
+   ===================================================== */
+.markdown-preview code:not(pre code) {
+  background: rgba(120,120,120,0.15);
+  padding: 0.2em 0.45em;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* =====================================================
+   CODE BLOCKS
+   ===================================================== */
+.markdown-preview pre {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.3em 1.5em;
+  margin: 1.6em 0;
+  overflow-x: auto;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+}
+
+.markdown-preview pre code {
+  background: transparent !important;
+  padding: 0;
+  font-size: 0.88em;
+  line-height: 1.7;
+  color: var(--editor-text);
+}
+
+/* highlight.js override */
+.markdown-preview pre code.hljs {
+  background: transparent !important;
+}
+
+/* =====================================================
+   BLOCKQUOTE
+   ===================================================== */
+.markdown-preview blockquote {
+  background: rgba(255,255,255,0.03);
+  padding: 1em 1.4em;
+  border-radius: 10px;
+  margin: 1.6em 0;
+  box-shadow: inset 3px 0 0 var(--editor-header-accent);
+  color: var(--text-secondary);
+}
+
+.markdown-preview blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* =====================================================
+   TABLES
+   ===================================================== */
+.markdown-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.95em;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.markdown-preview th,
+.markdown-preview td {
+  padding: 0.75em 1em;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.markdown-preview th {
+  background: rgba(255,255,255,0.04);
+  font-weight: 600;
+}
+
+.markdown-preview tr:nth-child(even) {
+  background: rgba(255,255,255,0.015);
+}
+
+/* =====================================================
+   HR
+   ===================================================== */
+.markdown-preview hr {
+  border: none;
+  height: 1px;
+  background: var(--border-secondary);
+  opacity: 0.4;
+  margin: 2.2em 0;
+}
+
+/* =====================================================
+   IMAGES
+   ===================================================== */
+.markdown-preview img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 1.2em 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* =====================================================
+   MATH — KaTeX
+   ===================================================== */
+.markdown-preview .katex {
+  font-size: 1.1em;
+}
+
+.markdown-preview .katex-display {
+  margin: 1.8em 0;
+  overflow-x: auto;
+  padding: 0.4em 0;
+}
+
+/* =====================================================
+   SELECTION
+   ===================================================== */
+.markdown-preview ::selection {
+  background: rgba(100,150,255,0.25);
+}
+
+/* =====================================================
+   SCROLLBAR
+   ===================================================== */
+.markdown-preview::-webkit-scrollbar {
+  width: 8px;
+}
+
+.markdown-preview::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 10px;
+  opacity: 0.6;
+}
+
+.markdown-preview::-webkit-scrollbar-thumb:hover {
+  background: var(--border-primary);
+}

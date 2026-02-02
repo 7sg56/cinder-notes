@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Eye, ChevronLeft, FileText, Save, Sparkles } from 'lucide-react';
+import { MarkdownPreview } from './MarkdownPreview';
+import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
 
 interface EditorProps {
     isPreview: boolean;
@@ -37,11 +36,6 @@ export function Editor({ isPreview }: EditorProps) {
                     style={{ backgroundColor: 'var(--editor-bg)' }}
                 >
                     <div className="text-center max-w-md px-6">
-                        <div className="mb-8 flex justify-center">
-                            <div className="p-4 rounded-2xl bg-[var(--editor-header-accent)]/5 border border-[var(--editor-header-accent)]/10">
-                                <Sparkles size={40} style={{ color: 'var(--editor-header-accent)' }} className="opacity-80" />
-                            </div>
-                        </div>
 
                         <h1 className="mb-2 text-3xl font-bold tracking-tight" style={{ color: 'var(--text-white)' }}>
                             Cinder Notes
@@ -73,21 +67,7 @@ export function Editor({ isPreview }: EditorProps) {
                 /* --- EDITOR / PREVIEW CONTENT --- */
                 <div className="flex-1 relative flex flex-col min-h-0">
                     {isPreview ? (
-                        <div className="flex-1 w-full h-full p-10 overflow-y-auto prose prose-invert max-w-none scrollbar-thin" style={{ color: 'var(--editor-text)' }}>
-                            <style>{`
-                                .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--markdown-heading); font-weight: 700; border-bottom: 1px solid var(--border-secondary); padding-bottom: 0.3em; }
-                                .prose a { color: var(--markdown-link); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
-                                .prose a:hover { border-color: var(--markdown-link); }
-                                .prose code { color: var(--markdown-code); background: var(--markdown-code-bg); padding: 0.2em 0.4em; border-radius: 6px; font-size: 0.9em; }
-                                .prose pre { background: var(--markdown-code-bg); border: 1px solid var(--border-secondary); border-radius: 8px; }
-                                .prose strong { color: var(--markdown-strong); }
-                                .prose ul > li::marker { color: var(--markdown-list); }
-                                .prose blockquote { border-left-color: var(--editor-header-accent); background: var(--bg-secondary); padding: 1rem; border-radius: 0 8px 8px 0; }
-                            `}</style>
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {activeFileContent}
-                            </ReactMarkdown>
-                        </div>
+                        <MarkdownPreview content={activeFileContent} />
                     ) : (
                         <>
                             <style>{`
