@@ -1,8 +1,8 @@
-import { X, Plus, FileText, PanelLeft, Gift } from 'lucide-react';
+import { X, Plus, FileText, PanelLeft, Gift, Maximize2, Minimize2 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
 
 export function EditorTabs() {
-    const { openFiles, activeFileId, selectFile, closeFile, findFile, createNewTab, toggleExplorerCollapsed } = useAppStore();
+    const { openFiles, activeFileId, selectFile, closeFile, findFile, createNewTab, toggleExplorerCollapsed, isExplorerCollapsed } = useAppStore();
 
     return (
         <div
@@ -98,14 +98,15 @@ export function EditorTabs() {
                     <PanelLeft size={16} />
                 </button>
 
-                {/* Cinder Icon */}
-                <div className="flex items-center justify-center w-[32px] h-[32px] opacity-80 hover:opacity-100 transition-opacity">
-                    <img
-                        src="/icons/128%20x%20128.svg"
-                        alt="Cinder"
-                        className="w-full h-full object-contain"
-                    />
-                </div>
+                {/* Fullscreen Toggle */}
+                <button
+                    onClick={toggleExplorerCollapsed}
+                    className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-white/5"
+                    style={{ color: isExplorerCollapsed ? 'var(--editor-header-accent)' : 'var(--text-tertiary)' }}
+                    title={isExplorerCollapsed ? "Exit Fullscreen" : "Fullscreen Editor"}
+                >
+                    {isExplorerCollapsed ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                </button>
             </div>
         </div>
     );

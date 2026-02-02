@@ -15,6 +15,7 @@ interface AppState {
     lastSidebarWidth: number;
     expandedFolderIds: string[]; // List of folder IDs that are expanded
     pendingFileId: string | null;
+    isAutoSave: boolean;
 
     // Actions
     selectFile: (fileId: string) => void;
@@ -37,6 +38,7 @@ interface AppState {
     expandFolder: (folderId: string) => void;
     collapseFolder: (folderId: string) => void;
     moveNode: (sourceId: string, targetId: string, position: 'inside' | 'before' | 'after' | 'root') => void;
+    toggleAutoSave: () => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -51,6 +53,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     pendingFileId: null,
     lastSidebarWidth: 20,
     expandedFolderIds: [],
+    isAutoSave: true,
 
     findFile: (id: string, nodes = get().files): FileNode | null => {
         for (const node of nodes) {
@@ -589,5 +592,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
             return { files: finalFiles };
         });
+    },
+
+    toggleAutoSave: () => {
+        set((state) => ({ isAutoSave: !state.isAutoSave }));
     }
 }));

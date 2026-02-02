@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import type { FileNode } from '../../../data/mockFileSystem';
 import { FileTreeItem } from './FileTreeItem';
-import { ExplorerFooter } from './ExplorerFooter';
 
 import { VscSearch, VscTypeHierarchy } from 'react-icons/vsc';
 import { SquarePen } from 'lucide-react';
@@ -119,8 +118,6 @@ export function FileExplorer() {
                     </div>
                 )}
             </div>
-
-            <ExplorerFooter />
         </div>
     );
 }

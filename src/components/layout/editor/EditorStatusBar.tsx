@@ -6,11 +6,7 @@ interface EditorStatusBarProps {
 }
 
 export function EditorStatusBar({ isPreview }: EditorStatusBarProps) {
-    const { activeFileId, findFile, activeFileContent } = useAppStore();
-
-    // Get current file name without extension
-    const file = activeFileId && !activeFileId.startsWith('new-tab-') ? findFile(activeFileId) : null;
-    const fileName = file ? file.name.split('.').slice(0, -1).join('.') : 'Welcome';
+    const { activeFileContent, isAutoSave } = useAppStore();
 
     // Calculate lines and words
     const lines = activeFileContent ? activeFileContent.split('\n').length : 0;
@@ -18,6 +14,9 @@ export function EditorStatusBar({ isPreview }: EditorStatusBarProps) {
 
     // Determine mode
     const mode = isPreview ? 'Preview' : 'Editing';
+
+    // Save mode text
+    const saveMode = isAutoSave ? 'Auto Save' : 'Manual';
 
     return (
         <div
@@ -28,22 +27,22 @@ export function EditorStatusBar({ isPreview }: EditorStatusBarProps) {
                 color: 'var(--text-tertiary)'
             }}
         >
-            {/* Left side: Save Indicator & File Info */}
+            {/* Left side: Save Indicator & Mode */}
             <div className="flex items-center h-full gap-3">
                 {/* Save Indicator (Green Orb) */}
-                <div className="flex items-center justify-center w-3 h-full" title="Auto-saved">
+                <div className="flex items-center justify-center w-3 h-full" title={saveMode}>
                     <div
                         className="w-1.5 h-1.5 rounded-full transition-all duration-300"
                         style={{
-                            backgroundColor: '#22c55e', // Green for auto-save
-                            boxShadow: '0 0 4px rgba(34, 197, 94, 0.3)'
+                            backgroundColor: isAutoSave ? '#22c55e' : '#f59e0b', // Green for auto, amber for manual
+                            boxShadow: isAutoSave ? '0 0 4px rgba(34, 197, 94, 0.3)' : '0 0 4px rgba(245, 158, 11, 0.3)'
                         }}
                     />
                 </div>
 
                 <EditorStatusBarItem>
                     <span style={{ color: 'var(--text-secondary)' }} className="opacity-75 hover:opacity-100 transition-opacity">
-                        {fileName}
+                        {saveMode}
                     </span>
                 </EditorStatusBarItem>
             </div>
