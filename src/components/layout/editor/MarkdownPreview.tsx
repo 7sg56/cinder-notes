@@ -3,7 +3,6 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeHighlight from 'rehype-highlight';
-import rehypeSanitize from 'rehype-sanitize';
 import { processMarkdown } from '../../../util/markdownpipeline';
 
 // CSS imports
@@ -22,7 +21,7 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
         <div className="markdown-preview flex-1 w-full h-full px-12 py-10 overflow-y-auto">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeKatex, rehypeHighlight, rehypeSanitize]}
+                rehypePlugins={[rehypeKatex, rehypeHighlight]}
             >
                 {processed}
             </ReactMarkdown>
