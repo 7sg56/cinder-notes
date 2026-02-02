@@ -1,5 +1,7 @@
 # Minimal Modal Note App (Tauri) — Design & Plan
 
+> ⚠️ **DEPRECATED**: This document is outdated. A new, updated feature list and roadmap will be published soon. See [README.md](README.md) for current features.
+
 A compact, resume-worthy desktop note-taking app focused on local-first storage, a VS Code-like filesystem tree under a single .cinder directory, Neovim-like modal editing (optional), per-file AES-256-GCM encryption, and flexible export options. Designed to be minimal, fast, privacy-respecting, and highly keyboard-driven.
 
 ## Core Features
