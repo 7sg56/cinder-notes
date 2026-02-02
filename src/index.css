@@ -2,6 +2,22 @@
 @import "tailwindcss";
 @import "./theme/theme.css";
 
+html {
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Re-enable text selection for content areas */
+.editor,
+.markdown-preview,
+textarea,
+input,
+[contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 :root {
   font-family: 'Space Grotesk', system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
@@ -14,6 +30,7 @@ body {
   /* changed from flex to simple block to rely on App layout */
   min-width: 0;
   min-height: 100vh;
+  overscroll-behavior: none;
 }
 
 #root {

@@ -208,13 +208,8 @@ export const useAppStore = create<AppState>((set, get) => ({
                 content: content, // Save initial content
             };
 
-            // 2. Add to file tree
-            let newFiles = [...files];
-            if (newFiles.length > 0 && newFiles[0].children) {
-                newFiles[0].children = [...newFiles[0].children, newFile];
-            } else {
-                newFiles = [...newFiles, newFile];
-            }
+            // 2. Add to file tree at ROOT level (not inside any folder)
+            const newFiles = [...files, newFile];
 
             // 3. Replace deferred ID with real ID
             const newOpenFiles = openFiles.map(id => id === fileId ? newFileId : id);
@@ -314,7 +309,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
 
     createFile: () => {
-        // Creates a file in the root directory directly
+        // Creates file in tree immediately with rename mode active
+        // If user cancels, it gets removed (tracked via pendingFileId)
         set((state) => {
             const { files, openFiles } = state;
 
@@ -327,7 +323,6 @@ export const useAppStore = create<AppState>((set, get) => ({
             const checkNameExists = (name: string, nodes: FileNode[]): boolean => {
                 for (const node of nodes) {
                     if (node.name === name) return true;
-                    // Only check root level for now as we create in root
                 }
                 return false;
             };
@@ -345,11 +340,8 @@ export const useAppStore = create<AppState>((set, get) => ({
                 content: '',
             };
 
-            // Add to file tree (root's children)
-            // Just append to root files array
+            // Add to file tree at root level
             const newFiles = [...files, newFile];
-
-            // Open it
             const newOpenFiles = [...openFiles, newFileId];
 
             return {
@@ -358,7 +350,7 @@ export const useAppStore = create<AppState>((set, get) => ({
                 openFiles: newOpenFiles,
                 activeFileContent: '',
                 renamingFileId: newFileId,
-                pendingFileId: newFileId, // Mark as pending so cancellation removes it
+                pendingFileId: newFileId, // If cancelled, remove it
                 renameSource: 'explorer'
             };
         });
@@ -408,7 +400,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
 
     renameFile: (id, newName) => {
-        // Handle new tab creation
+        // Handle new tab creation (deferred file creation)
         if (id.startsWith('new-tab-')) {
             const { files, openFiles } = get();
 
@@ -439,13 +431,8 @@ export const useAppStore = create<AppState>((set, get) => ({
                 content: '',
             };
 
-            // Add to file tree (root's children)
-            let newFiles = [...files];
-            if (newFiles.length > 0 && newFiles[0].children) {
-                newFiles[0].children = [...newFiles[0].children, newFile];
-            } else {
-                newFiles = [...newFiles, newFile];
-            }
+            // Add to file tree at ROOT level (not inside any folder)
+            const newFiles = [...files, newFile];
 
             const newOpenFiles = openFiles.map(fid => fid === id ? newFileId : fid);
 
