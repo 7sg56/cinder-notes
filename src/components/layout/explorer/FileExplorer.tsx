@@ -30,8 +30,11 @@ const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
 };
 
 export function FileExplorer() {
-    const { files, createFile, moveNode } = useAppStore();
+    const { files, createFile, moveNode, workspacePath } = useAppStore();
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Extract folder name from workspace path
+    const workspaceName = workspacePath ? workspacePath.split('/').pop() || workspacePath.split('\\').pop() || 'Workspace' : 'Explorer';
 
     const filteredFiles = useMemo(() => {
         if (!searchQuery.trim()) return files;
@@ -58,7 +61,7 @@ export function FileExplorer() {
             className="h-full flex flex-col"
             style={{ backgroundColor: 'var(--bg-primary)' }}
         >
-            {/* Header: Explorer Title (Matches Tab Height) */}
+            {/* Header: Workspace Folder Name (Matches Tab Height) */}
             <div
                 className="h-[40px] shrink-0 flex items-center justify-between px-4 border-b select-none"
                 style={{
@@ -66,7 +69,7 @@ export function FileExplorer() {
                     borderColor: 'var(--border-primary)'
                 }}
             >
-                <span className="text-[11px] font-bold tracking-wider opacity-60 uppercase pl-1">Explorer</span>
+                <span className="text-[11px] font-bold tracking-wider opacity-60 uppercase pl-1">{workspaceName}</span>
                 <VscTypeHierarchy size={15} className="opacity-60" />
             </div>
 

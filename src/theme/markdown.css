@@ -7,8 +7,9 @@
     color: var(--editor-text);
     line-height: 1.85;
     font-size: 1rem;
-    max-width: 780px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
     padding-bottom: 4rem;
     -webkit-font-smoothing: antialiased;
 }
@@ -56,6 +57,7 @@
    ===================================================== */
 .markdown-preview p {
     margin: 0;
+    white-space: pre-wrap;
 }
 
 .markdown-preview strong {
@@ -102,6 +104,7 @@
 .markdown-preview li {
     margin-bottom: 0.45em;
     display: list-item;
+    white-space: pre-wrap;
 }
 
 .markdown-preview ul>li::marker,
@@ -121,31 +124,56 @@
    INLINE CODE
    ===================================================== */
 .markdown-preview code:not(pre code) {
-    background: rgba(120, 120, 120, 0.15);
+    background: var(--markdown-code-bg);
     padding: 0.2em 0.45em;
     border-radius: 6px;
     font-size: 0.85em;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-primary);
 }
 
 /* =====================================================
    CODE BLOCKS
    ===================================================== */
-.markdown-preview pre {
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 1.3em 1.5em;
+.markdown-preview .code-block {
     margin: 1.6em 0;
-    overflow-x: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--markdown-code-bg);
+    border: 1px solid var(--border-secondary);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+
+.markdown-preview .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 0.9em;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-primary);
+    font-size: 0.72em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.markdown-preview .code-block-lang {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.markdown-preview pre {
+    background: transparent;
+    border-radius: 0;
+    padding: 1.1em 1.3em;
+    margin: 0;
+    overflow-x: auto;
 }
 
 .markdown-preview pre code {
     background: transparent !important;
     padding: 0;
-    font-size: 0.88em;
-    line-height: 1.7;
+    font-size: 0.9em;
+    line-height: 1.65;
     color: var(--editor-text);
 }
 
@@ -222,17 +250,19 @@
    MATH — KaTeX
    ===================================================== */
 .markdown-preview .katex {
-    font-size: 1.375em;
+    font-size: 1.05em;
+    line-height: 1.5;
+    vertical-align: -0.05em;
 }
 
 .markdown-preview .katex-display {
-    margin: 1.8em 0;
+    margin: 1.4em 0;
     overflow-x: auto;
     padding: 0.5em 0;
 }
 
 .markdown-preview .katex-display>.katex {
-    font-size: 1.5em;
+    font-size: 1.08em;
 }
 
 /* =====================================================

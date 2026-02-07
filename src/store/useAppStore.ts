@@ -1,9 +1,11 @@
 import { create } from 'zustand';
+import { invoke } from '@tauri-apps/api/core';
 import type { FileNode } from '../data/mockFileSystem';
 import { mockFileSystem } from '../data/mockFileSystem';
 
 interface AppState {
     files: FileNode[];
+    workspacePath: string | null;
     activeFileId: string | null;
     openFiles: string[]; // List of file IDs that are open as tabs
     activeFileContent: string;
@@ -16,6 +18,11 @@ interface AppState {
     expandedFolderIds: string[]; // List of folder IDs that are expanded
     pendingFileId: string | null;
     isAutoSave: boolean;
+
+    // Workspace Actions
+    setWorkspacePath: (path: string | null) => void;
+    setFiles: (files: FileNode[]) => void;
+    resetWorkspace: () => void;
 
     // Actions
     selectFile: (fileId: string) => void;
@@ -43,8 +50,9 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
     files: mockFileSystem,
-    activeFileId: 'welcome',
-    openFiles: ['welcome'],
+    workspacePath: null,
+    activeFileId: null,
+    openFiles: [],
     activeFileContent: '',
     isExplorerCollapsed: false,
     newTabCounter: 0,
@@ -54,6 +62,26 @@ export const useAppStore = create<AppState>((set, get) => ({
     lastSidebarWidth: 20,
     expandedFolderIds: [],
     isAutoSave: true,
+
+    // Workspace actions
+    setWorkspacePath: (path: string | null) => set({ workspacePath: path }),
+
+    setFiles: (files: FileNode[]) => set({
+        files,
+        activeFileId: null,
+        openFiles: [],
+        activeFileContent: '',
+        expandedFolderIds: []
+    }),
+
+    resetWorkspace: () => set({
+        files: [],
+        workspacePath: null,
+        activeFileId: null,
+        openFiles: [],
+        activeFileContent: '',
+        expandedFolderIds: []
+    }),
 
     findFile: (id: string, nodes = get().files): FileNode | null => {
         for (const node of nodes) {
@@ -110,23 +138,62 @@ export const useAppStore = create<AppState>((set, get) => ({
         const file = get().findFile(fileId);
         if (file && file.type === 'file') {
             const { openFiles, activeFileId } = get();
+            const filePath = file.path;
 
-            // If currently on a blank tab OR welcome tab, replace it
-            if (activeFileId && (activeFileId.startsWith('new-tab-') || activeFileId === 'welcome')) {
-                const newOpenFiles = openFiles.map(id => id === activeFileId ? fileId : id);
-                set({
-                    activeFileId: fileId,
-                    activeFileContent: file.content || '',
-                    openFiles: newOpenFiles
-                });
+            // Helper to update state with content
+            const updateWithContent = (content: string) => {
+                const currentState = get();
+                const currentActiveId = currentState.activeFileId;
+
+                // If currently on a blank tab OR welcome tab, replace it
+                if (currentActiveId && (currentActiveId.startsWith('new-tab-') || currentActiveId === 'welcome')) {
+                    const newOpenFiles = currentState.openFiles.map(id => id === currentActiveId ? fileId : id);
+                    set({
+                        activeFileId: fileId,
+                        activeFileContent: content,
+                        openFiles: newOpenFiles
+                    });
+                } else {
+                    // Otherwise, open in new tab if not already open
+                    const needsToOpen = !currentState.openFiles.includes(fileId);
+                    set({
+                        activeFileId: fileId,
+                        activeFileContent: content,
+                        openFiles: needsToOpen ? [...currentState.openFiles, fileId] : currentState.openFiles
+                    });
+                }
+            };
+
+            // If file has a path, read from disk
+            if (filePath) {
+                // Set as active immediately with loading state
+                if (activeFileId && (activeFileId.startsWith('new-tab-') || activeFileId === 'welcome')) {
+                    const newOpenFiles = openFiles.map(id => id === activeFileId ? fileId : id);
+                    set({ activeFileId: fileId, openFiles: newOpenFiles, activeFileContent: '' });
+                } else {
+                    const needsToOpen = !openFiles.includes(fileId);
+                    set({
+                        activeFileId: fileId,
+                        openFiles: needsToOpen ? [...openFiles, fileId] : openFiles,
+                        activeFileContent: ''
+                    });
+                }
+
+                // Read content from disk
+                invoke<string>('read_note', { path: filePath })
+                    .then((content) => {
+                        // Only update if this file is still active
+                        if (get().activeFileId === fileId) {
+                            set({ activeFileContent: content });
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Failed to read file:', err);
+                        set({ activeFileContent: `Error loading file: ${err}` });
+                    });
             } else {
-                // Otherwise, open in new tab if not already open
-                const needsToOpen = !openFiles.includes(fileId);
-                set({
-                    activeFileId: fileId,
-                    activeFileContent: file.content || '',
-                    openFiles: needsToOpen ? [...openFiles, fileId] : openFiles
-                });
+                // Fallback to in-memory content
+                updateWithContent(file.content || '');
             }
         }
     },
@@ -135,23 +202,36 @@ export const useAppStore = create<AppState>((set, get) => ({
         const file = get().findFile(fileId);
         if (file && file.type === 'file') {
             const { openFiles, activeFileId } = get();
+            const filePath = file.path;
 
-            // If currently on a blank tab OR welcome tab, replace it
+            // Set as active immediately
             if (activeFileId && (activeFileId.startsWith('new-tab-') || activeFileId === 'welcome')) {
                 const newOpenFiles = openFiles.map(id => id === activeFileId ? fileId : id);
-                set({
-                    activeFileId: fileId,
-                    activeFileContent: file.content || '',
-                    openFiles: newOpenFiles
-                });
+                set({ activeFileId: fileId, openFiles: newOpenFiles, activeFileContent: '' });
             } else {
-                // Otherwise, open in new tab if not already open
                 const needsToOpen = !openFiles.includes(fileId);
                 set({
                     activeFileId: fileId,
-                    activeFileContent: file.content || '',
-                    openFiles: needsToOpen ? [...openFiles, fileId] : openFiles
+                    openFiles: needsToOpen ? [...openFiles, fileId] : openFiles,
+                    activeFileContent: ''
                 });
+            }
+
+            // If file has a path, read from disk
+            if (filePath) {
+                invoke<string>('read_note', { path: filePath })
+                    .then((content) => {
+                        if (get().activeFileId === fileId) {
+                            set({ activeFileContent: content });
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Failed to read file:', err);
+                        set({ activeFileContent: `Error loading file: ${err}` });
+                    });
+            } else {
+                // Fallback to in-memory content
+                set({ activeFileContent: file.content || '' });
             }
         }
     },
@@ -176,15 +256,18 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     updateFileContent: (fileId: string, content: string) => {
         const state = get();
+        const { workspacePath } = state;
 
         // Handle deferred creation for new tabs
         if (fileId.startsWith('new-tab-')) {
-            // Only create if we actually have content (though this function is called on change, so probably yes)
+            if (!workspacePath) {
+                console.error('No workspace path set');
+                return;
+            }
 
-            // 1. Generate real file
             const { files, openFiles } = state;
 
-            // Find a unique name (reused logic)
+            // Find a unique name
             let nameCounter = 0;
             const baseName = 'untitled';
             const extension = '.md';
@@ -203,18 +286,23 @@ export const useAppStore = create<AppState>((set, get) => ({
                 newName = `${baseName}-${nameCounter}${extension}`;
             }
 
-            const newFileId = `file-${Date.now()}`;
+            const filePath = `${workspacePath}/${newName}`;
+            const newFileId = filePath;
+
             const newFile: FileNode = {
                 id: newFileId,
                 name: newName,
                 type: 'file',
-                content: content, // Save initial content
+                path: filePath,
+                content: content,
             };
 
-            // 2. Add to file tree at ROOT level (not inside any folder)
-            const newFiles = [...files, newFile];
+            // Create file on disk with content
+            invoke('write_note', { path: filePath, content })
+                .then(() => console.log('File created on disk:', filePath))
+                .catch((err) => console.error('Failed to create file:', err));
 
-            // 3. Replace deferred ID with real ID
+            const newFiles = [...files, newFile];
             const newOpenFiles = openFiles.map(id => id === fileId ? newFileId : id);
 
             set({
@@ -224,6 +312,17 @@ export const useAppStore = create<AppState>((set, get) => ({
                 activeFileContent: content
             });
             return;
+        }
+
+        // Find the file to get its path
+        const file = state.findFile(fileId);
+        const filePath = file?.path;
+
+        // Write to disk if we have a path
+        if (filePath) {
+            invoke('write_note', { path: filePath, content })
+                .then(() => console.log('File saved:', filePath))
+                .catch((err) => console.error('Failed to save file:', err));
         }
 
         // Normal update - Persist to store AND active state
@@ -313,59 +412,86 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     createFile: () => {
         // Creates file in tree immediately with rename mode active
-        // If user cancels, it gets removed (tracked via pendingFileId)
-        set((state) => {
-            const { files, openFiles } = state;
+        // Also creates it on disk immediately
+        const state = get();
+        const { files, openFiles, workspacePath } = state;
 
-            // Generate unique name
-            let nameCounter = 0;
-            const baseName = 'New File';
-            const extension = '.md';
-            let newName = `${baseName}${extension}`;
+        if (!workspacePath) {
+            console.error('No workspace path set');
+            return;
+        }
 
-            const checkNameExists = (name: string, nodes: FileNode[]): boolean => {
-                for (const node of nodes) {
-                    if (node.name === name) return true;
-                }
-                return false;
-            };
+        // Generate unique name
+        let nameCounter = 0;
+        const baseName = 'New File';
+        const extension = '.md';
+        let newName = `${baseName}${extension}`;
 
-            while (checkNameExists(newName, files)) {
-                nameCounter++;
-                newName = `${baseName} ${nameCounter}${extension}`;
+        const checkNameExists = (name: string, nodes: FileNode[]): boolean => {
+            for (const node of nodes) {
+                if (node.name === name) return true;
             }
+            return false;
+        };
 
-            const newFileId = `file-${Date.now()}`;
-            const newFile: FileNode = {
-                id: newFileId,
-                name: newName,
-                type: 'file',
-                content: '',
-            };
+        while (checkNameExists(newName, files)) {
+            nameCounter++;
+            newName = `${baseName} ${nameCounter}${extension}`;
+        }
 
-            // Add to file tree at root level
-            const newFiles = [...files, newFile];
-            const newOpenFiles = [...openFiles, newFileId];
+        const filePath = `${workspacePath}/${newName}`;
+        const newFileId = filePath; // Use path as ID for consistency
 
-            return {
-                files: newFiles,
-                activeFileId: newFileId,
-                openFiles: newOpenFiles,
-                activeFileContent: '',
-                renamingFileId: newFileId,
-                pendingFileId: newFileId, // If cancelled, remove it
-                renameSource: 'explorer'
-            };
+        const newFile: FileNode = {
+            id: newFileId,
+            name: newName,
+            type: 'file',
+            path: filePath,
+            content: '',
+        };
+
+        // Create file on disk
+        invoke('create_note', { path: filePath })
+            .then(() => {
+                console.log('File created on disk:', filePath);
+            })
+            .catch((err) => {
+                console.error('Failed to create file on disk:', err);
+            });
+
+        // Add to file tree at root level
+        const newFiles = [...files, newFile];
+        const newOpenFiles = [...openFiles, newFileId];
+
+        set({
+            files: newFiles,
+            activeFileId: newFileId,
+            openFiles: newOpenFiles,
+            activeFileContent: '',
+            renamingFileId: newFileId,
+            pendingFileId: newFileId, // If cancelled, remove it
+            renameSource: 'explorer'
         });
     },
 
     setRenamingFileId: (id, source) => set({ renamingFileId: id, renameSource: source ?? null }),
 
     cancelRename: () => {
-        const { pendingFileId, openFiles, activeFileId, files } = get();
+        const { pendingFileId, openFiles, activeFileId, files, findFile } = get();
 
         // If we are cancelling a pending file, remove it
         if (pendingFileId) {
+            // Get the file path to delete from disk
+            const file = findFile(pendingFileId);
+            const filePath = file?.path;
+
+            // Delete from disk if it exists
+            if (filePath) {
+                invoke('delete_note', { path: filePath })
+                    .then(() => console.log('Pending file deleted from disk:', filePath))
+                    .catch((err) => console.error('Failed to delete pending file:', err));
+            }
+
             const removeFile = (nodes: FileNode[]): FileNode[] => {
                 return nodes.filter(node => {
                     if (node.id === pendingFileId) return false;
@@ -382,10 +508,8 @@ export const useAppStore = create<AppState>((set, get) => ({
             // Determine next active file if we are closing the pending one
             let nextActiveId = activeFileId;
             if (activeFileId === pendingFileId) {
-                // Determine what to go back to.
-                // For now, if no files left, maybe welcome? Or null.
                 const lastFile = newOpenFiles.length > 0 ? newOpenFiles[newOpenFiles.length - 1] : null;
-                nextActiveId = lastFile || 'welcome';
+                nextActiveId = lastFile || null;
             }
 
             set({
@@ -403,9 +527,17 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
 
     renameFile: (id, newName) => {
+        const state = get();
+        const { workspacePath } = state;
+
         // Handle new tab creation (deferred file creation)
         if (id.startsWith('new-tab-')) {
-            const { files, openFiles } = get();
+            if (!workspacePath) {
+                console.error('No workspace path set');
+                return;
+            }
+
+            const { files, openFiles } = state;
 
             // Helper to check for name collisions
             const checkNameExists = (name: string, nodes: FileNode[]): boolean => {
@@ -418,25 +550,32 @@ export const useAppStore = create<AppState>((set, get) => ({
 
             // Ensure unique name
             let finalName = newName;
+            if (!finalName.endsWith('.md')) finalName += '.md';
             let nameCounter = 0;
-            const baseName = newName.replace('.md', '');
+            const baseName = finalName.replace('.md', '');
 
             while (checkNameExists(finalName, files)) {
                 nameCounter++;
                 finalName = `${baseName}-${nameCounter}.md`;
             }
 
-            const newFileId = `file-${Date.now()}`;
+            const filePath = `${workspacePath}/${finalName}`;
+            const newFileId = filePath;
+
             const newFile: FileNode = {
                 id: newFileId,
                 name: finalName,
                 type: 'file',
+                path: filePath,
                 content: '',
             };
 
-            // Add to file tree at ROOT level (not inside any folder)
-            const newFiles = [...files, newFile];
+            // Create file on disk
+            invoke('create_note', { path: filePath })
+                .then(() => console.log('File created on disk:', filePath))
+                .catch((err) => console.error('Failed to create file:', err));
 
+            const newFiles = [...files, newFile];
             const newOpenFiles = openFiles.map(fid => fid === id ? newFileId : fid);
 
             set({
@@ -450,24 +589,74 @@ export const useAppStore = create<AppState>((set, get) => ({
             return;
         }
 
-        const updateName = (nodes: FileNode[]): FileNode[] => {
+        // Find existing file to get its path
+        const file = state.findFile(id);
+        const oldPath = file?.path;
+
+        if (!oldPath) {
+            // Legacy in-memory rename (no path)
+            const updateName = (nodes: FileNode[]): FileNode[] => {
+                return nodes.map(node => {
+                    if (node.id === id) {
+                        return { ...node, name: newName };
+                    }
+                    if (node.children) {
+                        return { ...node, children: updateName(node.children) };
+                    }
+                    return node;
+                });
+            };
+
+            set(state => ({
+                files: updateName(state.files),
+                renamingFileId: null,
+                renameSource: null,
+                pendingFileId: null
+            }));
+            return;
+        }
+
+        // Calculate new path
+        const dir = oldPath.substring(0, oldPath.lastIndexOf('/'));
+        let finalName = newName;
+        if (!finalName.endsWith('.md')) finalName += '.md';
+        const newPath = `${dir}/${finalName}`;
+
+        // Rename on disk
+        invoke('rename_note', { oldPath, newPath })
+            .then(() => console.log('File renamed on disk:', newPath))
+            .catch((err) => console.error('Failed to rename file:', err));
+
+        // Update state with new path and id
+        const updateFileData = (nodes: FileNode[]): FileNode[] => {
             return nodes.map(node => {
                 if (node.id === id) {
-                    return { ...node, name: newName };
+                    return {
+                        ...node,
+                        id: newPath,
+                        name: finalName,
+                        path: newPath
+                    };
                 }
                 if (node.children) {
-                    return { ...node, children: updateName(node.children) };
+                    return { ...node, children: updateFileData(node.children) };
                 }
                 return node;
             });
         };
 
-        set(state => ({
-            files: updateName(state.files),
+        const { openFiles, activeFileId } = state;
+        const newOpenFiles = openFiles.map(fid => fid === id ? newPath : fid);
+        const newActiveId = activeFileId === id ? newPath : activeFileId;
+
+        set({
+            files: updateFileData(state.files),
+            openFiles: newOpenFiles,
+            activeFileId: newActiveId,
             renamingFileId: null,
             renameSource: null,
-            pendingFileId: null // Clear pending status on confirmation
-        }));
+            pendingFileId: null
+        });
     },
 
     toggleFolder: (folderId: string) => {

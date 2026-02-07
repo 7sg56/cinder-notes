@@ -14,8 +14,9 @@ export function normalizeCodeblock(text: string): string {
     });
 
     // Ensure there's a newline after opening fence if missing
-    // This helps with consistent parsing
-    result = result.replace(/^```(\w+)([^\n])/gm, '```$1\n$2');
+    // Only split when there's whitespace between the fence info and code
+    result = result.replace(/^```([A-Za-z0-9_-]+)[ \t]+([^\n]+)/gm, '```$1\n$2');
+    result = result.replace(/^```[ \t]+([^\n]+)/gm, '```\n$1');
 
     return result;
 }
