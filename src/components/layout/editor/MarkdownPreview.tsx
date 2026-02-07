@@ -28,8 +28,9 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
                     pre({ children }) {
                         const childArray = Array.isArray(children) ? children : [children];
                         const codeElement = childArray.find((child) => isValidElement(child));
-                        const className = isValidElement(codeElement) ? codeElement.props?.className : '';
-                        const match = typeof className === 'string' ? /language-([A-Za-z0-9_-]+)/.exec(className) : null;
+                        const props = (isValidElement(codeElement) ? codeElement.props : {}) as { className?: string };
+                        const className = props.className ?? '';
+                        const match = /language-([A-Za-z0-9_-]+)/.exec(className);
                         const language = match?.[1] ?? 'plaintext';
 
                         return (

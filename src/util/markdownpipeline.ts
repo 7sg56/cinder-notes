@@ -24,7 +24,7 @@ export function processMarkdown(rawText: string): string {
     // Normalize uncommon line separators (e.g., pasted from ChatGPT)
     text = text.replace(/[\u2028\u2029]/g, '\n');
     // Strip invisible zero-width characters that break parsing
-    text = text.replace(/[\u200B\u200C\u200D\uFEFF]/g, '');
+    text = text.replace(/\u200B|\u200C|\u200D|\uFEFF/g, '');
 
     // Step 0: Normalize code fence syntax (fix ~~~ or missing newlines)
     text = normalizeCodeblock(text);

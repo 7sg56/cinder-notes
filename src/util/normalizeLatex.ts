@@ -39,9 +39,9 @@ export function normalizeLatex(text: string): string {
         };
     };
 
-    const stripInvisible = (value: string) => value.replace(/[\u200B\u200C\u200D\uFEFF]/g, '');
+    const stripInvisible = (value: string) => value.replace(/\u200B|\u200C|\u200D|\uFEFF/g, '');
 
-    const hasMathToken = (value: string) => /\\|[0-9^_=]|[+\-*/]|[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/.test(value);
+    const hasMathToken = (value: string) => /\\|[0-9^_=]|[+\-*/]|[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/u.test(value);
 
     const replaceInlineMath = (input: string) => {
         let next = input;
@@ -54,7 +54,7 @@ export function normalizeLatex(text: string): string {
 
         // Inline ChatGPT-style [ \command ... ] -> $...$
         // Only when content looks mathy and has no nested [] to avoid false positives.
-        next = next.replace(/(?<!\\)\[\s*([^\]\[\n]+?)\s*](?!\()/g, (_match, content) => {
+        next = next.replace(/(?<!\\)\[\s*([^\][\n]+?)\s*](?!\()/g, (_match, content) => {
             const inner = stripInvisible(String(content)).trim();
             if (inner.length === 0) return _match;
             if (!hasMathToken(inner)) return _match;
