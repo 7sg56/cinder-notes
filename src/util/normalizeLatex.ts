@@ -39,6 +39,10 @@ export function normalizeLatex(text: string): string {
         };
     };
 
+    const stripInvisible = (value: string) => value.replace(/[\u200B\u200C\u200D\uFEFF]/g, '');
+
+    const hasMathToken = (value: string) => /\\|[0-9^_=]|[+\-*/]|[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/.test(value);
+
     const replaceInlineMath = (input: string) => {
         let next = input;
 
@@ -49,10 +53,12 @@ export function normalizeLatex(text: string): string {
         });
 
         // Inline ChatGPT-style [ \command ... ] -> $...$
-        // Only when content starts with "\" and has no nested [] to avoid false positives.
-        next = next.replace(/(?<!\\)\[\s*(\\[^\]\[\n]+?)\s*](?!\()/g, (_match, content) => {
-            const inner = String(content).trim();
-            return inner.length > 0 ? `$${inner}$` : _match;
+        // Only when content looks mathy and has no nested [] to avoid false positives.
+        next = next.replace(/(?<!\\)\[\s*([^\]\[\n]+?)\s*](?!\()/g, (_match, content) => {
+            const inner = stripInvisible(String(content)).trim();
+            if (inner.length === 0) return _match;
+            if (!hasMathToken(inner)) return _match;
+            return `$${inner}$`;
         });
 
         return next;
@@ -70,7 +76,8 @@ export function normalizeLatex(text: string): string {
 
     for (const line of lines) {
         const { quotePrefix, rest } = splitQuotePrefix(line);
-        const { listPrefix, rest: afterList } = splitListPrefix(rest);
+        const { listPrefix, rest: afterListRaw } = splitListPrefix(rest);
+        const afterList = stripInvisible(afterListRaw);
         const trimmed = afterList.trim();
 
         if (!inDisplay && !inBracket) {
@@ -92,16 +99,16 @@ export function normalizeLatex(text: string): string {
                 continue;
             }
 
-            // ChatGPT-style [ \command ... ] (standalone line only)
+            // ChatGPT-style [ ... ] (standalone line only)
             const bracketMatch = afterList.match(/^\[(.*)\]\s*$/);
             if (bracketMatch) {
-                const innerRaw = bracketMatch[1];
+                const innerRaw = stripInvisible(bracketMatch[1]);
                 const inner = innerRaw.trim();
 
                 if (
                     inner.length > 0 &&
                     inner.length <= 1000 &&
-                    inner.startsWith('\\') &&
+                    hasMathToken(inner) &&
                     !/#{2,}|\s-{3,}\s/.test(inner)
                 ) {
                     const continuationPrefix = quotePrefix + listPrefix.replace(/[^\t ]/g, ' ');
@@ -127,8 +134,10 @@ export function normalizeLatex(text: string): string {
 
         if (inBracket) {
             if (trimmed === ']') {
-                const hasBackslash = bracketLines.some((contentLine) => /\\/.test(contentLine));
-                if (bracketOpen && hasBackslash) {
+                const bracketContent = stripInvisible(bracketLines.join('\n')).trim();
+                const hasStructural = /#{2,}|\s-{3,}\s/.test(bracketContent);
+                const shouldConvert = bracketContent.length > 0 && !hasStructural;
+                if (bracketOpen && shouldConvert) {
                     out.push(replaceBracketOpen(bracketOpen));
                     out.push(...bracketLines);
                     out.push(replaceBracketClose(quotePrefix, listPrefix, afterList));
