@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import type { FileNode } from '../data/mockFileSystem';
 import { mockFileSystem } from '../data/mockFileSystem';
 
+const generateId = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return `file-${crypto.randomUUID()}`;
+    }
+    return `file-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
 interface AppState {
     files: FileNode[];
     activeFileId: string | null;
@@ -39,6 +46,7 @@ interface AppState {
     collapseFolder: (folderId: string) => void;
     moveNode: (sourceId: string, targetId: string, position: 'inside' | 'before' | 'after' | 'root') => void;
     toggleAutoSave: () => void;
+    openSystemTab: (tabId: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -107,6 +115,12 @@ export const useAppStore = create<AppState>((set, get) => ({
             return;
         }
 
+        // Handle System Tabs
+        if (fileId.startsWith('cinder-')) {
+            set({ activeFileId: fileId, activeFileContent: '' });
+            return;
+        }
+
         const file = get().findFile(fileId);
         if (file && file.type === 'file') {
             const { openFiles, activeFileId } = get();
@@ -128,6 +142,33 @@ export const useAppStore = create<AppState>((set, get) => ({
                     openFiles: needsToOpen ? [...openFiles, fileId] : openFiles
                 });
             }
+        }
+    },
+
+    openSystemTab: (tabId: string) => {
+        const { openFiles, activeFileId } = get();
+
+        // If already open, just select it
+        if (openFiles.includes(tabId)) {
+            set({ activeFileId: tabId, activeFileContent: '' });
+            return;
+        }
+
+        // If currently on welcome/blank, replace it
+        if (activeFileId && (activeFileId === 'welcome' || activeFileId.startsWith('new-tab-'))) {
+            const newOpenFiles = openFiles.map(id => id === activeFileId ? tabId : id);
+            set({
+                activeFileId: tabId,
+                openFiles: newOpenFiles,
+                activeFileContent: ''
+            });
+        } else {
+            // Append
+            set({
+                activeFileId: tabId,
+                openFiles: [...openFiles, tabId],
+                activeFileContent: ''
+            });
         }
     },
 
@@ -203,7 +244,7 @@ export const useAppStore = create<AppState>((set, get) => ({
                 newName = `${baseName}-${nameCounter}${extension}`;
             }
 
-            const newFileId = `file-${Date.now()}`;
+            const newFileId = generateId();
             const newFile: FileNode = {
                 id: newFileId,
                 name: newName,
@@ -335,7 +376,7 @@ export const useAppStore = create<AppState>((set, get) => ({
                 newName = `${baseName} ${nameCounter}${extension}`;
             }
 
-            const newFileId = `file-${Date.now()}`;
+            const newFileId = generateId();
             const newFile: FileNode = {
                 id: newFileId,
                 name: newName,
@@ -426,7 +467,7 @@ export const useAppStore = create<AppState>((set, get) => ({
                 finalName = `${baseName}-${nameCounter}.md`;
             }
 
-            const newFileId = `file-${Date.now()}`;
+            const newFileId = generateId();
             const newFile: FileNode = {
                 id: newFileId,
                 name: finalName,

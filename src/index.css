@@ -23,7 +23,8 @@ input,
 }
 
 body {
-  @apply bg-[#1e1f1c] text-[#cfcfc2];
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   margin: 0;
   padding: 0;
   display: block;

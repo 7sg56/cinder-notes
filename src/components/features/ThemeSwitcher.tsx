@@ -6,6 +6,15 @@ const THEMES = [
   { name: 'Cinder Dark', value: '' },
   { name: 'Cinder Light', value: 'theme-cinder-light' },
   { name: 'Zen Black', value: 'theme-zen-black' },
+  { name: 'Synthwave \'84', value: 'theme-synthwave' },
+  { name: 'GitHub Dark', value: 'theme-github-dark' },
+  { name: 'Monokai Pro', value: 'theme-monokai' },
+  { name: 'Dracula', value: 'theme-dracula' },
+  { name: 'Nord', value: 'theme-nord' },
+  { name: 'Forest', value: 'theme-forest' },
+  { name: 'Muddy Mustard', value: 'theme-mustard' },
+  { name: 'Marine', value: 'theme-marine' },
+  { name: 'Ember', value: 'theme-ember' },
 ];
 
 export function ThemeSwitcher() {
@@ -85,7 +94,7 @@ export function ThemeSwitcher() {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-center p-1.5 rounded-md transition-all hover:bg-white/5 active:bg-white/10"
+        className="flex items-center justify-center p-1.5 rounded-md transition-all hover:bg-[var(--bg-hover)] active:bg-[var(--bg-active)]"
         style={{ color: 'var(--text-secondary)' }}
         title="Change Theme"
       >
@@ -116,7 +125,7 @@ export function ThemeSwitcher() {
                   setCurrentTheme(theme.value);
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-white/5 transition-colors group"
+                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
                 style={{
                   color: currentTheme === theme.value ? 'var(--editor-header-accent)' : 'var(--text-primary)'
                 }}
