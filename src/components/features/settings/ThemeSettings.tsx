@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Upload, Shuffle, Sun, Moon, Monitor, Edit2, Lock } from 'lucide-react';
+import { Upload, Shuffle, Sun, Moon, Monitor, Lock } from 'lucide-react';
 
 interface ThemePreset {
     id: string;
@@ -150,7 +150,7 @@ export function ThemeSettings() {
                         ].map(mode => (
                             <button
                                 key={mode.id}
-                                onClick={() => setColorMode(mode.id as any)}
+                                onClick={() => setColorMode(mode.id as 'light' | 'dark' | 'system')}
                                 className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-lg border transition-all ${colorMode === mode.id
                                     ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] ring-1 ring-[var(--editor-header-accent)]'
                                     : 'bg-[var(--bg-secondary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'

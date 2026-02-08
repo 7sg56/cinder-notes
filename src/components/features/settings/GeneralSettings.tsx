@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { Monitor, Bell, FolderOpen, Globe } from 'lucide-react';
 
 export function GeneralSettings() {
