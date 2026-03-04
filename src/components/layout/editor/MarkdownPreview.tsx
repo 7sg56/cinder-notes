@@ -4,6 +4,7 @@ import remarkMath from "remark-math";
 import remarkBreaks from "remark-breaks";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
+import rehypeSanitize from "rehype-sanitize";
 import { processMarkdown } from "../../../util/markdownpipeline";
 import { isValidElement } from "react";
 
@@ -24,7 +25,7 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
       <div className="markdown-preview px-8 sm:px-12 py-10">
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
-          rehypePlugins={[rehypeKatex, rehypeHighlight]}
+          rehypePlugins={[rehypeKatex, rehypeHighlight, rehypeSanitize]}
           components={{
             pre({ children }) {
               const childArray = Array.isArray(children)
