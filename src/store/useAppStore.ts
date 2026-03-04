@@ -824,7 +824,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       // 2. Validate Target & Insert
       if (targetId === "root") {
-        console.log("[moveNode] Dropping at root");
         return { files: [...newFilesWithoutSource, detachedNode!] };
       }
 
