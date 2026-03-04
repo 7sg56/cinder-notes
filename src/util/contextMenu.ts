@@ -28,7 +28,7 @@ type StoreActions = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-async function separator() {
+async function sep() {
     return await PredefinedMenuItem.new({ item: 'Separator' });
 }
 
@@ -50,7 +50,7 @@ export async function showFileContextMenu(node: FileNode, actions: StoreActions)
                 text: 'Open',
                 action: () => actions.openFileInNewTab(node.id),
             }),
-            await separator(),
+            await sep(),
             await MenuItem.new({
                 id: 'rename',
                 text: 'Rename',
@@ -61,7 +61,6 @@ export async function showFileContextMenu(node: FileNode, actions: StoreActions)
                 text: 'Duplicate',
                 action: () => actions.duplicateFile(node.id),
             }),
-            await separator(),
             await MenuItem.new({
                 id: 'copy-path',
                 text: 'Copy Path',
@@ -69,10 +68,10 @@ export async function showFileContextMenu(node: FileNode, actions: StoreActions)
                     if (node.path) copyPathToClipboard(node.path);
                 },
             }),
-            await separator(),
+            await sep(),
             await MenuItem.new({
                 id: 'delete',
-                text: 'Delete',
+                text: 'Move to Trash',
                 action: () => actions.deleteFile(node.id),
             }),
         ],
@@ -96,13 +95,12 @@ export async function showFolderContextMenu(node: FileNode, actions: StoreAction
                 text: 'New Folder',
                 action: () => actions.createFolder(node.id),
             }),
-            await separator(),
+            await sep(),
             await MenuItem.new({
                 id: 'rename',
                 text: 'Rename',
                 action: () => actions.setRenamingFileId(node.id, 'explorer'),
             }),
-            await separator(),
             await MenuItem.new({
                 id: 'copy-path',
                 text: 'Copy Path',
@@ -110,10 +108,10 @@ export async function showFolderContextMenu(node: FileNode, actions: StoreAction
                     if (node.path) copyPathToClipboard(node.path);
                 },
             }),
-            await separator(),
+            await sep(),
             await MenuItem.new({
                 id: 'delete-folder',
-                text: 'Delete Folder',
+                text: 'Move to Trash',
                 action: () => actions.deleteFolder(node.id),
             }),
         ],
@@ -150,11 +148,11 @@ export async function showEditorContextMenu() {
         items: [
             await PredefinedMenuItem.new({ item: 'Undo' }),
             await PredefinedMenuItem.new({ item: 'Redo' }),
-            await separator(),
+            await sep(),
             await PredefinedMenuItem.new({ item: 'Cut' }),
             await PredefinedMenuItem.new({ item: 'Copy' }),
             await PredefinedMenuItem.new({ item: 'Paste' }),
-            await separator(),
+            await sep(),
             await PredefinedMenuItem.new({ item: 'SelectAll' }),
         ],
     });
@@ -186,10 +184,9 @@ export async function showTabContextMenu(fileId: string, actions: StoreActions) 
         }),
     ];
 
-    // Add copy path if the file has one
     if (filePath) {
         items.push(
-            await separator(),
+            await sep(),
             await MenuItem.new({
                 id: 'copy-path',
                 text: 'Copy Path',
@@ -201,3 +198,4 @@ export async function showTabContextMenu(fileId: string, actions: StoreActions) 
     const menu = await Menu.new({ items });
     await menu.popup();
 }
+

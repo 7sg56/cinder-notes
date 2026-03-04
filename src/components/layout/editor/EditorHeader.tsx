@@ -1,13 +1,16 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, type MutableRefObject } from 'react';
 import { Undo2, Redo2, Eye, Edit2, MoreVertical } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
+import { undo, redo } from '@codemirror/commands';
+import type { EditorView } from '@codemirror/view';
 
 interface EditorHeaderProps {
     isPreview: boolean;
     onPreviewToggle: () => void;
+    editorViewRef?: MutableRefObject<EditorView | null>;
 }
 
-export function EditorHeader({ isPreview, onPreviewToggle }: EditorHeaderProps) {
+export function EditorHeader({ isPreview, onPreviewToggle, editorViewRef }: EditorHeaderProps) {
     const { activeFileId, getFileBreadcrumb, renamingFileId, pendingFileId, renameFile, cancelRename, setRenamingFileId, renameSource } = useAppStore();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -175,13 +178,27 @@ export function EditorHeader({ isPreview, onPreviewToggle }: EditorHeaderProps) 
                 <div className="flex items-center gap-1 mr-1">
                     <button
                         className="p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-90"
-                        style={{ color: 'var(--text-tertiary)' }} // Swapped #444 for variable
+                        style={{ color: 'var(--text-tertiary)' }}
+                        onClick={() => {
+                            if (editorViewRef?.current) {
+                                undo(editorViewRef.current);
+                                editorViewRef.current.focus();
+                            }
+                        }}
+                        title="Undo (Cmd+Z)"
                     >
                         <Undo2 size={15} strokeWidth={2} />
                     </button>
                     <button
                         className="p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-90"
-                        style={{ color: 'var(--text-tertiary)' }} // Swapped #444 for variable
+                        style={{ color: 'var(--text-tertiary)' }}
+                        onClick={() => {
+                            if (editorViewRef?.current) {
+                                redo(editorViewRef.current);
+                                editorViewRef.current.focus();
+                            }
+                        }}
+                        title="Redo (Cmd+Shift+Z)"
                     >
                         <Redo2 size={15} strokeWidth={2} />
                     </button>

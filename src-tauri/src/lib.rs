@@ -14,6 +14,8 @@ mod workspace;
 // Re-export types for use in other modules
 pub use types::FileEntry;
 
+use tauri::menu::{MenuBuilder, SubmenuBuilder};
+
 /// Main entry point for the Tauri application
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -31,6 +33,39 @@ pub fn run() {
             commands::delete_folder,
         ])
         .setup(|app| {
+            // Build a custom app menu without Cmd+W (Close Window)
+            // macOS default menus include Window > Close bound to Cmd+W,
+            // which kills the entire app. We override with a safe menu.
+            let app_submenu = SubmenuBuilder::new(app, "Cinder Notes")
+                .about(None)
+                .separator()
+                .services()
+                .separator()
+                .hide()
+                .hide_others()
+                .show_all()
+                .separator()
+                .quit()
+                .build()?;
+
+            let edit_submenu = SubmenuBuilder::new(app, "Edit")
+                .undo()
+                .redo()
+                .separator()
+                .cut()
+                .copy()
+                .paste()
+                .separator()
+                .select_all()
+                .build()?;
+
+            let menu = MenuBuilder::new(app)
+                .item(&app_submenu)
+                .item(&edit_submenu)
+                .build()?;
+
+            app.set_menu(menu)?;
+
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()

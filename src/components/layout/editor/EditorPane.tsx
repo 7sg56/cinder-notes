@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Editor } from './Editor';
 import { EditorTabs } from './EditorTabs';
 import { EditorHeader } from './EditorHeader';
 import { EditorStatusBar } from './EditorStatusBar';
 import { WelcomePage } from '../WelcomePage';
 import { useAppStore } from '../../../store/useAppStore';
+import type { EditorView } from '@codemirror/view';
 
 export function EditorPane() {
     const [isPreview, setIsPreview] = useState(false);
     const { activeFileId } = useAppStore();
+    const editorViewRef = useRef<EditorView | null>(null);
+    const [cursorLine, setCursorLine] = useState(1);
+    const [cursorCol, setCursorCol] = useState(1);
 
     return (
         <div
@@ -20,11 +24,26 @@ export function EditorPane() {
                 <WelcomePage />
             ) : (
                 <>
-                    <EditorHeader isPreview={isPreview} onPreviewToggle={() => setIsPreview(!isPreview)} />
+                    <EditorHeader
+                        isPreview={isPreview}
+                        onPreviewToggle={() => setIsPreview(!isPreview)}
+                        editorViewRef={editorViewRef}
+                    />
                     <div className="flex-1 min-h-0 relative">
-                        <Editor isPreview={isPreview} />
+                        <Editor
+                            isPreview={isPreview}
+                            editorViewRef={editorViewRef}
+                            onCursorChange={(line, col) => {
+                                setCursorLine(line);
+                                setCursorCol(col);
+                            }}
+                        />
                     </div>
-                    <EditorStatusBar isPreview={isPreview} />
+                    <EditorStatusBar
+                        isPreview={isPreview}
+                        cursorLine={cursorLine}
+                        cursorCol={cursorCol}
+                    />
                 </>
             )}
         </div>

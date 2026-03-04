@@ -83,6 +83,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
     // Derived state from store
     const isOpen = expandedFolderIds.includes(node.id);
     const [dragState, setDragState] = useState<{ isOver: boolean; position: 'inside' | 'before' | 'after' }>({ isOver: false, position: 'inside' });
+    const [contextMenuActive, setContextMenuActive] = useState(false);
     const dragEnterTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Drag and Drop Handlers
@@ -202,9 +203,10 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         }
     };
 
-    const handleContextMenu = (e: React.MouseEvent) => {
+    const handleContextMenu = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        setContextMenuActive(true);
         const actions = {
             openFileInNewTab, selectFile, setRenamingFileId,
             deleteFile, deleteFolder, duplicateFile,
@@ -212,10 +214,11 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
             closeFile, closeOtherFiles, closeAllFiles, findFile
         };
         if (node.type === 'folder') {
-            showFolderContextMenu(node, actions);
+            await showFolderContextMenu(node, actions);
         } else {
-            showFileContextMenu(node, actions);
+            await showFileContextMenu(node, actions);
         }
+        setContextMenuActive(false);
     };
 
     const finalizeRename = (newName: string) => {
@@ -260,22 +263,24 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                     style={{
                         paddingLeft,
                         // Background logic: Active gets priority, but drag 'inside' overrides it
-                        backgroundColor: dragState.isOver && dragState.position === 'inside'
-                            ? 'var(--filetree-bg-active)' // Or a specific hover color
-                            : isActive
-                                ? 'var(--filetree-bg-active)'
-                                : 'transparent',
-                        color: isActive ? 'var(--filetree-text-active)' : 'var(--filetree-text)',
+                        backgroundColor: contextMenuActive
+                            ? 'var(--filetree-bg-active)'
+                            : dragState.isOver && dragState.position === 'inside'
+                                ? 'var(--filetree-bg-active)' // Or a specific hover color
+                                : isActive
+                                    ? 'var(--filetree-bg-active)'
+                                    : 'transparent',
+                        color: (isActive || contextMenuActive) ? 'var(--filetree-text-active)' : 'var(--filetree-text)',
                         // Remove borders from here
                     }}
                     className={`group flex items-center py-1.5 cursor-pointer text-[13px] font-medium select-none transition-colors box-border`}
                     onMouseEnter={(e) => {
-                        if (!isActive && !(dragState.isOver && dragState.position === 'inside')) {
+                        if (!isActive && !contextMenuActive && !(dragState.isOver && dragState.position === 'inside')) {
                             e.currentTarget.style.backgroundColor = 'var(--filetree-bg-hover)';
                         }
                     }}
                     onMouseLeave={(e) => {
-                        if (!isActive && !(dragState.isOver && dragState.position === 'inside')) {
+                        if (!isActive && !contextMenuActive && !(dragState.isOver && dragState.position === 'inside')) {
                             e.currentTarget.style.backgroundColor = 'transparent';
                         }
                     }}

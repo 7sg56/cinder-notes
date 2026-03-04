@@ -1,32 +1,22 @@
-import React, { useEffect, useRef } from 'react';
+import React, { type MutableRefObject } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { MarkdownPreview } from './MarkdownPreview';
 import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
 import { AccountSettings } from '../../features/settings/AccountSettings';
 import { ThemeSettings } from '../../features/settings/ThemeSettings';
 import { GeneralSettings } from '../../features/settings/GeneralSettings';
-import { showEditorContextMenu } from '../../../util/contextMenu';
+import { CodeMirrorEditor } from './CodeMirrorEditor';
+import type { EditorView } from '@codemirror/view';
 
 interface EditorProps {
     isPreview: boolean;
     onPreviewChange?: (isPreview: boolean) => void;
+    editorViewRef?: MutableRefObject<EditorView | null>;
+    onCursorChange?: (line: number, col: number) => void;
 }
 
-export function Editor({ isPreview }: EditorProps) {
-    const { activeFileId, activeFileContent, updateFileContent, renamingFileId } = useAppStore();
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const prevRenamingFileId = usePrevious(renamingFileId);
-
-    const isBlankTab = activeFileId?.startsWith('new-tab-');
-
-    // Focus editor when renaming finishes
-    useEffect(() => {
-        // If we were renaming (prevRenamingFileId exists) and now we are not (renamingFileId is null)
-        // AND the active file is still the one we were renaming (or just exists)
-        if (prevRenamingFileId && !renamingFileId && !isBlankTab && !isPreview) {
-            textareaRef.current?.focus();
-        }
-    }, [renamingFileId, prevRenamingFileId, isBlankTab, isPreview]);
+export function Editor({ isPreview, editorViewRef, onCursorChange }: EditorProps) {
+    const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
 
     return (
         <div
@@ -83,29 +73,12 @@ export function Editor({ isPreview }: EditorProps) {
                     {isPreview ? (
                         <MarkdownPreview content={activeFileContent} />
                     ) : (
-                        <>
-                            <style>{`
-                                textarea::selection { background-color: var(--editor-selection-bg); color: var(--text-white); }
-                                textarea::-webkit-scrollbar { width: 8px; }
-                                textarea::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 10px; }
-                            `}</style>
-                            <textarea
-                                ref={textareaRef}
-                                className="flex-1 w-full h-full p-10 outline-none resize-none font-mono text-[14px] leading-[1.8] transition-colors"
-                                style={{
-                                    backgroundColor: 'var(--editor-bg)',
-                                    color: 'var(--editor-text)'
-                                }}
-                                value={activeFileContent}
-                                onChange={(e) => updateFileContent(activeFileId, e.target.value)}
-                                onContextMenu={(e) => {
-                                    e.preventDefault();
-                                    showEditorContextMenu();
-                                }}
-                                spellCheck={false}
-                                placeholder="Type your markdown here..."
-                            />
-                        </>
+                        <CodeMirrorEditor
+                            value={activeFileContent}
+                            onChange={(val) => updateFileContent(activeFileId, val)}
+                            editorViewRef={editorViewRef}
+                            onCursorChange={onCursorChange}
+                        />
                     )}
                 </div>
             )}
@@ -113,8 +86,8 @@ export function Editor({ isPreview }: EditorProps) {
     )
 }
 
-// Hook to track previous value
-function usePrevious<T>(value: T): T | undefined {
+// Hook to track previous value (kept for potential future use)
+export function usePrevious<T>(value: T): T | undefined {
     const [tuple, setTuple] = React.useState<[T | undefined, T]>([undefined, value]);
     if (tuple[1] !== value) {
         setTuple([tuple[1], value]);

@@ -5,9 +5,13 @@ import { EditorPane } from './components/layout/editor/EditorPane'
 import { FloatingHub } from './components/features/FloatingHub'
 import { WorkspaceWelcome } from './components/onboarding/WorkspaceWelcome'
 import { useAppStore } from './store/useAppStore'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
 function App() {
   const workspacePath = useAppStore((state) => state.workspacePath);
+
+  // Register global keyboard shortcuts
+  useKeyboardShortcuts();
 
   // Show workspace selection if no workspace is set
   if (!workspacePath) {
@@ -26,3 +30,4 @@ function App() {
 }
 
 export default App
+
