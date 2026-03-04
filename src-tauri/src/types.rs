@@ -44,12 +44,14 @@ impl FileEntry {
 }
 
 /// Error type for workspace operations
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize)]
 pub struct WorkspaceError {
     pub message: String,
     pub code: String,
 }
 
+#[allow(dead_code)]
 impl WorkspaceError {
     pub fn not_found(path: &str) -> Self {
         Self {
