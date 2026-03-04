@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-  
+
   - type: textarea
     id: description
     attributes:
@@ -38,7 +38,7 @@ body:
       placeholder: The window should close.
     validations:
       required: true
-      
+
   - type: textarea
     id: screenshots
     attributes:

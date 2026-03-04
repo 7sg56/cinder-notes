@@ -28,6 +28,7 @@ We're building Cinder Notes as an open, welcoming project. We want everyone — 
 ## Scope
 
 This applies to:
+
 - GitHub issues, PRs, and discussions
 - Any project-related communication
 - Representing the project in public spaces
@@ -40,7 +41,7 @@ If someone is making the community feel unwelcome:
 2. Report it to the maintainers by opening a private issue or emailing us
 3. We'll address it — violations may result in warnings, temporary bans, or permanent removal
 
-We're students running this project. We don't have a legal team or an HR department. But we *will* take this seriously and do our best to keep this space positive.
+We're students running this project. We don't have a legal team or an HR department. But we _will_ take this seriously and do our best to keep this space positive.
 
 ## Attribution
 

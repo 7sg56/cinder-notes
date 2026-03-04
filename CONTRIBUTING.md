@@ -2,13 +2,14 @@
 
 **We'd be thrilled if you contribute!** 🔥
 
-We're a small team of students building this in our spare time. There's a *lot* still to be done, and frankly, we could use all the help we can get. Whether you're fixing a typo, refactoring messy code, adding a feature, or just sharing an idea — we're grateful.
+We're a small team of students building this in our spare time. There's a _lot_ still to be done, and frankly, we could use all the help we can get. Whether you're fixing a typo, refactoring messy code, adding a feature, or just sharing an idea — we're grateful.
 
 ## A Note on Code Quality
 
 Let's be honest: **our code isn't perfect.** We're students, we're learning, and we're building as we go. If you see something that makes you cringe — a hacky workaround, an anti-pattern, or just a better way to do things — please don't hesitate to fix it or tell us about it.
 
 We're open to:
+
 - Refactors and rewrites
 - Architecture suggestions
 - Performance improvements
@@ -34,6 +35,7 @@ npm install
 ```
 
 **Prerequisites:**
+
 - [Node.js](https://nodejs.org/) (v18+)
 - [Rust](https://www.rust-lang.org/tools/install) — Run `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
 - **Linux users**: You'll need some system libs. See [Tauri Prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites#linux).
@@ -67,6 +69,7 @@ We loosely follow [Conventional Commits](https://www.conventionalcommits.org/) (
 ### 6. Open a Pull Request
 
 Head to the original repo and open a PR against `main`. Tell us:
+
 - What you changed
 - Why you changed it
 - Screenshots if it's a UI change
@@ -77,15 +80,15 @@ Head to the original repo and open a PR against `main`. Tell us:
 
 Here are some areas where we'd especially love help:
 
-| Area | What Needs Doing |
-|------|------------------|
-| **File System** | Persisting files to disk via Tauri FS APIs |
-| **Keyboard Shortcuts** | Implementing Ctrl+N, Ctrl+S, etc. |
-| **Search** | Full-text search across notes |
-| **Markdown** | Better parsing, syntax highlighting improvements |
-| **Performance** | Profiling, lazy loading, bundle optimization |
-| **Accessibility** | Screen reader support, keyboard navigation |
-| **Tests** | We have... basically none. Help. |
+| Area                   | What Needs Doing                                 |
+| ---------------------- | ------------------------------------------------ |
+| **File System**        | Persisting files to disk via Tauri FS APIs       |
+| **Keyboard Shortcuts** | Implementing Ctrl+N, Ctrl+S, etc.                |
+| **Search**             | Full-text search across notes                    |
+| **Markdown**           | Better parsing, syntax highlighting improvements |
+| **Performance**        | Profiling, lazy loading, bundle optimization     |
+| **Accessibility**      | Screen reader support, keyboard navigation       |
+| **Tests**              | We have... basically none. Help.                 |
 
 Or just pick something from the [Issues](https://github.com/7sg56/cinder-notes/issues)!
 
