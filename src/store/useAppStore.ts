@@ -3,13 +3,6 @@ import { invoke } from '@tauri-apps/api/core';
 import type { FileNode } from '../data/mockFileSystem';
 import { mockFileSystem } from '../data/mockFileSystem';
 
-const generateId = () => {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        return `file-${crypto.randomUUID()}`;
-    }
-    return `file-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-};
-
 interface AppState {
     files: FileNode[];
     workspacePath: string | null;
@@ -209,6 +202,33 @@ export const useAppStore = create<AppState>((set, get) => ({
                 // Fallback to in-memory content
                 updateWithContent(file.content || '');
             }
+        }
+    },
+
+    openSystemTab: (tabId: string) => {
+        const { openFiles, activeFileId } = get();
+
+        // If already open, just select it
+        if (openFiles.includes(tabId)) {
+            set({ activeFileId: tabId, activeFileContent: '' });
+            return;
+        }
+
+        // If currently on welcome/blank, replace it
+        if (activeFileId && (activeFileId === 'welcome' || activeFileId.startsWith('new-tab-'))) {
+            const newOpenFiles = openFiles.map(id => id === activeFileId ? tabId : id);
+            set({
+                activeFileId: tabId,
+                openFiles: newOpenFiles,
+                activeFileContent: ''
+            });
+        } else {
+            // Append
+            set({
+                activeFileId: tabId,
+                openFiles: [...openFiles, tabId],
+                activeFileContent: ''
+            });
         }
     },
 
