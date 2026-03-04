@@ -818,7 +818,6 @@ export const useAppStore = create<AppState>((set, get) => ({
       const newFilesWithoutSource = removeNode(files);
 
       if (!detachedNode) {
-        console.error("[moveNode] Source node not found:", sourceId);
         return {};
       }
 
