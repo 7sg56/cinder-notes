@@ -840,7 +840,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         for (const node of list) {
           if (node.id === targetId) {
-            console.log("[moveNode] Target found:", node.id);
             inserted = true;
             // Prepare node to insert (detachedNode)
             // We don't check name collision here optimally but let's assume UI handles it or we fix it later
