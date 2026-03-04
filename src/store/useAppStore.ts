@@ -791,7 +791,6 @@ export const useAppStore = create<AppState>((set, get) => ({
       const files = [...state.files];
 
       // 1. Find and Remove Source
-      console.log(`[moveNode] Moving ${sourceId} -> ${targetId} (${position})`);
       let detachedNode: FileNode | null = null;
 
       const removeNode = (nodes: FileNode[]): FileNode[] => {
