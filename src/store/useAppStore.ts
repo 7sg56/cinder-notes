@@ -3,6 +3,13 @@ import { invoke } from '@tauri-apps/api/core';
 import type { FileNode } from '../data/mockFileSystem';
 import { mockFileSystem } from '../data/mockFileSystem';
 
+const generateId = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return `file-${crypto.randomUUID()}`;
+    }
+    return `file-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
 interface AppState {
     files: FileNode[];
     workspacePath: string | null;
@@ -46,6 +53,7 @@ interface AppState {
     collapseFolder: (folderId: string) => void;
     moveNode: (sourceId: string, targetId: string, position: 'inside' | 'before' | 'after' | 'root') => void;
     toggleAutoSave: () => void;
+    openSystemTab: (tabId: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -132,6 +140,12 @@ export const useAppStore = create<AppState>((set, get) => ({
                     activeFileContent: ''
                 };
             });
+            return;
+        }
+
+        // Handle System Tabs
+        if (fileId.startsWith('cinder-')) {
+            set({ activeFileId: fileId, activeFileContent: '' });
             return;
         }
 

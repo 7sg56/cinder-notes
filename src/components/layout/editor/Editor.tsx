@@ -2,6 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { MarkdownPreview } from './MarkdownPreview';
 import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
+import { AccountSettings } from '../../features/settings/AccountSettings';
+import { ThemeSettings } from '../../features/settings/ThemeSettings';
+import { GeneralSettings } from '../../features/settings/GeneralSettings';
 
 interface EditorProps {
     isPreview: boolean;
@@ -29,39 +32,49 @@ export function Editor({ isPreview }: EditorProps) {
             className="h-full flex flex-col relative group transition-colors duration-300"
             style={{ backgroundColor: 'var(--editor-bg)' }}
         >
-            {!activeFileId || activeFileId === 'welcome' ? (
-                /* --- EMPTY STATE --- */
+            {(!activeFileId || activeFileId === 'welcome' || activeFileId.startsWith('cinder-')) ? (
+                /* --- SYSTEM TABS & EMPTY STATE --- */
                 <div
-                    className="flex-1 flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--editor-bg)' }}
+                    className="flex-1 flex w-full h-full relative bg-[var(--bg-primary)]"
                 >
-                    <div className="text-center max-w-md px-6">
+                    {activeFileId === 'cinder-account' && <AccountSettings />}
+                    {activeFileId === 'cinder-theme' && <ThemeSettings />}
+                    {activeFileId === 'cinder-settings' && <GeneralSettings />}
 
-                        <h1 className="mb-2 text-3xl font-bold tracking-tight" style={{ color: 'var(--text-white)' }}>
-                            Cinder Notes
-                        </h1>
-                        <p className="mb-10 text-[11px] uppercase tracking-[0.2em] font-bold opacity-40" style={{ color: 'var(--text-secondary)' }}>
-                            Distraction-free writing
-                        </p>
+                    {(!activeFileId || activeFileId === 'welcome') && (
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center max-w-md px-6 z-10">
 
-                        <div className="space-y-5 text-sm">
-                            {[
-                                { icon: ChevronLeft, text: "Select a file", highlight: "from the explorer" },
-                                { icon: FileText, text: "Markdown", highlight: "format support" },
-                                { icon: Eye, text: "Toggle preview", highlight: "to render content" },
-                                { icon: Save, text: "Auto-saves", highlight: "locally as you type" }
-                            ].map((item, i) => (
-                                <div key={i} className="flex items-center gap-4 text-left group/item cursor-default">
-                                    <div className="p-2 rounded-lg bg-white/5 group-hover/item:bg-[var(--editor-header-accent)]/10 transition-colors">
-                                        <item.icon size={16} style={{ color: 'var(--text-secondary)' }} />
-                                    </div>
-                                    <p style={{ color: 'var(--text-secondary)' }}>
-                                        <span style={{ color: 'var(--text-primary)' }} className="font-medium">{item.text}</span> {item.highlight}
-                                    </p>
+                                <h1 className="mb-2 text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                                    Cinder Notes
+                                </h1>
+                                <p className="mb-10 text-[11px] uppercase tracking-[0.2em] font-bold opacity-40" style={{ color: 'var(--text-secondary)' }}>
+                                    Distraction-free writing
+                                </p>
+
+                                <div className="space-y-5 text-sm">
+                                    {[
+                                        { icon: ChevronLeft, text: "Select a file", highlight: "from the explorer" },
+                                        { icon: FileText, text: "Markdown", highlight: "format support" },
+                                        { icon: Eye, text: "Toggle preview", highlight: "to render content" },
+                                        { icon: Save, text: "Auto-saves", highlight: "locally as you type" }
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex items-center gap-4 text-left group/item cursor-default">
+                                            <div
+                                                className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-active)]"
+                                                style={{ backgroundColor: 'var(--bg-hover)' }}
+                                            >
+                                                <item.icon size={16} style={{ color: 'var(--text-secondary)' }} />
+                                            </div>
+                                            <p style={{ color: 'var(--text-secondary)' }}>
+                                                <span style={{ color: 'var(--text-primary)' }} className="font-medium">{item.text}</span> {item.highlight}
+                                            </p>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             ) : (
                 /* --- EDITOR / PREVIEW CONTENT --- */
@@ -91,7 +104,7 @@ export function Editor({ isPreview }: EditorProps) {
                     )}
                 </div>
             )}
-        </div>
+        </div >
     )
 }
 

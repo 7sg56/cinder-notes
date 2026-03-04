@@ -1,5 +1,6 @@
-import { X, Plus, FileText, PanelLeft, Gift, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Plus, FileText, PanelLeft, Gift, Maximize2, Minimize2, User, Palette, Settings } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
+
 
 export function EditorTabs() {
     const { openFiles, activeFileId, selectFile, closeFile, findFile, createNewTab, toggleExplorerCollapsed, isExplorerCollapsed } = useAppStore();
@@ -20,7 +21,14 @@ export function EditorTabs() {
                     const isActive = activeFileId === fileId;
                     const isBlankTab = fileId.startsWith('new-tab-');
                     const isWelcomeTab = fileId === 'welcome';
-                    const tabName = isWelcomeTab ? 'Welcome' : (isBlankTab ? 'Untitled' : file?.name.replace(/\.md$/, ''));
+
+                    let tabName = '';
+                    if (isWelcomeTab) tabName = 'Welcome';
+                    else if (isBlankTab) tabName = 'Untitled';
+                    else if (fileId === 'cinder-account') tabName = 'Account';
+                    else if (fileId === 'cinder-theme') tabName = 'Themes';
+                    else if (fileId === 'cinder-settings') tabName = 'Settings';
+                    else tabName = file?.name.replace(/\.md$/, '') || 'Unknown';
 
                     return (
                         <div
@@ -33,7 +41,7 @@ export function EditorTabs() {
                                 color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
                             }}
                         >
-                            {!isWelcomeTab && (
+                            {!isWelcomeTab && !fileId.startsWith('cinder-') && (
                                 <FileText
                                     size={14}
                                     className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
@@ -53,13 +61,24 @@ export function EditorTabs() {
                                 />
                             )}
 
+                            {fileId.startsWith('cinder-') && (
+                                <span
+                                    className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
+                                    style={{ color: isActive ? 'var(--editor-header-accent)' : 'inherit' }}
+                                >
+                                    {fileId === 'cinder-account' && <User size={14} />}
+                                    {fileId === 'cinder-theme' && <Palette size={14} />}
+                                    {fileId === 'cinder-settings' && <Settings size={14} />}
+                                </span>
+                            )}
+
                             <span className={`truncate flex-1 ${isBlankTab ? 'italic opacity-60' : ''}`}>
                                 {tabName}
                             </span>
 
                             <button
                                 onClick={(e) => { e.stopPropagation(); closeFile(fileId); }}
-                                className="ml-2 p-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10"
+                                className="ml-2 p-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[var(--bg-active)]"
                                 style={{
                                     color: 'var(--text-tertiary)'
                                 }}
@@ -81,7 +100,7 @@ export function EditorTabs() {
                 {/* New Tab Button */}
                 <button
                     onClick={createNewTab}
-                    className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-white/5"
+                    className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
                     style={{ color: 'var(--text-tertiary)' }}
                     title="New Tab"
                 >
@@ -91,7 +110,7 @@ export function EditorTabs() {
                 {/* Sidebar Toggle */}
                 <button
                     onClick={toggleExplorerCollapsed}
-                    className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-white/5"
+                    className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
                     style={{ color: 'var(--text-tertiary)' }}
                     title="Toggle Sidebar"
                 >
@@ -101,7 +120,7 @@ export function EditorTabs() {
                 {/* Fullscreen Toggle */}
                 <button
                     onClick={toggleExplorerCollapsed}
-                    className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-white/5"
+                    className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
                     style={{ color: isExplorerCollapsed ? 'var(--editor-header-accent)' : 'var(--text-tertiary)' }}
                     title={isExplorerCollapsed ? "Exit Fullscreen" : "Fullscreen Editor"}
                 >
