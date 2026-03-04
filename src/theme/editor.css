@@ -7,7 +7,6 @@
 .cm-editor .cm-content {
   font-family:
     "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif !important;
-  font-size: 1rem !important;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -28,15 +27,7 @@
 }
 
 /* Match the exact padding of Markdown Preview */
-.cm-editor .cm-scroller {
-  display: flex;
-  justify-content: center;
-}
-
 .cm-editor .cm-content {
-  max-width: 48rem !important;
-  /* Tailwind max-w-3xl */
-  width: 100% !important;
   padding: 2.5rem 3rem !important;
   padding-bottom: 6rem !important;
   /* give scroll room at bottom */
@@ -224,19 +215,23 @@
   padding-bottom: 0.5em !important;
 }
 
-.cm-editor .cm-heading-line.cm-h1 {
+.cm-editor .cm-heading-line.cm-h1,
+.cm-editor .cm-heading-line.cm-h1 * {
   font-size: 1.9em !important;
 }
 
-.cm-editor .cm-heading-line.cm-h2 {
+.cm-editor .cm-heading-line.cm-h2,
+.cm-editor .cm-heading-line.cm-h2 * {
   font-size: 1.45em !important;
 }
 
-.cm-editor .cm-heading-line.cm-h3 {
+.cm-editor .cm-heading-line.cm-h3,
+.cm-editor .cm-heading-line.cm-h3 * {
   font-size: 1.25em !important;
 }
 
-.cm-editor .cm-heading-line.cm-h4 {
+.cm-editor .cm-heading-line.cm-h4,
+.cm-editor .cm-heading-line.cm-h4 * {
   font-size: 1.1em !important;
 }
 

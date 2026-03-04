@@ -15,7 +15,7 @@
 }
 
 /* Vertical rhythm */
-.markdown-preview > * + * {
+.markdown-preview>*+* {
   margin-top: 1.2em;
 }
 
@@ -109,8 +109,8 @@
   white-space: pre-wrap;
 }
 
-.markdown-preview ul > li::marker,
-.markdown-preview ol > li::marker {
+.markdown-preview ul>li::marker,
+.markdown-preview ol>li::marker {
   color: var(--markdown-list);
 }
 
@@ -126,35 +126,39 @@
    INLINE CODE
    ===================================================== */
 .markdown-preview code:not(pre code) {
-  background: var(--markdown-code-bg);
-  padding: 0.2em 0.45em;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.25em 0.5em;
   border-radius: 6px;
   font-size: 0.85em;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  border: 1px solid var(--border-primary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* =====================================================
    CODE BLOCKS
    ===================================================== */
 .markdown-preview .code-block {
-  margin: 1.6em 0;
+  margin: 2em 0;
   border-radius: 12px;
   overflow: hidden;
-  background: var(--markdown-code-bg);
-  border: 1px solid var(--border-secondary);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .markdown-preview .code-block-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5em 0.9em;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-primary);
+  padding: 0.6em 1em;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.72em;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -188,12 +192,15 @@
    BLOCKQUOTE
    ===================================================== */
 .markdown-preview blockquote {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 1em 1.4em;
-  border-radius: 10px;
-  margin: 1.6em 0;
-  box-shadow: inset 3px 0 0 var(--editor-header-accent);
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  padding: 1.2em 1.6em;
+  border-radius: 4px 12px 12px 4px;
+  margin: 2em 0;
+  box-shadow: inset 4px 0 0 var(--editor-header-accent);
   color: var(--text-secondary);
+  font-style: italic;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-left: none;
 }
 
 .markdown-preview blockquote p:last-child {
@@ -263,7 +270,7 @@
   padding: 0.5em 0;
 }
 
-.markdown-preview .katex-display > .katex {
+.markdown-preview .katex-display>.katex {
   font-size: 1.08em;
 }
 

@@ -21,7 +21,7 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
 
   return (
     <div className="flex-1 w-full h-full overflow-y-auto">
-      <div className="markdown-preview max-w-3xl mx-auto px-8 sm:px-12 py-10">
+      <div className="markdown-preview px-8 sm:px-12 py-10">
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
           rehypePlugins={[rehypeKatex, rehypeHighlight]}
