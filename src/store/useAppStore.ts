@@ -874,10 +874,6 @@ export const useAppStore = create<AppState>((set, get) => ({
       const finalFiles = insertRecursive(newFilesWithoutSource);
 
       if (!inserted) {
-        console.error(
-          "[moveNode] Target node not found, aborting move to prevent data loss:",
-          targetId,
-        );
         return {}; // Return nothing to keep original state
       }
 
