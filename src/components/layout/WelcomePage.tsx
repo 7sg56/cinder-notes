@@ -23,7 +23,10 @@ export function WelcomePage() {
     ];
 
     return (
-        <div className="h-full w-full flex flex-col items-center justify-center bg-[#0c0c0c] select-none relative">
+        <div
+            className="h-full w-full flex flex-col items-center justify-center select-none relative"
+            style={{ backgroundColor: 'var(--editor-bg)' }}
+        >
 
             {/* Main Centered Content Wrapper */}
             <div className="flex flex-col items-center w-full max-w-[400px]">
@@ -32,7 +35,10 @@ export function WelcomePage() {
                 <div className="w-full space-y-12">
                     {sections.map((section, idx) => (
                         <div key={idx} className="space-y-4">
-                            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] px-3 text-gray-600">
+                            <h2
+                                className="text-[10px] font-bold uppercase tracking-[0.2em] px-3 transition-colors"
+                                style={{ color: 'var(--text-tertiary)' }}
+                            >
                                 {section.title}
                             </h2>
                             <div className="space-y-1">
@@ -40,7 +46,16 @@ export function WelcomePage() {
                                     <button
                                         key={itemIdx}
                                         onClick={item.action}
-                                        className="w-full flex items-center justify-between px-3 py-2 rounded-md group hover:bg-white/5 transition-colors text-gray-400 hover:text-white"
+                                        className="w-full flex items-center justify-between px-3 py-2 rounded-md group transition-colors"
+                                        style={{ color: 'var(--text-secondary)' }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                                            e.currentTarget.style.color = 'var(--text-primary)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.backgroundColor = '';
+                                            e.currentTarget.style.color = 'var(--text-secondary)';
+                                        }}
                                     >
                                         <div className="flex items-center gap-4">
                                             <item.icon size={18} className="opacity-60 group-hover:opacity-100" />
@@ -49,7 +64,15 @@ export function WelcomePage() {
                                         {item.shortcut && (
                                             <div className="flex gap-1 items-center">
                                                 {item.shortcut.split('+').map(key => (
-                                                    <kbd key={key} className="min-w-[20px] h-[18px] flex items-center justify-center text-[9px] rounded bg-[#1a1a1a] border border-white/5 text-gray-500 px-1">
+                                                    <kbd
+                                                        key={key}
+                                                        className="min-w-[20px] h-[18px] flex items-center justify-center text-[9px] rounded px-1 border transition-colors"
+                                                        style={{
+                                                            backgroundColor: 'var(--bg-secondary)',
+                                                            borderColor: 'var(--border-primary)',
+                                                            color: 'var(--text-tertiary)'
+                                                        }}
+                                                    >
                                                         {key === 'Ctrl' ? '⌃' : key}
                                                     </kbd>
                                                 ))}
@@ -65,7 +88,12 @@ export function WelcomePage() {
 
             {/* Footer - Positioned Absolutely at the bottom */}
             <div className="absolute bottom-10 left-0 right-0 flex justify-center">
-                <button className="text-[11px] text-gray-700 hover:text-gray-400 transition-colors">
+                <button
+                    className="text-[11px] transition-colors"
+                    style={{ color: 'var(--text-tertiary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-tertiary)'}
+                >
                     Return to Onboarding
                 </button>
             </div>

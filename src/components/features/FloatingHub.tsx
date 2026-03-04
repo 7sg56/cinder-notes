@@ -1,17 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Check } from 'lucide-react';
-
-const THEMES = [
-    { name: 'Cinder Dark', value: '' },
-    { name: 'Cinder Light', value: 'theme-cinder-light' },
-    { name: 'Zen Black', value: 'theme-zen-black' },
-];
+import { User, Palette, Settings } from 'lucide-react';
+import { useAppStore } from '../../store/useAppStore';
 
 export function FloatingHub() {
     const [isOpen, setIsOpen] = useState(false);
-    const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem('cinder-theme') || '');
-    const buttonRef = useRef<HTMLButtonElement>(null);
+    const [isHovered, setIsHovered] = useState(false);
+    const buttonRef = useRef<HTMLDivElement>(null);
+    const { openSystemTab } = useAppStore();
 
     // Close when clicking outside
     useEffect(() => {
@@ -35,44 +31,38 @@ export function FloatingHub() {
         };
     }, [isOpen]);
 
-    // Apply theme to document element
-    useEffect(() => {
-        THEMES.forEach(t => {
-            if (t.value) document.documentElement.classList.remove(t.value);
-        });
-        if (currentTheme) {
-            document.documentElement.classList.add(currentTheme);
-        }
-        localStorage.setItem('cinder-theme', currentTheme);
-    }, [currentTheme]);
-
     return (
         <>
-            {/* Floating Hub Button - Fixed position at bottom-left, no background */}
-            <button
+            {/* Floating Hub Button - Circular Div */}
+            <div
                 ref={buttonRef}
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-5 left-5 z-[9998] w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 ease-out group"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                role="button"
+                className="fixed bottom-5 left-5 z-[99999] w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 ease-out group shadow-xl hover:scale-110 active:scale-95"
                 style={{
-                    background: 'transparent',
-                    border: 'none',
+                    backgroundColor: 'var(--bg-tertiary)', // Provide a background
+                    border: isOpen || isHovered ? '1px solid var(--editor-header-accent)' : '1px solid var(--border-primary)',
+                    boxShadow: isOpen || isHovered ? '0 0 15px var(--accent-glow)' : 'none',
+                    overflow: 'hidden' // Clip the square image to circle
                 }}
                 title="Cinder Hub"
             >
                 <img
-                    src="/icons/128%20x%20128.svg"
+                    src="src-tauri/icons/Square44x44Logo.png"
                     alt="Cinder Hub"
-                    className="w-10 h-10 object-contain transition-transform duration-200 group-hover:scale-110"
+                    className="w-full h-full object-cover"
                     style={{
-                        filter: isOpen ? 'brightness(1.2) drop-shadow(0 0 8px var(--editor-header-accent))' : 'brightness(0.85)',
+                        filter: isOpen ? 'brightness(1.1)' : 'brightness(1)',
                     }}
                 />
-            </button>
+            </div>
 
             {/* Menu opens upwards from the button */}
             {isOpen && createPortal(
                 <div
-                    className="hub-menu fixed w-52 rounded-lg border shadow-2xl py-2 z-[9999] backdrop-blur-xl animate-in fade-in zoom-in duration-150 origin-bottom-left"
+                    className="hub-menu fixed w-52 rounded-lg border shadow-2xl py-2 z-[100000] backdrop-blur-xl animate-in fade-in zoom-in duration-150 origin-bottom-left"
                     style={{
                         backgroundColor: 'var(--bg-tertiary)',
                         borderColor: 'var(--border-secondary)',
@@ -82,28 +72,49 @@ export function FloatingHub() {
                     }}
                 >
                     <div className="px-3 pb-2 mb-1 border-b text-[10px] uppercase tracking-widest font-bold opacity-30" style={{ borderColor: 'var(--border-primary)' }}>
-                        Studio Themes
+                        Cinder Hub
                     </div>
 
                     <div className="max-h-[300px] overflow-y-auto no-scrollbar">
-                        {THEMES.map((theme) => (
-                            <button
-                                key={theme.name}
-                                onClick={() => {
-                                    setCurrentTheme(theme.value);
-                                    setIsOpen(false);
-                                }}
-                                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-white/5 transition-colors group"
-                                style={{
-                                    color: currentTheme === theme.value ? 'var(--editor-header-accent)' : 'var(--text-primary)'
-                                }}
-                            >
-                                <span className={currentTheme === theme.value ? 'font-bold' : 'font-medium'}>
-                                    {theme.name}
-                                </span>
-                                {currentTheme === theme.value && <Check size={14} strokeWidth={3} />}
-                            </button>
-                        ))}
+                        <button
+                            onClick={() => {
+                                openSystemTab('cinder-account');
+                                setIsOpen(false);
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
+                            style={{ color: 'var(--text-primary)' }}
+                        >
+                            <span className="font-medium flex items-center gap-2">
+                                <User size={14} />
+                                Account
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                openSystemTab('cinder-theme');
+                                setIsOpen(false);
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
+                            style={{ color: 'var(--text-primary)' }}
+                        >
+                            <span className="font-medium flex items-center gap-2">
+                                <Palette size={14} />
+                                Themes
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                openSystemTab('cinder-settings');
+                                setIsOpen(false);
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
+                            style={{ color: 'var(--text-primary)' }}
+                        >
+                            <span className="font-medium flex items-center gap-2">
+                                <Settings size={14} />
+                                Settings
+                            </span>
+                        </button>
                     </div>
                 </div>,
                 document.body
