@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { FileNode } from '../../../data/mockFileSystem';
 import { useAppStore } from '../../../store/useAppStore';
 import { VscChevronRight } from 'react-icons/vsc';
+import { showFileContextMenu, showFolderContextMenu } from '../../../util/contextMenu';
 
 
 interface RenameInputProps {
@@ -65,7 +66,18 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         expandedFolderIds,
         toggleFolder,
         renameSource,
-        moveNode
+        moveNode,
+        deleteFile,
+        deleteFolder,
+        duplicateFile,
+        createFileInFolder,
+        createFolder,
+        selectFile,
+        closeFile,
+        closeOtherFiles,
+        closeAllFiles,
+        createFile,
+        findFile
     } = useAppStore();
 
     // Derived state from store
@@ -190,6 +202,22 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         }
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const actions = {
+            openFileInNewTab, selectFile, setRenamingFileId,
+            deleteFile, deleteFolder, duplicateFile,
+            createFile, createFileInFolder, createFolder,
+            closeFile, closeOtherFiles, closeAllFiles, findFile
+        };
+        if (node.type === 'folder') {
+            showFolderContextMenu(node, actions);
+        } else {
+            showFileContextMenu(node, actions);
+        }
+    };
+
     const finalizeRename = (newName: string) => {
         const trimmed = newName.trim();
         if (trimmed) {
@@ -207,7 +235,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
     const paddingLeft = `${depth * 16 + 16}px`;
 
     return (
-        <div>
+        <div data-filetree-item>
             <div
                 className="relative" // Container for absolute indicators
             >
@@ -222,6 +250,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
                 <div
                     onClick={handleClick}
                     onDoubleClick={handleDoubleClick}
+                    onContextMenu={handleContextMenu}
                     draggable={!isRenaming}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}

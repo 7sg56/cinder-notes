@@ -1,9 +1,17 @@
 import { X, Plus, FileText, PanelLeft, Gift, Maximize2, Minimize2, User, Palette, Settings } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
+import { showTabContextMenu } from '../../../util/contextMenu';
 
 
 export function EditorTabs() {
-    const { openFiles, activeFileId, selectFile, closeFile, findFile, createNewTab, toggleExplorerCollapsed, isExplorerCollapsed } = useAppStore();
+    const {
+        openFiles, activeFileId, selectFile, closeFile, findFile,
+        createNewTab, toggleExplorerCollapsed, isExplorerCollapsed,
+        openFileInNewTab, setRenamingFileId,
+        deleteFile, deleteFolder, duplicateFile,
+        createFile, createFileInFolder, createFolder,
+        closeOtherFiles, closeAllFiles
+    } = useAppStore();
 
     return (
         <div
@@ -34,6 +42,15 @@ export function EditorTabs() {
                         <div
                             key={fileId}
                             onClick={() => selectFile(fileId)}
+                            onContextMenu={(e) => {
+                                e.preventDefault();
+                                showTabContextMenu(fileId, {
+                                    openFileInNewTab, selectFile, setRenamingFileId,
+                                    deleteFile, deleteFolder, duplicateFile,
+                                    createFile, createFileInFolder, createFolder,
+                                    closeFile, closeOtherFiles, closeAllFiles, findFile
+                                });
+                            }}
                             className={`group flex items-center min-w-[140px] max-w-[220px] h-full px-4 border-r cursor-pointer text-[12px] font-medium select-none transition-all relative shrink-0`}
                             style={{
                                 borderColor: 'var(--border-primary)',

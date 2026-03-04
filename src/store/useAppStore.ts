@@ -47,6 +47,15 @@ interface AppState {
     moveNode: (sourceId: string, targetId: string, position: 'inside' | 'before' | 'after' | 'root') => void;
     toggleAutoSave: () => void;
     openSystemTab: (tabId: string) => void;
+
+    // Context Menu Actions
+    deleteFile: (fileId: string) => void;
+    deleteFolder: (folderId: string) => void;
+    duplicateFile: (fileId: string) => void;
+    createFileInFolder: (folderId: string) => void;
+    createFolder: (parentFolderId?: string | null) => void;
+    closeOtherFiles: (fileId: string) => void;
+    closeAllFiles: () => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -819,5 +828,353 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     toggleAutoSave: () => {
         set((state) => ({ isAutoSave: !state.isAutoSave }));
+    },
+
+    // --- Context Menu Actions ---
+
+    deleteFile: (fileId: string) => {
+        const state = get();
+        const file = state.findFile(fileId);
+        const filePath = file?.path;
+
+        // Delete from disk
+        if (filePath) {
+            invoke('delete_note', { path: filePath })
+                .then(() => console.log('File deleted from disk:', filePath))
+                .catch((err) => console.error('Failed to delete file:', err));
+        }
+
+        // Remove from file tree
+        const removeFromTree = (nodes: FileNode[]): FileNode[] => {
+            return nodes.filter(node => {
+                if (node.id === fileId) return false;
+                if (node.children) {
+                    node = { ...node, children: removeFromTree(node.children) };
+                }
+                return true;
+            }).map(node => {
+                if (node.children) {
+                    return { ...node, children: removeFromTree(node.children) };
+                }
+                return node;
+            });
+        };
+
+        const newFiles = removeFromTree(state.files);
+        const newOpenFiles = state.openFiles.filter(id => id !== fileId);
+
+        // Determine next active file
+        let nextActiveId = state.activeFileId;
+        if (state.activeFileId === fileId) {
+            nextActiveId = newOpenFiles.length > 0 ? newOpenFiles[newOpenFiles.length - 1] : null;
+        }
+
+        set({
+            files: newFiles,
+            openFiles: newOpenFiles,
+            activeFileId: nextActiveId,
+            activeFileContent: nextActiveId === state.activeFileId ? state.activeFileContent : ''
+        });
+
+        // If there's a next active file, select it to load content
+        if (nextActiveId && nextActiveId !== state.activeFileId) {
+            get().selectFile(nextActiveId);
+        }
+    },
+
+    deleteFolder: (folderId: string) => {
+        const state = get();
+        const folder = state.findFile(folderId);
+        const folderPath = folder?.path;
+
+        // Delete from disk
+        if (folderPath) {
+            invoke('delete_folder', { path: folderPath })
+                .then(() => console.log('Folder deleted from disk:', folderPath))
+                .catch((err) => console.error('Failed to delete folder:', err));
+        }
+
+        // Collect all file IDs inside the folder (to close their tabs)
+        const collectFileIds = (node: FileNode): string[] => {
+            const ids: string[] = [node.id];
+            if (node.children) {
+                for (const child of node.children) {
+                    ids.push(...collectFileIds(child));
+                }
+            }
+            return ids;
+        };
+
+        const idsToRemove = folder ? collectFileIds(folder) : [folderId];
+
+        // Remove from file tree
+        const removeFromTree = (nodes: FileNode[]): FileNode[] => {
+            return nodes.filter(node => node.id !== folderId).map(node => {
+                if (node.children) {
+                    return { ...node, children: removeFromTree(node.children) };
+                }
+                return node;
+            });
+        };
+
+        const newFiles = removeFromTree(state.files);
+        const newOpenFiles = state.openFiles.filter(id => !idsToRemove.includes(id));
+        const newExpandedFolderIds = state.expandedFolderIds.filter(id => !idsToRemove.includes(id));
+
+        let nextActiveId = state.activeFileId;
+        if (state.activeFileId && idsToRemove.includes(state.activeFileId)) {
+            nextActiveId = newOpenFiles.length > 0 ? newOpenFiles[newOpenFiles.length - 1] : null;
+        }
+
+        set({
+            files: newFiles,
+            openFiles: newOpenFiles,
+            expandedFolderIds: newExpandedFolderIds,
+            activeFileId: nextActiveId,
+            activeFileContent: ''
+        });
+
+        if (nextActiveId && nextActiveId !== state.activeFileId) {
+            get().selectFile(nextActiveId);
+        }
+    },
+
+    duplicateFile: (fileId: string) => {
+        const state = get();
+        const file = state.findFile(fileId);
+        if (!file || !file.path) return;
+
+        const dir = file.path.substring(0, file.path.lastIndexOf('/'));
+        const baseName = file.name.replace(/\.md$/, '');
+        const extension = '.md';
+
+        // Find unique name
+        let copyName = `${baseName} (copy)${extension}`;
+        let counter = 1;
+
+        const checkNameExists = (name: string, nodes: FileNode[]): boolean => {
+            for (const node of nodes) {
+                if (node.name === name) return true;
+                if (node.children && checkNameExists(name, node.children)) return true;
+            }
+            return false;
+        };
+
+        while (checkNameExists(copyName, state.files)) {
+            counter++;
+            copyName = `${baseName} (copy ${counter})${extension}`;
+        }
+
+        const copyPath = `${dir}/${copyName}`;
+        const copyId = copyPath;
+
+        // Read original content then write the copy
+        invoke<string>('read_note', { path: file.path })
+            .then((content) => {
+                return invoke('write_note', { path: copyPath, content });
+            })
+            .then(() => {
+                const newFile: FileNode = {
+                    id: copyId,
+                    name: copyName,
+                    type: 'file',
+                    path: copyPath,
+                    content: '',
+                };
+
+                // Insert copy next to the original in the tree
+                const insertCopy = (nodes: FileNode[]): FileNode[] => {
+                    const result: FileNode[] = [];
+                    for (const node of nodes) {
+                        result.push(node);
+                        if (node.id === fileId) {
+                            result.push(newFile);
+                        }
+                        if (node.children) {
+                            const updatedNode = { ...result[result.length - 1], children: insertCopy(node.children) };
+                            result[result.length - 1] = updatedNode;
+                        }
+                    }
+                    return result;
+                };
+
+                set((state) => ({
+                    files: insertCopy(state.files)
+                }));
+            })
+            .catch((err) => console.error('Failed to duplicate file:', err));
+    },
+
+    createFileInFolder: (folderId: string) => {
+        const state = get();
+        const { files, openFiles, workspacePath } = state;
+        const folder = state.findFile(folderId);
+
+        if (!workspacePath || !folder || !folder.path) {
+            console.error('No workspace or folder path');
+            return;
+        }
+
+        // Generate unique name within the folder
+        let nameCounter = 0;
+        const baseName = 'New File';
+        const extension = '.md';
+        let newName = `${baseName}${extension}`;
+
+        const siblings = folder.children || [];
+        const checkNameExists = (name: string): boolean => {
+            return siblings.some(node => node.name === name);
+        };
+
+        while (checkNameExists(newName)) {
+            nameCounter++;
+            newName = `${baseName} ${nameCounter}${extension}`;
+        }
+
+        const filePath = `${folder.path}/${newName}`;
+        const newFileId = filePath;
+
+        const newFile: FileNode = {
+            id: newFileId,
+            name: newName,
+            type: 'file',
+            path: filePath,
+            content: '',
+        };
+
+        // Create on disk
+        invoke('create_note', { path: filePath })
+            .then(() => console.log('File created inside folder:', filePath))
+            .catch((err) => console.error('Failed to create file in folder:', err));
+
+        // Add to the folder's children in the tree
+        const addToFolder = (nodes: FileNode[]): FileNode[] => {
+            return nodes.map(node => {
+                if (node.id === folderId) {
+                    return { ...node, children: [...(node.children || []), newFile] };
+                }
+                if (node.children) {
+                    return { ...node, children: addToFolder(node.children) };
+                }
+                return node;
+            });
+        };
+
+        // Expand the folder so the new file is visible
+        const newExpandedFolderIds = state.expandedFolderIds.includes(folderId)
+            ? state.expandedFolderIds
+            : [...state.expandedFolderIds, folderId];
+
+        set({
+            files: addToFolder(files),
+            activeFileId: newFileId,
+            openFiles: [...openFiles, newFileId],
+            activeFileContent: '',
+            renamingFileId: newFileId,
+            pendingFileId: newFileId,
+            renameSource: 'explorer',
+            expandedFolderIds: newExpandedFolderIds
+        });
+    },
+
+    createFolder: (parentFolderId?: string | null) => {
+        const state = get();
+        const { files, workspacePath } = state;
+
+        if (!workspacePath) {
+            console.error('No workspace path set');
+            return;
+        }
+
+        let parentPath = workspacePath;
+        let siblings = files;
+
+        if (parentFolderId) {
+            const parent = state.findFile(parentFolderId);
+            if (parent && parent.path) {
+                parentPath = parent.path;
+                siblings = parent.children || [];
+            }
+        }
+
+        // Generate unique folder name
+        let nameCounter = 0;
+        const baseName = 'New Folder';
+        let newName = baseName;
+
+        const checkNameExists = (name: string): boolean => {
+            return siblings.some(node => node.name === name);
+        };
+
+        while (checkNameExists(newName)) {
+            nameCounter++;
+            newName = `${baseName} ${nameCounter}`;
+        }
+
+        const folderPath = `${parentPath}/${newName}`;
+        const folderId = folderPath;
+
+        const newFolder: FileNode = {
+            id: folderId,
+            name: newName,
+            type: 'folder',
+            path: folderPath,
+            children: [],
+        };
+
+        // Create on disk
+        invoke('create_folder', { path: folderPath })
+            .then(() => console.log('Folder created on disk:', folderPath))
+            .catch((err) => console.error('Failed to create folder:', err));
+
+        if (parentFolderId) {
+            // Add inside parent
+            const addToParent = (nodes: FileNode[]): FileNode[] => {
+                return nodes.map(node => {
+                    if (node.id === parentFolderId) {
+                        return { ...node, children: [...(node.children || []), newFolder] };
+                    }
+                    if (node.children) {
+                        return { ...node, children: addToParent(node.children) };
+                    }
+                    return node;
+                });
+            };
+
+            const newExpandedFolderIds = state.expandedFolderIds.includes(parentFolderId)
+                ? state.expandedFolderIds
+                : [...state.expandedFolderIds, parentFolderId];
+
+            set({
+                files: addToParent(files),
+                expandedFolderIds: [...newExpandedFolderIds, folderId]
+            });
+        } else {
+            // Add at root
+            set({
+                files: [...files, newFolder],
+                expandedFolderIds: [...state.expandedFolderIds, folderId]
+            });
+        }
+    },
+
+    closeOtherFiles: (fileId: string) => {
+        const state = get();
+        set({
+            openFiles: state.openFiles.includes(fileId) ? [fileId] : [],
+            activeFileId: state.openFiles.includes(fileId) ? fileId : null,
+            activeFileContent: state.activeFileId === fileId ? state.activeFileContent : ''
+        });
+        if (state.activeFileId !== fileId && state.openFiles.includes(fileId)) {
+            get().selectFile(fileId);
+        }
+    },
+
+    closeAllFiles: () => {
+        set({
+            openFiles: [],
+            activeFileId: null,
+            activeFileContent: ''
+        });
     }
 }));

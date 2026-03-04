@@ -5,6 +5,7 @@ import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
 import { AccountSettings } from '../../features/settings/AccountSettings';
 import { ThemeSettings } from '../../features/settings/ThemeSettings';
 import { GeneralSettings } from '../../features/settings/GeneralSettings';
+import { showEditorContextMenu } from '../../../util/contextMenu';
 
 interface EditorProps {
     isPreview: boolean;
@@ -97,6 +98,10 @@ export function Editor({ isPreview }: EditorProps) {
                                 }}
                                 value={activeFileContent}
                                 onChange={(e) => updateFileContent(activeFileId, e.target.value)}
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    showEditorContextMenu();
+                                }}
                                 spellCheck={false}
                                 placeholder="Type your markdown here..."
                             />

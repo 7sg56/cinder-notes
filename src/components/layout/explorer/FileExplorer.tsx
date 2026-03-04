@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import type { FileNode } from '../../../data/mockFileSystem';
 import { FileTreeItem } from './FileTreeItem';
+import { showExplorerContextMenu } from '../../../util/contextMenu';
 
 import { VscSearch, VscTypeHierarchy } from 'react-icons/vsc';
 import { SquarePen } from 'lucide-react';
@@ -30,7 +31,13 @@ const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
 };
 
 export function FileExplorer() {
-    const { files, createFile, moveNode, workspacePath } = useAppStore();
+    const {
+        files, createFile, moveNode, workspacePath,
+        openFileInNewTab, selectFile, setRenamingFileId,
+        deleteFile, deleteFolder, duplicateFile,
+        createFileInFolder, createFolder,
+        closeFile, closeOtherFiles, closeAllFiles, findFile
+    } = useAppStore();
     const [searchQuery, setSearchQuery] = useState('');
 
     // Extract folder name from workspace path
@@ -108,6 +115,19 @@ export function FileExplorer() {
                 className="flex-1 overflow-y-auto no-scrollbar pt-0 px-2 pb-2"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
+                onContextMenu={(e) => {
+                    // Only show the explorer menu if right-clicking the empty area
+                    // (not on a file/folder item, which handles its own context menu)
+                    if (e.target === e.currentTarget || (e.target as HTMLElement).closest('[data-filetree-item]') === null) {
+                        e.preventDefault();
+                        showExplorerContextMenu({
+                            openFileInNewTab, selectFile, setRenamingFileId,
+                            deleteFile, deleteFolder, duplicateFile,
+                            createFile, createFileInFolder, createFolder,
+                            closeFile, closeOtherFiles, closeAllFiles, findFile
+                        });
+                    }
+                }}
             >
                 {filteredFiles.length === 0 ? (
                     <div className="px-4 py-4 text-center text-[12px] opacity-50 select-none">
