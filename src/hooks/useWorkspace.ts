@@ -1,42 +1,45 @@
-import { invoke } from '@tauri-apps/api/core';
-import { open } from '@tauri-apps/plugin-dialog';
-import { useAppStore } from '../store/useAppStore';
+import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
+import { useAppStore } from "../store/useAppStore";
 
 export interface FileEntry {
   id: string;
   name: string;
-  type: 'file' | 'folder';
+  type: "file" | "folder";
   path: string;
   children?: FileEntry[];
 }
 
 export function useWorkspace() {
-  const { workspacePath, setWorkspacePath, setFiles, resetWorkspace } = useAppStore();
+  const { workspacePath, setWorkspacePath, setFiles, resetWorkspace } =
+    useAppStore();
 
   const selectWorkspace = async (): Promise<string | null> => {
     try {
       const selected = await open({
         directory: true,
         multiple: false,
-        title: 'Select Workspace Folder',
+        title: "Select Workspace Folder",
       });
 
-      if (selected && typeof selected === 'string') {
+      if (selected && typeof selected === "string") {
         return selected;
       }
       return null;
     } catch (error) {
-      console.error('Failed to open folder dialog:', error);
+      console.error("Failed to open folder dialog:", error);
       return null;
     }
   };
 
   const loadWorkspace = async (path: string): Promise<boolean> => {
     try {
-      const entries = await invoke<FileEntry[]>('scan_workspace', { path });
-      
+      const entries = await invoke<FileEntry[]>("scan_workspace", { path });
+
       // Convert FileEntry to FileNode format used by the app
-      const convertToFileNode = (entry: FileEntry): import('../data/mockFileSystem').FileNode => ({
+      const convertToFileNode = (
+        entry: FileEntry,
+      ): import("../types/fileSystem").FileNode => ({
         id: entry.id,
         name: entry.name,
         type: entry.type,
@@ -49,7 +52,7 @@ export function useWorkspace() {
       setWorkspacePath(path);
       return true;
     } catch (error) {
-      console.error('Failed to load workspace:', error);
+      console.error("Failed to load workspace:", error);
       return false;
     }
   };

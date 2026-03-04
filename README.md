@@ -1,4 +1,3 @@
-
 <p align="center">
   <a href="#" target="_blank"><img src="public/app-icon.png" width="80px" alt="Cinder Notes Logo" /></a>
   <h1 align="center">Cinder Notes</h1>
@@ -39,6 +38,7 @@ There are plenty of note-taking apps out there, but most are either bloated Elec
 ## ✨ Features
 
 ### Editor Experience
+
 - **Split View Editor** — Write Markdown on the left, see a live preview on the right. Real-time sync.
 - **Tab Management** — Open multiple files in tabs, close individual tabs, and switch between them seamlessly.
 - **Inline Renaming** — Double-click any file or breadcrumb to rename it instantly.
@@ -46,12 +46,14 @@ There are plenty of note-taking apps out there, but most are either bloated Elec
 - **Breadcrumb Navigation** — Always know where you are in the file hierarchy.
 
 ### File Management
+
 - **File Explorer** — A clean tree view for navigating your notes and folders.
 - **Drag & Drop** — Reorganize files and folders by dragging them to new locations.
 - **Search** — Quickly filter files in the explorer with instant search.
 - **Instant File Creation** — Create new notes with a single click from the explorer or welcome page.
 
 ### Theming & UI
+
 - **3 Built-in Themes**:
   - **Cinder Dark** — The signature dark theme with warm orange accents.
   - **Cinder Light** — A warm cream theme for daylight hours.
@@ -61,6 +63,7 @@ There are plenty of note-taking apps out there, but most are either bloated Elec
 - **Fullscreen Mode** — Expand the editor to fill the entire window.
 
 ### Design Philosophy
+
 - **Distraction-Free** — The interface disappears when you don't need it.
 - **Keyboard-First** — Designed for power users who prefer shortcuts.
 - **Space Grotesk Typography** — Modern, geometric font for a premium feel.
@@ -71,6 +74,7 @@ There are plenty of note-taking apps out there, but most are either bloated Elec
 ## 🚀 Installation & Setup
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (v18+)
 - [Rust](https://www.rust-lang.org/tools/install) (for Tauri backend)
 
@@ -100,14 +104,14 @@ Compiled binaries will be generated in `src-tauri/target/release/`.
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | [Tauri](https://tauri.app/) — Lightweight native apps |
-| Frontend | [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) |
-| Styling | [Tailwind CSS](https://tailwindcss.com/) + CSS Variables |
-| State | [Zustand](https://github.com/pmndrs/zustand) — Minimal state management |
-| Icons | [Lucide](https://lucide.dev/) + [React Icons](https://react-icons.github.io/react-icons/) |
-| Markdown | Custom renderer with KaTeX for math support |
+| Layer     | Technology                                                                                |
+| --------- | ----------------------------------------------------------------------------------------- |
+| Framework | [Tauri](https://tauri.app/) — Lightweight native apps                                     |
+| Frontend  | [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)               |
+| Styling   | [Tailwind CSS](https://tailwindcss.com/) + CSS Variables                                  |
+| State     | [Zustand](https://github.com/pmndrs/zustand) — Minimal state management                   |
+| Icons     | [Lucide](https://lucide.dev/) + [React Icons](https://react-icons.github.io/react-icons/) |
+| Markdown  | Custom renderer with KaTeX for math support                                               |
 
 **Why Tauri over Electron?**  
 Tauri apps are significantly smaller (~10-20MB vs ~150MB), use less memory, and leverage the OS's native webview. The Rust backend ensures security and performance.
@@ -119,11 +123,13 @@ Tauri apps are significantly smaller (~10-20MB vs ~150MB), use less memory, and 
 We're currently in **active development**. Here's what's next:
 
 ### In Progress
+
 - [ ] File system persistence via Tauri FS APIs
 - [ ] Keyboard shortcuts (Ctrl+N, Ctrl+S, etc.)
 - [ ] Command palette
 
 ### Planned
+
 - [ ] Full-text search across all notes
 - [ ] Note linking and backlinks
 - [ ] Export to PDF/HTML
@@ -131,6 +137,7 @@ We're currently in **active development**. Here's what's next:
 - [ ] Plugin system
 
 ### Timeline
+
 - **v0.1 Alpha** — February 2026
 - **v1.0 Stable** — Q2 2026
 

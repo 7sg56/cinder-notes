@@ -6,69 +6,81 @@
  * natively by CodeMirror and are NOT duplicated here.
  */
 
-import { useEffect } from 'react';
-import { useAppStore } from '../store/useAppStore';
+import { useEffect } from "react";
+import { useAppStore } from "../store/useAppStore";
 
 export function useKeyboardShortcuts() {
-    const {
-        activeFileId,
-        activeFileContent,
-        updateFileContent,
-        createFile,
-        closeFile,
-        toggleExplorerCollapsed,
-        createFolder,
-    } = useAppStore();
+  const {
+    activeFileId,
+    activeFileContent,
+    updateFileContent,
+    createFile,
+    closeFile,
+    toggleExplorerCollapsed,
+    createFolder,
+  } = useAppStore();
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const isMod = e.metaKey || e.ctrlKey;
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMod = e.metaKey || e.ctrlKey;
 
-            if (!isMod) return;
+      if (!isMod) return;
 
-            switch (e.key.toLowerCase()) {
-                // Cmd+S -- Force save (prevent browser save dialog)
-                case 's': {
-                    e.preventDefault();
-                    if (activeFileId && !activeFileId.startsWith('cinder-') && activeFileId !== 'welcome') {
-                        // Trigger a save by re-writing current content
-                        updateFileContent(activeFileId, activeFileContent);
-                    }
-                    break;
-                }
+      switch (e.key.toLowerCase()) {
+        // Cmd+S -- Force save (prevent browser save dialog)
+        case "s": {
+          e.preventDefault();
+          if (
+            activeFileId &&
+            !activeFileId.startsWith("cinder-") &&
+            activeFileId !== "welcome"
+          ) {
+            // Trigger a save by re-writing current content
+            updateFileContent(activeFileId, activeFileContent);
+          }
+          break;
+        }
 
-                // Cmd+N -- New file
-                case 'n': {
-                    if (e.shiftKey) {
-                        // Cmd+Shift+N -- New folder
-                        e.preventDefault();
-                        createFolder(null);
-                    } else {
-                        e.preventDefault();
-                        createFile();
-                    }
-                    break;
-                }
+        // Cmd+N -- New file
+        case "n": {
+          if (e.shiftKey) {
+            // Cmd+Shift+N -- New folder
+            e.preventDefault();
+            createFolder(null);
+          } else {
+            e.preventDefault();
+            createFile();
+          }
+          break;
+        }
 
-                // Cmd+W -- Close current tab
-                case 'w': {
-                    e.preventDefault();
-                    if (activeFileId) {
-                        closeFile(activeFileId);
-                    }
-                    break;
-                }
+        // Cmd+W -- Close current tab
+        case "w": {
+          e.preventDefault();
+          if (activeFileId) {
+            closeFile(activeFileId);
+          }
+          break;
+        }
 
-                // Cmd+B -- Toggle sidebar
-                case 'b': {
-                    e.preventDefault();
-                    toggleExplorerCollapsed();
-                    break;
-                }
-            }
-        };
+        // Cmd+B -- Toggle sidebar
+        case "b": {
+          e.preventDefault();
+          toggleExplorerCollapsed();
+          break;
+        }
+      }
+    };
 
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [activeFileId, activeFileContent, updateFileContent, createFile, closeFile, toggleExplorerCollapsed, createFolder]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    activeFileId,
+    activeFileContent,
+    updateFileContent,
+    createFile,
+    closeFile,
+    toggleExplorerCollapsed,
+    createFolder,
+  ]);
 }

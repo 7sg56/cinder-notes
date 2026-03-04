@@ -1,0 +1,251 @@
+/* =====================================================
+   CODEMIRROR EDITOR STYLE (STRICT ENFORCEMENT)
+   ===================================================== */
+
+/* 1. Global typography enforcement (beating CodeMirror's defaults) */
+.cm-editor,
+.cm-editor .cm-content {
+  font-family:
+    "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+  font-size: 1rem !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.cm-editor .cm-line {
+  font-family:
+    "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+}
+
+/* 2. Editor Container Settings */
+.cm-editor {
+  background-color: var(--editor-bg);
+  color: var(--editor-text);
+  height: 100%;
+}
+
+.cm-editor.cm-focused {
+  outline: none;
+}
+
+/* Match the exact padding of Markdown Preview */
+.cm-editor .cm-scroller {
+  display: flex;
+  justify-content: center;
+}
+
+.cm-editor .cm-content {
+  max-width: 48rem !important;
+  /* Tailwind max-w-3xl */
+  width: 100% !important;
+  padding: 2.5rem 3rem !important;
+  padding-bottom: 6rem !important;
+  /* give scroll room at bottom */
+  line-height: 1.85 !important;
+  caret-color: var(--editor-header-accent);
+}
+
+.cm-editor .cm-cursor,
+.cm-editor .cm-dropCursor {
+  border-left-color: var(--editor-header-accent);
+  border-left-width: 2px;
+}
+
+.cm-editor.cm-focused .cm-selectionBackground,
+.cm-editor .cm-selectionBackground,
+.cm-editor .cm-content ::selection {
+  background-color: var(--editor-selection-bg) !important;
+}
+
+.cm-editor .cm-activeLine {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.cm-editor .cm-gutters {
+  background-color: var(--editor-bg);
+  color: var(--text-tertiary);
+  border: none;
+  padding-left: 8px;
+}
+
+.cm-editor .cm-activeLineGutter {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.cm-editor .cm-lineNumbers .cm-gutterElement {
+  font-size: 12px !important;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace !important;
+  min-width: 2.5em;
+  padding: 0 8px 0 0;
+}
+
+.cm-editor .cm-foldGutter {
+  width: 16px;
+}
+
+/* Scrollbar styling matching existing design */
+.cm-editor .cm-scroller {
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-secondary) transparent;
+}
+
+.cm-editor .cm-scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.cm-editor .cm-scroller::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 10px;
+}
+
+.cm-editor .cm-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Search panel styling */
+.cm-editor .cm-panels {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.cm-editor .cm-panels .cm-button {
+  background-image: none;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.cm-editor .cm-panels .cm-textfield {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.cm-editor .cm-panels .cm-textfield:focus {
+  border-color: var(--editor-header-accent);
+  outline: none;
+}
+
+/* Search match highlighting */
+.cm-editor .cm-searchMatch {
+  background-color: rgba(244, 140, 37, 0.3);
+  border-radius: 2px;
+}
+
+.cm-editor .cm-searchMatch.cm-searchMatch-selected {
+  background-color: rgba(244, 140, 37, 0.6);
+}
+
+/* Matching bracket highlighting */
+.cm-editor.cm-focused .cm-matchingBracket {
+  background-color: rgba(244, 140, 37, 0.2);
+  outline: 1px solid rgba(244, 140, 37, 0.5);
+}
+
+/* Placeholder */
+.cm-editor .cm-placeholder {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Tooltip */
+.cm-editor .cm-tooltip {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
+}
+
+/* =====================================================
+   STRUCTURAL AST STYLING
+   ===================================================== */
+
+/* Normal lines vertical rhythm */
+.cm-editor .cm-paragraph-line {
+  padding-top: 0.6em;
+  padding-bottom: 0.6em;
+}
+
+/* Format marks dimming (e.g., **, #, _) */
+.cm-editor .cm-md-mark {
+  opacity: 0.35;
+  transition: opacity 0.2s ease;
+}
+
+.cm-editor.cm-focused .cm-activeLine .cm-md-mark {
+  opacity: 0.75;
+  /* Show clearer when cursor is near */
+}
+
+/* Inline Code spans */
+.cm-editor .cm-md-inline-code {
+  background-color: var(--markdown-code-bg) !important;
+  padding: 0.2em 0.45em !important;
+  border-radius: 6px !important;
+  font-size: 0.85em !important;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  border: 1px solid var(--border-primary) !important;
+  color: var(--editor-text) !important;
+}
+
+/* Code Blocks */
+.cm-editor .cm-codeblock-line {
+  background-color: var(--markdown-code-bg);
+  /* Simulate the padding inside the codeblock without breaking CodeMirror's line wrapping bounds */
+  padding-left: 1.3em !important;
+  padding-right: 1.3em !important;
+  border-left: 1px solid var(--border-secondary);
+  border-right: 1px solid var(--border-secondary);
+}
+
+.cm-editor .cm-codeblock-line * {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  font-size: 0.9em !important;
+  line-height: 1.65 !important;
+}
+
+/* Headings */
+.cm-editor .cm-heading-line {
+  font-weight: 650 !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--markdown-heading) !important;
+  padding-top: 1.4em !important;
+  padding-bottom: 0.5em !important;
+}
+
+.cm-editor .cm-heading-line.cm-h1 {
+  font-size: 1.9em !important;
+}
+
+.cm-editor .cm-heading-line.cm-h2 {
+  font-size: 1.45em !important;
+}
+
+.cm-editor .cm-heading-line.cm-h3 {
+  font-size: 1.25em !important;
+}
+
+.cm-editor .cm-heading-line.cm-h4 {
+  font-size: 1.1em !important;
+}
+
+/* Blockquotes */
+.cm-editor .cm-blockquote-line {
+  background-color: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 3px 0 0 var(--editor-header-accent);
+  color: var(--text-secondary);
+  padding-left: 1.4em !important;
+  padding-top: 0.2em !important;
+  padding-bottom: 0.2em !important;
+}
