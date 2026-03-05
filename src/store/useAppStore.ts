@@ -2,6 +2,13 @@ import { create } from "zustand";
 import { invoke } from "@tauri-apps/api/core";
 import type { FileNode } from "../types/fileSystem";
 
+export interface SearchResult {
+  file_path: string;
+  file_name: string;
+  line_number: number;
+  content_preview: string;
+}
+
 interface AppState {
   files: FileNode[];
   workspacePath: string | null;
@@ -18,10 +25,20 @@ interface AppState {
   pendingFileId: string | null;
   isAutoSave: boolean;
 
+  // Search State
+  isSearchOpen: boolean;
+  searchQuery: string;
+  searchResults: SearchResult[];
+
   // Workspace Actions
   setWorkspacePath: (path: string | null) => void;
   setFiles: (files: FileNode[]) => void;
   resetWorkspace: () => void;
+
+  // Search Actions
+  setSearchOpen: (isOpen: boolean) => void;
+  setSearchQuery: (query: string) => void;
+  setSearchResults: (results: SearchResult[]) => void;
 
   // Actions
   selectFile: (fileId: string) => void;
@@ -79,8 +96,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   expandedFolderIds: [],
   isAutoSave: true,
 
+  isSearchOpen: false,
+  searchQuery: "",
+  searchResults: [],
+
   // Workspace actions
   setWorkspacePath: (path: string | null) => set({ workspacePath: path }),
+
+  setSearchOpen: (isOpen: boolean) => set({ isSearchOpen: isOpen }),
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
+  setSearchResults: (results: SearchResult[]) => set({ searchResults: results }),
 
   setFiles: (files: FileNode[]) =>
     set({

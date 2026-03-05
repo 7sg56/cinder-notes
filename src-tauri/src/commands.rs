@@ -7,8 +7,17 @@
 
 use crate::types::FileEntry;
 use crate::workspace::{scan_directory_recursive, validate_workspace_path};
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SearchResult {
+    pub file_path: String,
+    pub file_name: String,
+    pub line_number: usize,
+    pub content_preview: String,
+}
 
 /// Scan a workspace directory and return the file tree
 /// 
@@ -132,4 +141,74 @@ pub fn create_folder(path: String) -> Result<(), String> {
 pub fn delete_folder(path: String) -> Result<(), String> {
     fs::remove_dir_all(&path)
         .map_err(|e| format!("Failed to delete folder '{}': {}", path, e))
+}
+
+/// Search workspace for a query string
+/// 
+/// # Arguments
+/// * `path` - Absolute path to the workspace directory
+/// * `query` - Search string
+/// 
+/// # Returns
+/// * `Ok(Vec<SearchResult>)` - List of matching files and snippets
+/// * `Err(String)` - Error message if scan fails
+#[tauri::command]
+pub fn search_workspace(path: String, query: String) -> Result<Vec<SearchResult>, String> {
+    let workspace_path = Path::new(&path);
+    validate_workspace_path(workspace_path)?;
+    
+    let mut results = Vec::new();
+    let query_lower = query.to_lowercase();
+    
+    fn search_dir(dir: &Path, query_lower: &str, results: &mut Vec<SearchResult>) {
+        let read_dir = match fs::read_dir(dir) {
+            Ok(rd) => rd,
+            Err(_) => return, // ignore unreadable directories
+        };
+        for entry in read_dir {
+            let entry = match entry {
+                Ok(e) => e,
+                Err(_) => continue,
+            };
+            let path = entry.path();
+            let file_name = entry.file_name().to_string_lossy().to_string();
+            
+            if file_name.starts_with('.') {
+                continue;
+            }
+            
+            // Check if it's a directory (ignore errors)
+            if let Ok(metadata) = entry.metadata() {
+                if metadata.is_dir() {
+                    search_dir(&path, query_lower, results);
+                } else if file_name.ends_with(".md") {
+                    // Check if file name itself matches
+                    if file_name.to_lowercase().contains(query_lower) {
+                        results.push(SearchResult {
+                            file_path: path.to_string_lossy().to_string(),
+                            file_name: file_name.clone(),
+                            line_number: 1, // Using 1 for title match
+                            content_preview: "Matches file name".to_string(),
+                        });
+                    }
+
+                    if let Ok(content) = fs::read_to_string(&path) {
+                        for (i, line) in content.lines().enumerate() {
+                            if line.to_lowercase().contains(query_lower) {
+                                results.push(SearchResult {
+                                    file_path: path.to_string_lossy().to_string(),
+                                    file_name: file_name.clone(),
+                                    line_number: i + 1,
+                                    content_preview: line.trim().to_string(),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    search_dir(workspace_path, &query_lower, &mut results);
+    Ok(results)
 }

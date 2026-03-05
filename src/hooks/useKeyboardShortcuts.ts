@@ -18,6 +18,8 @@ export function useKeyboardShortcuts() {
     closeFile,
     toggleExplorerCollapsed,
     createFolder,
+    isSearchOpen,
+    setSearchOpen,
   } = useAppStore();
 
   useEffect(() => {
@@ -69,6 +71,25 @@ export function useKeyboardShortcuts() {
           toggleExplorerCollapsed();
           break;
         }
+
+        // Cmd+F or Cmd+Shift+F -- Global search or local search
+        case "f": {
+          if (e.shiftKey) {
+            e.preventDefault();
+            setSearchOpen(!isSearchOpen);
+          } else {
+            // If it's just Cmd+F, check if we're focused in the editor
+            const activeEl = document.activeElement;
+            const isEditorFocused = activeEl?.closest('.cm-editor') !== null;
+            
+            if (!isEditorFocused) {
+              e.preventDefault();
+              setSearchOpen(!isSearchOpen);
+            }
+            // else let CodeMirror handle its native search
+          }
+          break;
+        }
       }
     };
 
@@ -82,5 +103,7 @@ export function useKeyboardShortcuts() {
     closeFile,
     toggleExplorerCollapsed,
     createFolder,
+    isSearchOpen,
+    setSearchOpen,
   ]);
 }

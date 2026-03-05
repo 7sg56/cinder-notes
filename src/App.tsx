@@ -3,6 +3,7 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { FileExplorer } from "./components/layout/explorer/FileExplorer";
 import { EditorPane } from "./components/layout/editor/EditorPane";
 import { FloatingHub } from "./components/features/FloatingHub";
+import { SearchPanel } from "./components/features/SearchPanel";
 import { WorkspaceWelcome } from "./components/onboarding/WorkspaceWelcome";
 import { useAppStore } from "./store/useAppStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -25,6 +26,7 @@ function App() {
         editorContent={<EditorPane />}
       />
       <FloatingHub />
+      <SearchPanel />
     </>
   );
 }
