@@ -116,7 +116,83 @@ const cinderEditorTheme = EditorView.theme({
     fontStyle: "italic",
     border: "1px solid rgba(255, 255, 255, 0.03)",
     borderLeft: "none"
-  }
+  },
+
+  /* ── Search / Find Panel (VS Code-style floating widget) ── */
+  ".cm-panels": {
+    backgroundColor: "transparent !important",
+    border: "none !important",
+  },
+  ".cm-panels-top": {
+    position: "absolute",
+    top: "0",
+    right: "16px",
+    left: "auto !important",
+    zIndex: "10",
+    border: "none !important",
+  },
+  ".cm-search": {
+    backgroundColor: "var(--bg-secondary)",
+    border: "1px solid var(--border-secondary)",
+    borderTop: "none",
+    borderRadius: "0 0 8px 8px",
+    padding: "8px 12px !important",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    width: "320px",
+    fontFamily: "'Space Grotesk', system-ui, Avenir, Helvetica, Arial, sans-serif",
+  },
+  /* Hide everything except the find input and close button */
+  ".cm-search br": { display: "none" },
+  ".cm-search input[name=replace]": { display: "none" },
+  ".cm-search button[name=replace]": { display: "none" },
+  ".cm-search button[name=replaceAll]": { display: "none" },
+  ".cm-search button[name=next]": { display: "none" },
+  ".cm-search button[name=prev]": { display: "none" },
+  ".cm-search button[name=select]": { display: "none" },
+  ".cm-search label": { display: "none" },
+  /* Find input */
+  ".cm-search input.cm-textfield": {
+    backgroundColor: "var(--bg-primary)",
+    color: "var(--text-primary)",
+    border: "1px solid var(--border-secondary)",
+    borderRadius: "6px",
+    padding: "5px 10px",
+    fontSize: "13px",
+    fontFamily: "inherit",
+    outline: "none",
+    flex: "1",
+    minWidth: "0",
+  },
+  ".cm-search input.cm-textfield:focus": {
+    borderColor: "var(--editor-header-accent)",
+    boxShadow: "0 0 0 2px var(--accent-glow, rgba(244, 140, 37, 0.15))",
+  },
+  /* Close button */
+  ".cm-search [name=close]": {
+    position: "static !important",
+    color: "var(--text-tertiary)",
+    fontSize: "16px",
+    padding: "2px 4px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    flexShrink: "0",
+  },
+  ".cm-search [name=close]:hover": {
+    color: "var(--text-primary)",
+    backgroundColor: "var(--bg-hover)",
+  },
+  /* Search match highlight */
+  ".cm-searchMatch": {
+    backgroundColor: "var(--editor-selection-bg)",
+    borderRadius: "2px",
+    outline: "1px solid var(--editor-header-accent)",
+  },
+  ".cm-searchMatch.cm-searchMatch-selected": {
+    backgroundColor: "var(--editor-header-accent)",
+  },
 }, { dark: true });
 
 // ── Syntax highlighting (markdown tokens) ────────────────────────────────────

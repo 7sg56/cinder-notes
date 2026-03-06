@@ -39,7 +39,7 @@ const extensions = [
   }),
   EditorView.lineWrapping,
   markdownStylingPlugin,
-  search(),
+  search({ top: true, caseSensitive: true }),
 ];
 
 export function CodeMirrorEditor({

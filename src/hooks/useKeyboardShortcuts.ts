@@ -72,22 +72,13 @@ export function useKeyboardShortcuts() {
           break;
         }
 
-        // Cmd+F or Cmd+Shift+F -- Global search or local search
+        // Cmd+Shift+F -- Global search
         case "f": {
           if (e.shiftKey) {
             e.preventDefault();
             setSearchOpen(!isSearchOpen);
-          } else {
-            // If it's just Cmd+F, check if we're focused in the editor
-            const activeEl = document.activeElement;
-            const isEditorFocused = activeEl?.closest('.cm-editor') !== null;
-            
-            if (!isEditorFocused) {
-              e.preventDefault();
-              setSearchOpen(!isSearchOpen);
-            }
-            // else let CodeMirror handle its native search
           }
+          // Plain Cmd+F is left to CodeMirror's built-in find/replace
           break;
         }
       }
