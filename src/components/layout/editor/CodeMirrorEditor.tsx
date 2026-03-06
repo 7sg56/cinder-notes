@@ -17,6 +17,8 @@ import { EditorView, type ViewUpdate } from "@codemirror/view";
 import { cinderTheme } from "../../../theme/cinderTheme";
 import { markdownStylingPlugin } from "./markdownStylingPlugin";
 
+import { search } from "@codemirror/search";
+
 interface CodeMirrorEditorProps {
   /** Current file content */
   value: string;
@@ -37,6 +39,7 @@ const extensions = [
   }),
   EditorView.lineWrapping,
   markdownStylingPlugin,
+  search({ top: true, caseSensitive: true }),
 ];
 
 export function CodeMirrorEditor({

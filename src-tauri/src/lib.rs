@@ -33,6 +33,7 @@ pub fn run() {
             commands::rename_note,
             commands::create_folder,
             commands::delete_folder,
+            commands::search_workspace,
             commands::watch_workspace,
             commands::unwatch_workspace,
         ])

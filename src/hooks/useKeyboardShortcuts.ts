@@ -18,6 +18,8 @@ export function useKeyboardShortcuts() {
     closeFile,
     toggleExplorerCollapsed,
     createFolder,
+    isSearchOpen,
+    setSearchOpen,
   } = useAppStore();
 
   useEffect(() => {
@@ -69,6 +71,16 @@ export function useKeyboardShortcuts() {
           toggleExplorerCollapsed();
           break;
         }
+
+        // Cmd+Shift+F -- Global search
+        case "f": {
+          if (e.shiftKey) {
+            e.preventDefault();
+            setSearchOpen(!isSearchOpen);
+          }
+          // Plain Cmd+F is left to CodeMirror's built-in find/replace
+          break;
+        }
       }
     };
 
@@ -82,5 +94,7 @@ export function useKeyboardShortcuts() {
     closeFile,
     toggleExplorerCollapsed,
     createFolder,
+    isSearchOpen,
+    setSearchOpen,
   ]);
 }

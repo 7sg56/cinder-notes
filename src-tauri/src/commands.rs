@@ -8,9 +8,18 @@
 use crate::types::FileEntry;
 use crate::watcher::FileWatcherState;
 use crate::workspace::{scan_directory_recursive, validate_workspace_path};
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 use tauri::State;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SearchResult {
+    pub file_path: String,
+    pub file_name: String,
+    pub line_number: usize,
+    pub content_preview: String,
+}
 
 /// Scan a workspace directory and return the file tree
 /// 
@@ -134,6 +143,69 @@ pub fn create_folder(path: String) -> Result<(), String> {
 pub fn delete_folder(path: String) -> Result<(), String> {
     fs::remove_dir_all(&path)
         .map_err(|e| format!("Failed to delete folder '{}': {}", path, e))
+}
+
+/// Search workspace for files whose name matches a query
+/// 
+/// Only matches against file names (not content). This is used for
+/// the global file finder (Cmd+Shift+F).
+/// 
+/// # Arguments
+/// * `path` - Absolute path to the workspace directory
+/// * `query` - Search string to match against file names
+/// 
+/// # Returns
+/// * `Ok(Vec<SearchResult>)` - List of matching files
+/// * `Err(String)` - Error message if scan fails
+#[tauri::command]
+pub fn search_workspace(path: String, query: String) -> Result<Vec<SearchResult>, String> {
+    let workspace_path = Path::new(&path);
+    validate_workspace_path(workspace_path)?;
+    
+    let mut results = Vec::new();
+    let query_lower = query.to_lowercase();
+    
+    fn search_dir(dir: &Path, root: &Path, query_lower: &str, results: &mut Vec<SearchResult>) {
+        let read_dir = match fs::read_dir(dir) {
+            Ok(rd) => rd,
+            Err(_) => return,
+        };
+        for entry in read_dir {
+            let entry = match entry {
+                Ok(e) => e,
+                Err(_) => continue,
+            };
+            let path = entry.path();
+            let file_name = entry.file_name().to_string_lossy().to_string();
+            
+            if file_name.starts_with('.') {
+                continue;
+            }
+            
+            if let Ok(metadata) = entry.metadata() {
+                if metadata.is_dir() {
+                    search_dir(&path, root, query_lower, results);
+                } else if file_name.ends_with(".md") {
+                    if file_name.to_lowercase().contains(query_lower) {
+                        // Build a relative path for display
+                        let relative = path.strip_prefix(root)
+                            .map(|p| p.to_string_lossy().to_string())
+                            .unwrap_or_else(|_| file_name.clone());
+
+                        results.push(SearchResult {
+                            file_path: path.to_string_lossy().to_string(),
+                            file_name: file_name.clone(),
+                            line_number: 0,
+                            content_preview: relative,
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    search_dir(workspace_path, workspace_path, &query_lower, &mut results);
+    Ok(results)
 }
 
 /// Start watching a workspace directory for external file changes
