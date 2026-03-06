@@ -21,14 +21,6 @@ pub struct SearchResult {
     pub content_preview: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SearchResult {
-    pub file_path: String,
-    pub file_name: String,
-    pub line_number: usize,
-    pub content_preview: String,
-}
-
 /// Scan a workspace directory and return the file tree
 /// 
 /// # Arguments
