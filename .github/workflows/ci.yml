@@ -160,3 +160,17 @@ jobs:
 
       - name: Build Tauri app
         run: npm run tauri:build
+
+  verify:
+    name: Verify PR
+    needs: [lint, typecheck, prettier, build, tauri-build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check pipeline status
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "❌ One or more pipeline jobs failed or were cancelled."
+            exit 1
+          fi
+          echo "✅ All jobs completed successfully or were intentionally skipped!"
