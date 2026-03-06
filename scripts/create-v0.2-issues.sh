@@ -11,11 +11,23 @@
 set -euo pipefail
 
 REPO="7sg56/cinder-notes"
+MILESTONE="cinder-v0.2"
 
 echo "Creating v0.2 feature issues for $REPO ..."
 
+# ── Create the cinder-v0.2 milestone (idempotent) ────────────────────────────
+if gh api "repos/$REPO/milestones" --jq ".[].title" | grep -qx "$MILESTONE"; then
+  echo "ℹ️  Milestone '$MILESTONE' already exists — skipping creation."
+else
+  gh api "repos/$REPO/milestones" -f title="$MILESTONE" \
+    -f description="Production readiness features tracked in changelogs/cinder-v0.2.md" \
+    -f state="open" --silent
+  echo "✅ Milestone '$MILESTONE' created."
+fi
+
 # ── 1. Search / Find in Files ────────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Critical] Search / Find in Files (Cmd+F / Cmd+Shift+F)" \
   --label "enhancement" \
   --body "## Priority: Critical (Ship Blocker)
@@ -49,6 +61,7 @@ echo "✅ Issue 1 created: Search / Find in Files"
 
 # ── 2. Workspace Persistence ─────────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Critical] Workspace Persistence (Remember Last Workspace)" \
   --label "enhancement" \
   --body "## Priority: Critical (Ship Blocker)
@@ -78,6 +91,7 @@ echo "✅ Issue 2 created: Workspace Persistence"
 
 # ── 3. Confirmation Dialog for Destructive Actions ───────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Critical] Confirmation Dialog for Destructive Actions" \
   --label "enhancement,bug" \
   --body "## Priority: Critical (Ship Blocker)
@@ -103,6 +117,7 @@ echo "✅ Issue 3 created: Confirmation Dialog for Destructive Actions"
 
 # ── 4. Unsaved Changes Indicator ─────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Important] Unsaved Changes Indicator" \
   --label "enhancement" \
   --body "## Priority: Important (Users Will Notice Immediately)
@@ -130,6 +145,7 @@ echo "✅ Issue 4 created: Unsaved Changes Indicator"
 
 # ── 5. Export to Markdown / HTML ─────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Important] Export to Markdown / HTML" \
   --label "enhancement" \
   --body "## Priority: Important (Users Will Notice Immediately)
@@ -154,6 +170,7 @@ echo "✅ Issue 5 created: Export to Markdown / HTML"
 
 # ── 6. Wire General Settings ─────────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Important] Wire General Settings" \
   --label "enhancement" \
   --body "## Priority: Important (Users Will Notice Immediately)
@@ -177,6 +194,7 @@ echo "✅ Issue 6 created: Wire General Settings"
 
 # ── 7. Recent Workspaces List ────────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Nice-to-Have] Recent Workspaces List" \
   --label "enhancement" \
   --body "## Priority: Nice-to-Have (Can Ship Without)
@@ -194,6 +212,7 @@ echo "✅ Issue 7 created: Recent Workspaces List"
 
 # ── 8. Move to Trash Instead of Permanent Delete ─────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Nice-to-Have] Move to Trash Instead of Permanent Delete" \
   --label "enhancement" \
   --body "## Priority: Nice-to-Have (Can Ship Without)
@@ -210,6 +229,7 @@ echo "✅ Issue 8 created: Move to Trash Instead of Permanent Delete"
 
 # ── 9. Drag-and-Drop File Import ─────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Nice-to-Have] Drag-and-Drop File Import" \
   --label "enhancement" \
   --body "## Priority: Nice-to-Have (Can Ship Without)
@@ -227,6 +247,7 @@ echo "✅ Issue 9 created: Drag-and-Drop File Import"
 
 # ── 10. Note Pinning ─────────────────────────────────────────────────────────
 gh issue create --repo "$REPO" \
+  --milestone "$MILESTONE" \
   --title "[Nice-to-Have] Note Pinning" \
   --label "enhancement" \
   --body "## Priority: Nice-to-Have (Can Ship Without)
