@@ -46,15 +46,15 @@ impl FileWatcherState {
         let handle = app_handle.clone();
         let pending_clone = pending.clone();
 
-        let watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
+        let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
             if let Ok(event) = res {
-                let dominated = matches!(
+                let is_structural_change = matches!(
                     event.kind,
                     EventKind::Create(_)
                         | EventKind::Remove(_)
                         | EventKind::Modify(notify::event::ModifyKind::Name(_))
                 );
-                if dominated && !pending_clone.swap(true, Ordering::SeqCst) {
+                if is_structural_change && !pending_clone.swap(true, Ordering::SeqCst) {
                     let pending_inner = pending_clone.clone();
                     let handle_inner = handle.clone();
                     thread::spawn(move || {
@@ -67,8 +67,6 @@ impl FileWatcherState {
         })
         .map_err(|e| format!("Failed to create file watcher: {}", e))?;
 
-        // We need a mutable watcher to call .watch()
-        let mut watcher = watcher;
         watcher
             .watch(Path::new(path), RecursiveMode::Recursive)
             .map_err(|e| format!("Failed to watch path '{}': {}", path, e))?;
