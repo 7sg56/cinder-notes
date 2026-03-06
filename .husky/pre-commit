@@ -1,7 +1,32 @@
+#!/bin/sh
 
+# Colors for better feedback in terminal
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+NC='\033[0m' # No Color
 
-echo "Running Pre-commit Checks (Lint & Format)..."
-npx lint-staged
+echo "\n${BLUE}--- Running Pre-Commit Checks ---${NC}\n"
 
-echo "Running Typecheck..."
-npm run typecheck
+# Step 1: Lint Staged (ESLint, Prettier, Cargo fmt)
+echo "${YELLOW}[1/2] Checking staged files (Lint & Format)...${NC}"
+if npx lint-staged; then
+    echo "${GREEN}✔ Step 1 passed: Staged files formatted and linted.${NC}\n"
+else
+    echo "\n${RED}✘ Step 1 failed: Format or Lint errors detected.${NC}"
+    echo "${RED}  Review the errors above, fix them, 'git add' the files, and try committing again.${NC}\n"
+    exit 1
+fi
+
+# Step 2: Global Typecheck
+echo "${YELLOW}[2/2] Running global TypeScript typecheck...${NC}"
+if npm run typecheck; then
+    echo "${GREEN}✔ Step 2 passed: No TypeScript issues found.${NC}\n"
+else
+    echo "\n${RED}✘ Step 2 failed: TypeScript compilation errors detected.${NC}"
+    echo "${RED}  Review the type errors above, fix them, and try committing again.${NC}\n"
+    exit 1
+fi
+
+echo "${GREEN}--- All pre-commit checks passed! ---${NC}\n"
