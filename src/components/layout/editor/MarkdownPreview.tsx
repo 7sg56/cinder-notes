@@ -1,17 +1,17 @@
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import remarkBreaks from "remark-breaks";
-import rehypeKatex from "rehype-katex";
-import rehypeHighlight from "rehype-highlight";
-import rehypeSanitize from "rehype-sanitize";
-import { processMarkdown } from "../../../util/markdownpipeline";
-import { isValidElement } from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import remarkBreaks from 'remark-breaks';
+import rehypeKatex from 'rehype-katex';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeSanitize from 'rehype-sanitize';
+import { processMarkdown } from '../../../util/markdownpipeline';
+import { isValidElement } from 'react';
 
 // CSS imports
-import "katex/dist/katex.min.css";
-import "highlight.js/styles/github-dark.css";
-import "../../../theme/markdown.css";
+import 'katex/dist/katex.min.css';
+import 'highlight.js/styles/github-dark.css';
+import '../../../theme/markdown.css';
 
 interface MarkdownPreviewProps {
   content: string;
@@ -32,14 +32,14 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
                 ? children
                 : [children];
               const codeElement = childArray.find((child) =>
-                isValidElement(child),
+                isValidElement(child)
               );
               const props = (
                 isValidElement(codeElement) ? codeElement.props : {}
               ) as { className?: string };
-              const className = props.className ?? "";
+              const className = props.className ?? '';
               const match = /language-([A-Za-z0-9_-]+)/.exec(className);
-              const language = match?.[1] ?? "plaintext";
+              const language = match?.[1] ?? 'plaintext';
 
               return (
                 <div className="code-block">

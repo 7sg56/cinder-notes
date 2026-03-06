@@ -6,13 +6,13 @@
 .cm-editor,
 .cm-editor .cm-content {
   font-family:
-    "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+    'Space Grotesk', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
 }
 
 .cm-editor .cm-line {
   font-family:
-    "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+    'Space Grotesk', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
 }
 
 /* 2. Editor Container Settings */
@@ -66,7 +66,7 @@
 .cm-editor .cm-lineNumbers .cm-gutterElement {
   font-size: 12px !important;
   font-family:
-    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace !important;
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace !important;
   min-width: 2.5em;
   padding: 0 8px 0 0;
 }
@@ -95,8 +95,6 @@
 .cm-editor .cm-scroller::-webkit-scrollbar-track {
   background: transparent;
 }
-
-
 
 /* Matching bracket highlighting */
 .cm-editor.cm-focused .cm-matchingBracket {

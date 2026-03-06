@@ -58,15 +58,15 @@ There are plenty of note-taking apps out there, but most are either bloated Elec
 
 ### Keyboard Shortcuts
 
-| Shortcut | Action |
-| --- | --- |
-| Cmd+S | Force save |
-| Cmd+N | New file |
-| Cmd+Shift+N | New folder |
-| Cmd+W | Close current tab |
-| Cmd+B | Toggle sidebar |
-| Cmd+Shift+F | Global search |
-| Cmd+F | Find/replace (in editor) |
+| Shortcut    | Action                   |
+| ----------- | ------------------------ |
+| Cmd+S       | Force save               |
+| Cmd+N       | New file                 |
+| Cmd+Shift+N | New folder               |
+| Cmd+W       | Close current tab        |
+| Cmd+B       | Toggle sidebar           |
+| Cmd+Shift+F | Global search            |
+| Cmd+F       | Find/replace (in editor) |
 
 ### Theming & UI
 
@@ -120,16 +120,16 @@ Compiled binaries will be generated in `src-tauri/target/release/`.
 
 ## Tech Stack
 
-| Layer | Technology |
-| --- | --- |
-| Framework | [Tauri](https://tauri.app/) -- Lightweight native apps with a Rust backend |
-| Frontend | [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) |
-| Build | [Vite](https://vite.dev/) |
-| Styling | [Tailwind CSS v4](https://tailwindcss.com/) + CSS Variables |
-| State | [Zustand](https://github.com/pmndrs/zustand) -- Minimal state management |
-| Editor | [CodeMirror](https://codemirror.net/) via [@uiw/react-codemirror](https://github.com/uiwjs/react-codemirror) |
-| Markdown | [react-markdown](https://github.com/remarkjs/react-markdown) + remark-gfm + remark-math + rehype-katex + rehype-highlight + rehype-sanitize |
-| Icons | [Lucide](https://lucide.dev/) + [React Icons](https://react-icons.github.io/react-icons/) |
+| Layer     | Technology                                                                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework | [Tauri](https://tauri.app/) -- Lightweight native apps with a Rust backend                                                                  |
+| Frontend  | [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)                                                              |
+| Build     | [Vite](https://vite.dev/)                                                                                                                   |
+| Styling   | [Tailwind CSS v4](https://tailwindcss.com/) + CSS Variables                                                                                 |
+| State     | [Zustand](https://github.com/pmndrs/zustand) -- Minimal state management                                                                    |
+| Editor    | [CodeMirror](https://codemirror.net/) via [@uiw/react-codemirror](https://github.com/uiwjs/react-codemirror)                                |
+| Markdown  | [react-markdown](https://github.com/remarkjs/react-markdown) + remark-gfm + remark-math + rehype-katex + rehype-highlight + rehype-sanitize |
+| Icons     | [Lucide](https://lucide.dev/) + [React Icons](https://react-icons.github.io/react-icons/)                                                   |
 
 **Why Tauri over Electron?**
 Tauri apps are significantly smaller (~10-20MB vs ~150MB), use less memory, and leverage the OS's native webview. The Rust backend ensures security and performance.

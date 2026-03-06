@@ -6,8 +6,8 @@
  * natively by CodeMirror and are NOT duplicated here.
  */
 
-import { useEffect } from "react";
-import { useAppStore } from "../store/useAppStore";
+import { useEffect } from 'react';
+import { useAppStore } from '../store/useAppStore';
 
 export function useKeyboardShortcuts() {
   const {
@@ -30,12 +30,12 @@ export function useKeyboardShortcuts() {
 
       switch (e.key.toLowerCase()) {
         // Cmd+S -- Force save (prevent browser save dialog)
-        case "s": {
+        case 's': {
           e.preventDefault();
           if (
             activeFileId &&
-            !activeFileId.startsWith("cinder-") &&
-            activeFileId !== "welcome"
+            !activeFileId.startsWith('cinder-') &&
+            activeFileId !== 'welcome'
           ) {
             // Trigger a save by re-writing current content
             updateFileContent(activeFileId, activeFileContent);
@@ -44,7 +44,7 @@ export function useKeyboardShortcuts() {
         }
 
         // Cmd+N -- New file
-        case "n": {
+        case 'n': {
           if (e.shiftKey) {
             // Cmd+Shift+N -- New folder
             e.preventDefault();
@@ -57,7 +57,7 @@ export function useKeyboardShortcuts() {
         }
 
         // Cmd+W -- Close current tab
-        case "w": {
+        case 'w': {
           e.preventDefault();
           if (activeFileId) {
             closeFile(activeFileId);
@@ -66,14 +66,14 @@ export function useKeyboardShortcuts() {
         }
 
         // Cmd+B -- Toggle sidebar
-        case "b": {
+        case 'b': {
           e.preventDefault();
           toggleExplorerCollapsed();
           break;
         }
 
         // Cmd+Shift+F -- Global search
-        case "f": {
+        case 'f': {
           if (e.shiftKey) {
             e.preventDefault();
             setSearchOpen(!isSearchOpen);
@@ -84,8 +84,8 @@ export function useKeyboardShortcuts() {
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [
     activeFileId,
     activeFileContent,
