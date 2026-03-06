@@ -15,12 +15,12 @@ export class CodeProtector {
     this.placeholders.clear();
     this.counter = 0;
 
-    const lineBreak = text.includes("\r\n") ? "\r\n" : "\n";
+    const lineBreak = text.includes('\r\n') ? '\r\n' : '\n';
     const lines = text.split(/\r?\n/);
     const out: string[] = [];
 
     let inFence = false;
-    let fenceChar = "";
+    let fenceChar = '';
     let fenceLen = 0;
     let quoteDepth = 0;
     let buffer: string[] = [];
@@ -57,7 +57,7 @@ export class CodeProtector {
     // Protect inline code `...`
     // We use a non-greedy match.
     protectedText = protectedText.replace(/(`+)([^`]+)\1/g, (match) =>
-      this.createPlaceholder(match),
+      this.createPlaceholder(match)
     );
 
     return protectedText;
@@ -88,7 +88,7 @@ export class CodeProtector {
   }
 
   private detectFenceOpen(
-    line: string,
+    line: string
   ): { fenceChar: string; fenceLen: number; quoteDepth: number } | null {
     const match = line.match(/^([ \t]*(?:>[ \t]*)*)(.*)$/);
     if (!match) return null;
@@ -114,7 +114,7 @@ export class CodeProtector {
     line: string,
     fenceChar: string,
     fenceLen: number,
-    quoteDepth: number,
+    quoteDepth: number
   ): boolean {
     const quotePart =
       quoteDepth > 0 ? `[ \\t]*(?:>[ \\t]*){${quoteDepth}}` : `[ \\t]*`;

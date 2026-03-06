@@ -1,8 +1,8 @@
-import { useRef, useEffect, type MutableRefObject } from "react";
-import { Undo2, Redo2, Eye, Edit2, MoreVertical } from "lucide-react";
-import { useAppStore } from "../../../store/useAppStore";
-import { undo, redo } from "@codemirror/commands";
-import type { EditorView } from "@codemirror/view";
+import { useRef, useEffect, type MutableRefObject } from 'react';
+import { Undo2, Redo2, Eye, Edit2, MoreVertical } from 'lucide-react';
+import { useAppStore } from '../../../store/useAppStore';
+import { undo, redo } from '@codemirror/commands';
+import type { EditorView } from '@codemirror/view';
 
 interface EditorHeaderProps {
   isPreview: boolean;
@@ -28,13 +28,13 @@ export function EditorHeader({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (renamingFileId && renameSource === "editor" && inputRef.current) {
+    if (renamingFileId && renameSource === 'editor' && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
   }, [renamingFileId, renameSource]);
 
-  const isBlankTab = activeFileId?.startsWith("new-tab-");
+  const isBlankTab = activeFileId?.startsWith('new-tab-');
   const breadcrumb =
     activeFileId && !isBlankTab ? getFileBreadcrumb(activeFileId) : [];
 
@@ -44,25 +44,25 @@ export function EditorHeader({
     <div
       className="flex items-center justify-between px-6 py-2 shrink-0 border-b"
       style={{
-        backgroundColor: "var(--editor-bg)",
-        borderColor: "rgba(255, 255, 255, 0.05)",
+        backgroundColor: 'var(--editor-bg)',
+        borderColor: 'rgba(255, 255, 255, 0.05)',
       }}
     >
       {/* Left side: Breadcrumb path */}
       <div className="flex items-center gap-2 flex-1 justify-start">
-        {activeFileId.startsWith("new-tab-") && (
+        {activeFileId.startsWith('new-tab-') && (
           <div className="flex items-center gap-2.5 text-[10px] font-bold select-none">
-            {renamingFileId === activeFileId && renameSource === "editor" ? (
+            {renamingFileId === activeFileId && renameSource === 'editor' ? (
               <input
                 ref={inputRef}
                 autoFocus
                 defaultValue="Untitled"
                 className="bg-transparent outline-none font-bold px-1 py-0.5 rounded border border-[var(--editor-header-accent)]"
                 style={{
-                  color: "var(--text-primary)",
-                  caretColor: "#f48c25",
-                  width: `${Math.max(3, "Untitled".length + 1)}ch`,
-                  minWidth: "20px",
+                  color: 'var(--text-primary)',
+                  caretColor: '#f48c25',
+                  width: `${Math.max(3, 'Untitled'.length + 1)}ch`,
+                  minWidth: '20px',
                 }}
                 onInput={(e) => {
                   const target = e.currentTarget;
@@ -70,20 +70,20 @@ export function EditorHeader({
                 }}
                 onBlur={(e) => {
                   const newName = e.target.value.trim();
-                  if (newName && newName !== "Untitled") {
-                    renameFile(activeFileId, newName + ".md");
+                  if (newName && newName !== 'Untitled') {
+                    renameFile(activeFileId, newName + '.md');
                   } else {
                     setRenamingFileId(null);
                   }
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === 'Enter') {
                     e.preventDefault();
                     const newName = e.currentTarget.value.trim();
                     if (newName) {
-                      renameFile(activeFileId, newName + ".md");
+                      renameFile(activeFileId, newName + '.md');
                     }
-                  } else if (e.key === "Escape") {
+                  } else if (e.key === 'Escape') {
                     e.preventDefault();
                     cancelRename();
                   }
@@ -94,16 +94,16 @@ export function EditorHeader({
             ) : (
               <span
                 className="cursor-text hover:text-[var(--editor-header-accent)] transition-colors duration-200"
-                style={{ color: "var(--text-primary)" }}
+                style={{ color: 'var(--text-primary)' }}
                 onDoubleClick={(e) => {
                   e.stopPropagation();
-                  setRenamingFileId(activeFileId, "editor");
+                  setRenamingFileId(activeFileId, 'editor');
                 }}
               >
                 Untitled
               </span>
             )}
-            <span style={{ color: "#f48c25", opacity: 0.5 }}>&gt;</span>
+            <span style={{ color: '#f48c25', opacity: 0.5 }}>&gt;</span>
           </div>
         )}
         {!isBlankTab && breadcrumb.length > 0 && (
@@ -116,19 +116,19 @@ export function EditorHeader({
               return (
                 <div key={item.id} className="flex items-center gap-2.5">
                   {index > 0 && (
-                    <span style={{ color: "#f48c25", opacity: 0.5 }}>&gt;</span>
+                    <span style={{ color: '#f48c25', opacity: 0.5 }}>&gt;</span>
                   )}
-                  {renamingFileId === item.id && renameSource === "editor" ? (
+                  {renamingFileId === item.id && renameSource === 'editor' ? (
                     <input
                       ref={inputRef}
                       // AutoFocus is handled by useEffect for reliability
-                      defaultValue={item.name.replace(/\.md$/, "")}
+                      defaultValue={item.name.replace(/\.md$/, '')}
                       className="bg-transparent outline-none font-bold px-1 py-0.5 rounded border border-[var(--editor-header-accent)]"
                       style={{
-                        color: "var(--text-primary)",
-                        caretColor: "#f48c25",
-                        width: `${Math.max(3, item.name.replace(/\.md$/, "").length + 1)}ch`,
-                        minWidth: "20px",
+                        color: 'var(--text-primary)',
+                        caretColor: '#f48c25',
+                        width: `${Math.max(3, item.name.replace(/\.md$/, '').length + 1)}ch`,
+                        minWidth: '20px',
                       }}
                       onInput={(e) => {
                         const target = e.currentTarget;
@@ -140,28 +140,28 @@ export function EditorHeader({
                         if (pendingFileId === item.id) {
                           // User clicked away (e.g. into editor) -> Save the file instead of deleting
                           if (currentName) {
-                            const finalName = currentName.endsWith(".md")
+                            const finalName = currentName.endsWith('.md')
                               ? currentName
-                              : currentName + ".md";
+                              : currentName + '.md';
                             renameFile(item.id, finalName);
                           } else {
-                            renameFile(item.id, "untitled.md");
+                            renameFile(item.id, 'untitled.md');
                           }
                         } else {
                           setRenamingFileId(null);
                         }
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === 'Enter') {
                           e.preventDefault();
                           const newName = e.currentTarget.value.trim();
                           if (newName) {
-                            const finalName = newName.endsWith(".md")
+                            const finalName = newName.endsWith('.md')
                               ? newName
-                              : newName + ".md";
+                              : newName + '.md';
                             renameFile(item.id, finalName);
                           }
-                        } else if (e.key === "Escape") {
+                        } else if (e.key === 'Escape') {
                           e.preventDefault();
                           cancelRename();
                         }
@@ -171,24 +171,24 @@ export function EditorHeader({
                     />
                   ) : (
                     <span
-                      className={`transition-colors duration-200 ${isEditable ? "cursor-text hover:text-[var(--editor-header-accent)]" : "cursor-default"}`}
+                      className={`transition-colors duration-200 ${isEditable ? 'cursor-text hover:text-[var(--editor-header-accent)]' : 'cursor-default'}`}
                       onDoubleClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         if (isEditable) {
-                          setRenamingFileId(item.id, "editor");
+                          setRenamingFileId(item.id, 'editor');
                         }
                       }}
                       style={{
                         color:
-                          item.type === "file"
-                            ? "var(--text-primary)"
-                            : "var(--text-tertiary)",
+                          item.type === 'file'
+                            ? 'var(--text-primary)'
+                            : 'var(--text-tertiary)',
                         opacity: isEditable ? 1 : 0.7,
                       }}
                     >
-                      {item.type === "file"
-                        ? item.name.replace(/\.md$/, "")
+                      {item.type === 'file'
+                        ? item.name.replace(/\.md$/, '')
                         : item.name}
                     </span>
                   )}
@@ -204,7 +204,7 @@ export function EditorHeader({
         <div className="flex items-center gap-1 mr-1">
           <button
             className="p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-90"
-            style={{ color: "var(--text-tertiary)" }}
+            style={{ color: 'var(--text-tertiary)' }}
             onClick={() => {
               if (editorViewRef?.current) {
                 undo(editorViewRef.current);
@@ -217,7 +217,7 @@ export function EditorHeader({
           </button>
           <button
             className="p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-90"
-            style={{ color: "var(--text-tertiary)" }}
+            style={{ color: 'var(--text-tertiary)' }}
             onClick={() => {
               if (editorViewRef?.current) {
                 redo(editorViewRef.current);
@@ -232,17 +232,17 @@ export function EditorHeader({
 
         <div
           className="w-px h-3"
-          style={{ backgroundColor: "var(--border-primary)" }}
+          style={{ backgroundColor: 'var(--border-primary)' }}
         />
 
         <button
           onClick={onPreviewToggle}
           className="flex items-center justify-center p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-90"
-          title={isPreview ? "Edit" : "Preview"}
+          title={isPreview ? 'Edit' : 'Preview'}
           style={{
             color: isPreview
-              ? "var(--editor-header-accent)"
-              : "var(--text-secondary)",
+              ? 'var(--editor-header-accent)'
+              : 'var(--text-secondary)',
           }}
         >
           {isPreview ? <Edit2 size={16} /> : <Eye size={16} />}
@@ -252,7 +252,7 @@ export function EditorHeader({
         <button
           className="flex items-center justify-center p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-95"
           style={{
-            color: "var(--text-secondary)",
+            color: 'var(--text-secondary)',
           }}
         >
           <MoreVertical size={16} />

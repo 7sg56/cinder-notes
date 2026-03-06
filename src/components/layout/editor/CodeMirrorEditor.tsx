@@ -9,15 +9,15 @@
  * - Exposes EditorView ref for undo/redo from header buttons
  */
 
-import { useCallback, useEffect, useRef, type MutableRefObject } from "react";
-import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
-import { languages } from "@codemirror/language-data";
-import { EditorView, type ViewUpdate } from "@codemirror/view";
-import { cinderTheme } from "../../../theme/cinderTheme";
-import { markdownStylingPlugin } from "./markdownStylingPlugin";
+import { useCallback, useEffect, useRef, type MutableRefObject } from 'react';
+import CodeMirror, { type ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
+import { languages } from '@codemirror/language-data';
+import { EditorView, type ViewUpdate } from '@codemirror/view';
+import { cinderTheme } from '../../../theme/cinderTheme';
+import { markdownStylingPlugin } from './markdownStylingPlugin';
 
-import { search } from "@codemirror/search";
+import { search } from '@codemirror/search';
 
 interface CodeMirrorEditorProps {
   /** Current file content */
@@ -47,7 +47,7 @@ export function CodeMirrorEditor({
   onChange,
   editorViewRef,
   onCursorChange,
-  placeholder = "Type your markdown here...",
+  placeholder = 'Type your markdown here...',
 }: CodeMirrorEditorProps) {
   const cmRef = useRef<ReactCodeMirrorRef>(null);
 
@@ -62,7 +62,7 @@ export function CodeMirrorEditor({
     (val: string) => {
       onChange(val);
     },
-    [onChange],
+    [onChange]
   );
 
   const handleUpdate = useCallback(
@@ -73,7 +73,7 @@ export function CodeMirrorEditor({
         onCursorChange(line.number, pos - line.from + 1);
       }
     },
-    [onCursorChange],
+    [onCursorChange]
   );
 
   return (

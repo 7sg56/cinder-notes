@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
-import { Editor } from "./Editor";
-import { EditorTabs } from "./EditorTabs";
-import { EditorHeader } from "./EditorHeader";
-import { EditorStatusBar } from "./EditorStatusBar";
-import { WelcomePage } from "../WelcomePage";
-import { useAppStore } from "../../../store/useAppStore";
-import type { EditorView } from "@codemirror/view";
+import { useRef, useState } from 'react';
+import { Editor } from './Editor';
+import { EditorTabs } from './EditorTabs';
+import { EditorHeader } from './EditorHeader';
+import { EditorStatusBar } from './EditorStatusBar';
+import { WelcomePage } from '../WelcomePage';
+import { useAppStore } from '../../../store/useAppStore';
+import type { EditorView } from '@codemirror/view';
 
 export function EditorPane() {
   const [isPreview, setIsPreview] = useState(false);
@@ -17,10 +17,10 @@ export function EditorPane() {
   return (
     <div
       className="flex flex-col h-full w-full"
-      style={{ backgroundColor: "var(--bg-secondary)" }}
+      style={{ backgroundColor: 'var(--bg-secondary)' }}
     >
       <EditorTabs />
-      {activeFileId === "welcome" ? (
+      {activeFileId === 'welcome' ? (
         <WelcomePage />
       ) : (
         <>

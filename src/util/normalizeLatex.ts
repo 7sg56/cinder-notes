@@ -12,12 +12,12 @@ export function normalizeLatex(text: string): string {
   // 1. Convert standard inline \( ... \) → $...$
   result = result.replace(
     /\\\(([\s\S]+?)\\\)/g,
-    (_match, content) => `$${content}$`,
+    (_match, content) => `$${content}$`
   );
 
   // 2. Convert standard display \[ ... \] → $$...$$
   // Preserve indentation and list/block quote structure by replacing delimiters in-place.
-  const lineBreak = result.includes("\r\n") ? "\r\n" : "\n";
+  const lineBreak = result.includes('\r\n') ? '\r\n' : '\n';
   const lines = result.split(/\r?\n/);
   const out: string[] = [];
 
@@ -34,7 +34,7 @@ export function normalizeLatex(text: string): string {
   const splitQuotePrefix = (line: string) => {
     const match = line.match(/^([ \t]*(?:>[ \t]*)*)(.*)$/);
     return {
-      quotePrefix: match ? match[1] : "",
+      quotePrefix: match ? match[1] : '',
       rest: match ? match[2] : line,
     };
   };
@@ -42,13 +42,13 @@ export function normalizeLatex(text: string): string {
   const splitListPrefix = (textLine: string) => {
     const match = textLine.match(/^(\s*(?:[-*+]|[0-9]+[.)])\s+)(.*)$/);
     return {
-      listPrefix: match ? match[1] : "",
+      listPrefix: match ? match[1] : '',
       rest: match ? match[2] : textLine,
     };
   };
 
   const stripInvisible = (value: string) =>
-    value.replace(/\u200B|\u200C|\u200D|\uFEFF/g, "");
+    value.replace(/\u200B|\u200C|\u200D|\uFEFF/g, '');
 
   const hasMathToken = (value: string) =>
     /\\|[0-9^_=]|[+\-*/]|[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/u.test(value);
@@ -71,7 +71,7 @@ export function normalizeLatex(text: string): string {
         if (inner.length === 0) return _match;
         if (!hasMathToken(inner)) return _match;
         return `$${inner}$`;
-      },
+      }
     );
 
     return next;
@@ -82,16 +82,16 @@ export function normalizeLatex(text: string): string {
     listPrefix: string;
     afterList: string;
   }) => {
-    const replaced = open.afterList.replace(/\[\s*$/, "$$");
+    const replaced = open.afterList.replace(/\[\s*$/, '$$');
     return `${open.quotePrefix}${open.listPrefix}${replaced}`;
   };
 
   const replaceBracketClose = (
     quotePrefix: string,
     listPrefix: string,
-    afterList: string,
+    afterList: string
   ) => {
-    const replaced = afterList.replace(/\]\s*$/, "$$");
+    const replaced = afterList.replace(/\]\s*$/, '$$');
     return `${quotePrefix}${listPrefix}${replaced}`;
   };
 
@@ -102,7 +102,7 @@ export function normalizeLatex(text: string): string {
     const trimmed = afterList.trim();
 
     if (!inDisplay && !inBracket) {
-      if (trimmed === "[") {
+      if (trimmed === '[') {
         inBracket = true;
         bracketOpen = { line, quotePrefix, listPrefix, afterList };
         bracketLines = [];
@@ -114,7 +114,7 @@ export function normalizeLatex(text: string): string {
       if (singleLineMatch) {
         const inner = singleLineMatch[1].trim();
         const continuationPrefix =
-          quotePrefix + listPrefix.replace(/[^\t ]/g, " ");
+          quotePrefix + listPrefix.replace(/[^\t ]/g, ' ');
         out.push(`${quotePrefix}${listPrefix}$$`);
         if (inner.length > 0) out.push(`${continuationPrefix}${inner}`);
         out.push(`${continuationPrefix}$$`);
@@ -134,7 +134,7 @@ export function normalizeLatex(text: string): string {
           !/#{2,}|\s-{3,}\s/.test(inner)
         ) {
           const continuationPrefix =
-            quotePrefix + listPrefix.replace(/[^\t ]/g, " ");
+            quotePrefix + listPrefix.replace(/[^\t ]/g, ' ');
           out.push(`${quotePrefix}${listPrefix}$$`);
           out.push(`${continuationPrefix}${inner}`);
           out.push(`${continuationPrefix}$$`);
@@ -143,9 +143,9 @@ export function normalizeLatex(text: string): string {
       }
 
       // Multi-line display start: \[
-      if (trimmed === "\\[") {
+      if (trimmed === '\\[') {
         inDisplay = true;
-        const replaced = afterList.replace(/\\\[\s*$/, "$$");
+        const replaced = afterList.replace(/\\\[\s*$/, '$$');
         out.push(`${quotePrefix}${listPrefix}${replaced}`);
         continue;
       }
@@ -156,8 +156,8 @@ export function normalizeLatex(text: string): string {
     }
 
     if (inBracket) {
-      if (trimmed === "]") {
-        const bracketContent = stripInvisible(bracketLines.join("\n")).trim();
+      if (trimmed === ']') {
+        const bracketContent = stripInvisible(bracketLines.join('\n')).trim();
         const hasStructural = /#{2,}|\s-{3,}\s/.test(bracketContent);
         const shouldConvert = bracketContent.length > 0 && !hasStructural;
         if (bracketOpen && shouldConvert) {
@@ -180,9 +180,9 @@ export function normalizeLatex(text: string): string {
     }
 
     // Multi-line display end: \]
-    if (trimmed === "\\]") {
+    if (trimmed === '\\]') {
       inDisplay = false;
-      const replaced = afterList.replace(/\\\]\s*$/, "$$");
+      const replaced = afterList.replace(/\\\]\s*$/, '$$');
       out.push(`${quotePrefix}${listPrefix}${replaced}`);
       continue;
     }
@@ -191,7 +191,7 @@ export function normalizeLatex(text: string): string {
   }
 
   if (inDisplay) {
-    out.push("$$");
+    out.push('$$');
   }
 
   if (inBracket) {
@@ -202,7 +202,7 @@ export function normalizeLatex(text: string): string {
   result = out.join(lineBreak);
 
   // 3. Remove \displaystyle keyword (common ChatGPT rendering hint that breaks some renders)
-  result = result.replace(/\\displaystyle\s*/g, "");
+  result = result.replace(/\\displaystyle\s*/g, '');
 
   // 4. SAFETY NET: Balance check
   // If we have an odd number of $$, assume the last one is unclosed and close it.

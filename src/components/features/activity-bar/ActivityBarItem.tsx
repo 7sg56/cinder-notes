@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from 'lucide-react';
 
 interface ActivityBarItemProps {
   icon: LucideIcon;
@@ -11,26 +11,26 @@ export function ActivityBarItem({
 }: ActivityBarItemProps) {
   return (
     <div
-      className={`p-3 cursor-pointer transition-colors ${active ? "border-l-2" : ""}`}
+      className={`p-3 cursor-pointer transition-colors ${active ? 'border-l-2' : ''}`}
       style={{
         color: active
-          ? "var(--activity-item-text-active)"
-          : "var(--activity-item-text-default)",
+          ? 'var(--activity-item-text-active)'
+          : 'var(--activity-item-text-default)',
         backgroundColor: active
-          ? "var(--activity-item-bg-active)"
-          : "transparent",
+          ? 'var(--activity-item-bg-active)'
+          : 'transparent',
         borderLeft: active
           ? `2px solid var(--activity-item-border-active)`
-          : "none",
+          : 'none',
       }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.color = "var(--activity-item-text-hover)";
+          e.currentTarget.style.color = 'var(--activity-item-text-hover)';
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
-          e.currentTarget.style.color = "var(--activity-item-text-default)";
+          e.currentTarget.style.color = 'var(--activity-item-text-default)';
         }
       }}
     >

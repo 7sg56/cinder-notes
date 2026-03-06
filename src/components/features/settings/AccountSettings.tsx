@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { User, Shield, KeyRound, Globe, Save } from "lucide-react";
+import { useRef } from 'react';
+import { User, Shield, KeyRound, Globe, Save } from 'lucide-react';
 
 export function AccountSettings() {
   const nameRef = useRef<HTMLInputElement>(null);
@@ -88,15 +88,15 @@ export function AccountSettings() {
             {[
               {
                 icon: KeyRound,
-                title: "Password",
-                desc: "Last changed 3 months ago",
-                action: "Update",
+                title: 'Password',
+                desc: 'Last changed 3 months ago',
+                action: 'Update',
               },
               {
                 icon: Shield,
-                title: "Two-Factor Authentication",
-                desc: "Currently disabled",
-                action: "Enable",
+                title: 'Two-Factor Authentication',
+                desc: 'Currently disabled',
+                action: 'Enable',
               },
             ].map((item, idx) => (
               <div
