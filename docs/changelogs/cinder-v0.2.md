@@ -78,19 +78,6 @@ The app auto-saves, but when auto-save is off (manual mode), there is no visual 
 
 ---
 
-### 5. Export to Markdown / HTML
-
-Users need to be able to export their notes. At minimum: copy as Markdown and export as standalone HTML.
-
-**Scope:** Add export options to the editor's `MoreVertical` menu (which is currently a no-op button).
-
-#### Frontend
-
-- [MODIFY] [EditorHeader.tsx](file:///Users/7sg56/Developer/My%20Shit/Desktop_Apps/Cinder-notes/src/components/layout/editor/EditorHeader.tsx) -- Wire the `MoreVertical` button to show a dropdown with "Export as Markdown" and "Export as HTML" options.
-- [NEW] [exportUtils.ts](file:///Users/7sg56/Developer/My%20Shit/Desktop_Apps/Cinder-notes/src/util/exportUtils.ts) -- Utility functions: `exportAsMarkdown` (save `.md` file via Tauri save dialog) and `exportAsHTML` (render the markdown to HTML with styles, save via Tauri save dialog).
-
----
-
 ### 6. Wire General Settings
 
 The `GeneralSettings` panel is a visual shell -- the dropdowns don't persist or do anything. Either wire them up or remove them so users aren't confused.
@@ -121,30 +108,3 @@ Allow dragging `.md` files from Finder/Explorer into the workspace to import the
 
 Allow users to pin frequently accessed notes to the top of the explorer or tabs.
 
----
-
-## User Review Required
-
-> [!IMPORTANT]
-> Which of these do you want me to implement? I recommend at minimum items **1 through 5** (Search, Workspace Persistence, Delete Confirmation, Unsaved Indicator, and Export). Items 6-10 are lower priority and can be deferred to a fast-follow release.
-
-> [!WARNING]
-> Item 3 (Delete Confirmation) is a data-safety issue. Right now a single misclick permanently deletes files with no recovery. This should be the absolute first fix.
-
----
-
-## Verification Plan
-
-### Automated Tests
-
-- The Rust `workspace.rs` already has unit tests. New `search_workspace` logic will get similar tests using `tempdir` + test files.
-- Run Rust tests: `cd src-tauri && cargo test`
-
-### Manual Verification
-
-- **Search:** Open the app, press Cmd+F in editor to verify in-file search works. Press Cmd+Shift+F to verify global search panel opens and returns results.
-- **Workspace Persistence:** Open a workspace, quit the app, relaunch -- verify it auto-loads the last workspace without prompting.
-- **Delete Confirmation:** Right-click a file, click "Move to Trash" -- verify a native confirmation dialog appears before deletion.
-- **Unsaved Indicator:** Toggle auto-save off, edit a file, verify the tab shows a dirty dot. Try closing the tab, verify a save prompt appears.
-- **Export:** Open a note, click the `...` menu, verify "Export as Markdown" and "Export as HTML" save files correctly.
-- **Build:** Run `npm run build` and `npm run tauri:build` to verify no build regressions.
