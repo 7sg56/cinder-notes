@@ -16,11 +16,13 @@ export function SearchPanel() {
   } = useAppStore();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input when modal opens
   useEffect(() => {
     if (isSearchOpen) {
+      setHoveredIndex(null);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isSearchOpen]);
@@ -62,20 +64,56 @@ export function SearchPanel() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/40 backdrop-blur-sm"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        paddingTop: "15vh",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        backdropFilter: "blur(4px)",
+      }}
       onClick={() => setSearchOpen(false)}
     >
       <div
-        className="w-full max-w-2xl bg-[#1e1e1e] border border-white/10 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+        style={{
+          width: "100%",
+          maxWidth: "560px",
+          backgroundColor: "var(--bg-secondary)",
+          border: "1px solid var(--border-secondary)",
+          borderRadius: "12px",
+          boxShadow: "0 16px 48px rgba(0, 0, 0, 0.4)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          fontFamily: "'Space Grotesk', system-ui, sans-serif",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center px-4 py-3 border-b border-white/10">
-          <Search className="w-5 h-5 text-gray-400 mr-3" />
+        {/* Search input row */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "12px 16px",
+            borderBottom: "1px solid var(--border-primary)",
+            gap: "10px",
+          }}
+        >
+          <Search
+            style={{
+              width: 18,
+              height: 18,
+              color: "var(--text-tertiary)",
+              flexShrink: 0,
+            }}
+          />
           <input
             ref={inputRef}
             type="text"
-            className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-lg"
-            placeholder="Search workspace..."
+            placeholder="Search files..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -84,50 +122,152 @@ export function SearchPanel() {
                 setSearchOpen(false);
               }
             }}
+            style={{
+              flex: 1,
+              backgroundColor: "transparent",
+              color: "var(--text-primary)",
+              border: "none",
+              outline: "none",
+              fontSize: "15px",
+              fontFamily: "inherit",
+            }}
           />
           {isLoading && (
-            <div className="w-4 h-4 border-2 border-[#1e90ff] border-t-transparent rounded-full animate-spin ml-3"></div>
+            <div
+              style={{
+                width: 16,
+                height: 16,
+                border: "2px solid var(--editor-header-accent)",
+                borderTopColor: "transparent",
+                borderRadius: "50%",
+                animation: "spin 0.6s linear infinite",
+                flexShrink: 0,
+              }}
+            />
           )}
           <button
-            className="p-1 hover:bg-white/10 rounded ml-2"
             onClick={() => setSearchOpen(false)}
+            style={{
+              background: "none",
+              border: "none",
+              padding: "4px",
+              borderRadius: "6px",
+              cursor: "pointer",
+              color: "var(--text-tertiary)",
+              display: "flex",
+              alignItems: "center",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--bg-hover)";
+              e.currentTarget.style.color = "var(--text-primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "var(--text-tertiary)";
+            }}
           >
-            <X className="w-5 h-5 text-gray-400" />
+            <X style={{ width: 18, height: 18 }} />
           </button>
         </div>
 
-        <div className="max-h-[60vh] overflow-y-auto">
+        {/* Results */}
+        <div style={{ maxHeight: "50vh", overflowY: "auto" }}>
           {searchResults.length > 0 ? (
-            <div className="p-2 space-y-1">
-              {searchResults.map((result, i) => (
-                <button
-                  key={`${result.file_path}-${result.line_number}-${i}`}
-                  className="w-full flex items-start text-left p-3 hover:bg-white/5 rounded-lg group transition-colors"
-                  onClick={() => {
-                    selectFile(result.file_path);
-                    setSearchOpen(false);
-                  }}
-                >
-                  <FileText className="w-4 h-4 text-gray-400 mt-1 mr-3 group-hover:text-blue-400 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-gray-200 truncate">
+            <div style={{ padding: "6px" }}>
+              {searchResults.map((result, i) => {
+                const isHovered = hoveredIndex === i;
+                return (
+                  <button
+                    key={`${result.file_path}-${i}`}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      textAlign: "left",
+                      padding: "10px 12px",
+                      borderRadius: "8px",
+                      border: "none",
+                      cursor: "pointer",
+                      gap: "10px",
+                      backgroundColor: isHovered
+                        ? "var(--bg-hover)"
+                        : "transparent",
+                      borderLeft: isHovered
+                        ? "3px solid var(--editor-header-accent)"
+                        : "3px solid transparent",
+                      transition: "all 0.12s ease",
+                      fontFamily: "inherit",
+                    }}
+                    onClick={() => {
+                      selectFile(result.file_path);
+                      setSearchOpen(false);
+                    }}
+                    onMouseEnter={() => setHoveredIndex(i)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                  >
+                    <FileText
+                      style={{
+                        width: 16,
+                        height: 16,
+                        flexShrink: 0,
+                        color: isHovered
+                          ? "var(--editor-header-accent)"
+                          : "var(--text-tertiary)",
+                        transition: "color 0.12s ease",
+                      }}
+                    />
+                    <div
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          color: isHovered
+                            ? "var(--text-primary)"
+                            : "var(--text-secondary)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          transition: "color 0.12s ease",
+                        }}
+                      >
                         {result.file_name}
                       </span>
-                      <span className="text-xs text-gray-500">
-                        Line {result.line_number}
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          color: "var(--text-tertiary)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {result.content_preview}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-400 truncate mt-1">
-                      {result.content_preview}
-                    </p>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           ) : searchQuery.trim().length > 0 && !isLoading ? (
-            <div className="p-8 text-center text-gray-500">
-              No results found for "{searchQuery}"
+            <div
+              style={{
+                padding: "32px",
+                textAlign: "center",
+                color: "var(--text-tertiary)",
+                fontSize: "13px",
+              }}
+            >
+              No files found for "{searchQuery}"
             </div>
           ) : null}
         </div>

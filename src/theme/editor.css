@@ -96,45 +96,7 @@
   background: transparent;
 }
 
-/* Search panel styling */
-.cm-editor .cm-panels {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-primary);
-}
 
-.cm-editor .cm-panels .cm-button {
-  background-image: none;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-secondary);
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 12px;
-}
-
-.cm-editor .cm-panels .cm-textfield {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-secondary);
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.cm-editor .cm-panels .cm-textfield:focus {
-  border-color: var(--editor-header-accent);
-  outline: none;
-}
-
-/* Search match highlighting */
-.cm-editor .cm-searchMatch {
-  background-color: rgba(244, 140, 37, 0.3);
-  border-radius: 2px;
-}
-
-.cm-editor .cm-searchMatch.cm-searchMatch-selected {
-  background-color: rgba(244, 140, 37, 0.6);
-}
 
 /* Matching bracket highlighting */
 .cm-editor.cm-focused .cm-matchingBracket {
