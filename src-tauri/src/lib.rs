@@ -31,6 +31,7 @@ pub fn run() {
             commands::rename_note,
             commands::create_folder,
             commands::delete_folder,
+            commands::search_workspace,
         ])
         .setup(|app| {
             // Build a custom app menu without Cmd+W (Close Window)
