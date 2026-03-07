@@ -1,4 +1,4 @@
-import type { MutableRefObject } from 'react';
+import { useEffect, type MutableRefObject } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { MarkdownPreview } from './MarkdownPreview';
 import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
@@ -20,7 +20,20 @@ export function Editor({
   editorViewRef,
   onCursorChange,
 }: EditorProps) {
-  const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
+  const { activeFileId, activeFileContent, updateFileContent, saveFile } = useAppStore();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (activeFileId) {
+          saveFile(activeFileId);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeFileId, saveFile]);
 
   return (
     <div
@@ -28,8 +41,8 @@ export function Editor({
       style={{ backgroundColor: 'var(--editor-bg)' }}
     >
       {!activeFileId ||
-      activeFileId === 'welcome' ||
-      activeFileId.startsWith('cinder-') ? (
+        activeFileId === 'welcome' ||
+        activeFileId.startsWith('cinder-') ? (
         /* --- SYSTEM TABS & EMPTY STATE --- */
         <div className="flex-1 flex w-full h-full relative bg-[var(--bg-primary)]">
           {activeFileId === 'cinder-settings' && <Settings />}

@@ -32,6 +32,7 @@ export function EditorTabs() {
     createFolder,
     closeOtherFiles,
     closeAllFiles,
+    dirtyFiles,
   } = useAppStore();
 
   return (
@@ -127,18 +128,23 @@ export function EditorTabs() {
                 {tabName}
               </span>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closeFile(fileId);
-                }}
-                className="ml-2 p-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[var(--bg-active)]"
-                style={{
-                  color: 'var(--text-tertiary)',
-                }}
-              >
-                <X size={14} />
-              </button>
+              <div className="ml-2 w-[18px] h-[18px] flex items-center justify-center shrink-0 relative">
+                <div
+                  className={`w-[6px] h-[6px] rounded-full bg-[var(--editor-header-accent)] transition-opacity ${dirtyFiles.has(fileId) ? 'opacity-100 group-hover:opacity-0' : 'opacity-0'}`}
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closeFile(fileId);
+                  }}
+                  className={`absolute inset-0 p-0.5 flex items-center justify-center rounded-md transition-all hover:bg-[var(--bg-active)] ${dirtyFiles.has(fileId) ? 'opacity-0 group-hover:opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                  style={{
+                    color: 'var(--text-tertiary)',
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
             </div>
           );
         })}

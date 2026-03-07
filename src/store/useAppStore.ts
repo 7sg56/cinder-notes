@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { invoke } from '@tauri-apps/api/core';
+import { ask } from '@tauri-apps/plugin-dialog';
 import type { FileNode } from '../types/fileSystem';
 
 export interface SearchResult {
@@ -24,6 +25,7 @@ interface AppState {
   expandedFolderIds: string[]; // List of folder IDs that are expanded
   pendingFileId: string | null;
   isAutoSave: boolean;
+  dirtyFiles: Set<string>;
 
   // Search State
   isSearchOpen: boolean;
@@ -43,7 +45,8 @@ interface AppState {
   // Actions
   selectFile: (fileId: string) => void;
   openFileInNewTab: (fileId: string) => void;
-  closeFile: (fileId: string) => void;
+  closeFile: (fileId: string) => Promise<void>;
+  saveFile: (fileId?: string) => Promise<void>;
   updateFileContent: (fileId: string, content: string) => void;
   findFile: (id: string, nodes?: FileNode[]) => FileNode | null;
   getFileBreadcrumb: (fileId: string) => FileNode[];
@@ -77,8 +80,8 @@ interface AppState {
   duplicateFile: (fileId: string) => void;
   createFileInFolder: (folderId: string) => void;
   createFolder: (parentFolderId?: string | null) => void;
-  closeOtherFiles: (fileId: string) => void;
-  closeAllFiles: () => void;
+  closeOtherFiles: (fileId: string) => Promise<void>;
+  closeAllFiles: () => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -95,6 +98,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   lastSidebarWidth: 20,
   expandedFolderIds: [],
   isAutoSave: true,
+  dirtyFiles: new Set(),
 
   isSearchOpen: false,
   searchQuery: '',
@@ -344,9 +348,21 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  closeFile: (fileId: string) => {
+  closeFile: async (fileId: string) => {
+    const state = get();
+    if (state.dirtyFiles.has(fileId)) {
+      const confirmed = await ask(
+        'You have unsaved changes. Are you sure you want to close without saving?',
+        { title: 'Unsaved Changes', kind: 'warning' }
+      );
+      if (!confirmed) return;
+    }
+
     const { openFiles, activeFileId } = get();
     const newOpenFiles = openFiles.filter((id) => id !== fileId);
+
+    const newDirtyFiles = new Set(get().dirtyFiles);
+    newDirtyFiles.delete(fileId);
 
     if (activeFileId === fileId) {
       const nextActive =
@@ -355,12 +371,31 @@ export const useAppStore = create<AppState>((set, get) => ({
         get().selectFile(nextActive);
       } else {
         set({ activeFileId: null, activeFileContent: '' });
-        // If we closed the last tab, we might want to show empty state or Welcome?
-        // For now, empty state is fine.
       }
     }
 
-    set({ openFiles: newOpenFiles });
+    set({ openFiles: newOpenFiles, dirtyFiles: newDirtyFiles });
+  },
+
+  saveFile: async (fileId?: string) => {
+    const state = get();
+    const targetFileId = fileId || state.activeFileId;
+    if (!targetFileId) return;
+
+    const file = state.findFile(targetFileId);
+    const contentToSave = targetFileId === state.activeFileId ? state.activeFileContent : (file?.content || '');
+
+    if (file && file.path) {
+      try {
+        await invoke('write_note', { path: file.path, content: contentToSave });
+        console.log('File saved manually:', file.path);
+        const newDirty = new Set(get().dirtyFiles);
+        newDirty.delete(targetFileId);
+        set({ dirtyFiles: newDirty });
+      } catch (err) {
+        console.error('Failed to save file:', err);
+      }
+    }
   },
 
   updateFileContent: (fileId: string, content: string) => {
@@ -408,20 +443,28 @@ export const useAppStore = create<AppState>((set, get) => ({
       };
 
       // Create file on disk with content
-      invoke('write_note', { path: filePath, content })
-        .then(() => console.log('File created on disk:', filePath))
-        .catch((err) => console.error('Failed to create file:', err));
+      if (state.isAutoSave) {
+        invoke('write_note', { path: filePath, content })
+          .then(() => console.log('File created on disk:', filePath))
+          .catch((err) => console.error('Failed to create file:', err));
+      }
 
       const newFiles = [...files, newFile];
       const newOpenFiles = openFiles.map((id) =>
         id === fileId ? newFileId : id
       );
 
+      const newDirtyFiles = new Set(state.dirtyFiles);
+      if (!state.isAutoSave) {
+        newDirtyFiles.add(newFileId);
+      }
+
       set({
         files: newFiles,
         activeFileId: newFileId,
         openFiles: newOpenFiles,
         activeFileContent: content,
+        dirtyFiles: newDirtyFiles,
       });
       return;
     }
@@ -432,13 +475,28 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     // Write to disk if we have a path
     if (filePath) {
-      invoke('write_note', { path: filePath, content })
-        .then(() => console.log('File saved:', filePath))
-        .catch((err) => console.error('Failed to save file:', err));
+      if (state.isAutoSave) {
+        invoke('write_note', { path: filePath, content })
+          .then(() => {
+            console.log('File saved:', filePath);
+            const stateNow = get();
+            if (stateNow.dirtyFiles.has(fileId)) {
+              const newDirty = new Set(stateNow.dirtyFiles);
+              newDirty.delete(fileId);
+              set({ dirtyFiles: newDirty });
+            }
+          })
+          .catch((err) => console.error('Failed to save file:', err));
+      }
     }
 
     // Normal update - Persist to store AND active state
     set((state) => {
+      const newDirty = new Set(state.dirtyFiles);
+      if (!state.isAutoSave) {
+        newDirty.add(fileId);
+      }
+
       const updateContentRecursive = (nodes: FileNode[]): FileNode[] => {
         return nodes.map((node) => {
           if (node.id === fileId) {
@@ -455,6 +513,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         activeFileContent:
           state.activeFileId === fileId ? content : state.activeFileContent,
         files: updateContentRecursive(state.files),
+        dirtyFiles: newDirty,
       };
     });
   },
@@ -908,7 +967,15 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   toggleAutoSave: () => {
-    set((state) => ({ isAutoSave: !state.isAutoSave }));
+    set((state) => {
+      const newAutoSave = !state.isAutoSave;
+      if (newAutoSave && state.dirtyFiles.size > 0) {
+        Array.from(state.dirtyFiles).forEach(fileId => {
+          get().saveFile(fileId);
+        });
+      }
+      return { isAutoSave: newAutoSave };
+    });
   },
 
   // --- Context Menu Actions ---
@@ -1255,24 +1322,53 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  closeOtherFiles: (fileId: string) => {
+  closeOtherFiles: async (fileId: string) => {
     const state = get();
+    const otherDirtyFiles = Array.from(state.dirtyFiles).filter(id => id !== fileId && state.openFiles.includes(id));
+    if (otherDirtyFiles.length > 0) {
+      const confirmed = await ask(
+        'You have unsaved changes in other files. Are you sure you want to close them without saving?',
+        { title: 'Unsaved Changes', kind: 'warning' }
+      );
+      if (!confirmed) return;
+    }
+
+    const newDirtyFiles = new Set(state.dirtyFiles);
+    state.openFiles.forEach(id => {
+      if (id !== fileId) newDirtyFiles.delete(id);
+    });
+
     set({
       openFiles: state.openFiles.includes(fileId) ? [fileId] : [],
       activeFileId: state.openFiles.includes(fileId) ? fileId : null,
       activeFileContent:
         state.activeFileId === fileId ? state.activeFileContent : '',
+      dirtyFiles: newDirtyFiles,
     });
     if (state.activeFileId !== fileId && state.openFiles.includes(fileId)) {
       get().selectFile(fileId);
     }
   },
 
-  closeAllFiles: () => {
+  closeAllFiles: async () => {
+    const state = get();
+    const dirtyOpenFiles = Array.from(state.dirtyFiles).filter(id => state.openFiles.includes(id));
+    if (dirtyOpenFiles.length > 0) {
+      const confirmed = await ask(
+        'You have unsaved changes. Are you sure you want to close all files without saving?',
+        { title: 'Unsaved Changes', kind: 'warning' }
+      );
+      if (!confirmed) return;
+    }
+
+    const newDirtyFiles = new Set(state.dirtyFiles);
+    state.openFiles.forEach(id => newDirtyFiles.delete(id));
+
     set({
       openFiles: [],
       activeFileId: null,
       activeFileContent: '',
+      dirtyFiles: newDirtyFiles,
     });
   },
 }));
