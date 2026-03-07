@@ -25,3 +25,7 @@ tauri = { version = "2.9.5", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-dialog = "2.6.0"
 tauri-plugin-fs = "2.4.5"
+notify = "6"
+
+[dev-dependencies]
+tempfile = "3"

@@ -9,6 +9,7 @@
 
 mod commands;
 mod types;
+mod watcher;
 mod workspace;
 
 // Re-export types for use in other modules
@@ -22,6 +23,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .manage(watcher::FileWatcherState::new())
         .invoke_handler(tauri::generate_handler![
             commands::scan_workspace,
             commands::read_note,
@@ -32,6 +34,8 @@ pub fn run() {
             commands::create_folder,
             commands::delete_folder,
             commands::search_workspace,
+            commands::watch_workspace,
+            commands::unwatch_workspace,
         ])
         .setup(|app| {
             // Build a custom app menu without Cmd+W (Close Window)

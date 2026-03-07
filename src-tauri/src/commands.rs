@@ -6,10 +6,12 @@
 //! - Use descriptive error messages
 
 use crate::types::FileEntry;
+use crate::watcher::FileWatcherState;
 use crate::workspace::{scan_directory_recursive, validate_workspace_path};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
+use tauri::State;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
@@ -204,4 +206,38 @@ pub fn search_workspace(path: String, query: String) -> Result<Vec<SearchResult>
     
     search_dir(workspace_path, workspace_path, &query_lower, &mut results);
     Ok(results)
+}
+
+/// Start watching a workspace directory for external file changes
+/// 
+/// # Arguments
+/// * `path` - Absolute path to the workspace directory
+/// * `app_handle` - Tauri app handle for emitting events
+/// * `watcher_state` - Managed file watcher state
+/// 
+/// # Returns
+/// * `Ok(())` - Watcher started successfully
+/// * `Err(String)` - Error message if watching fails
+#[tauri::command]
+pub fn watch_workspace(
+    path: String,
+    app_handle: tauri::AppHandle,
+    watcher_state: State<'_, FileWatcherState>,
+) -> Result<(), String> {
+    watcher_state.watch(&path, app_handle)
+}
+
+/// Stop watching the workspace directory
+/// 
+/// # Arguments
+/// * `watcher_state` - Managed file watcher state
+/// 
+/// # Returns
+/// * `Ok(())` - Watcher stopped successfully
+/// * `Err(String)` - Error message if stopping fails
+#[tauri::command]
+pub fn unwatch_workspace(
+    watcher_state: State<'_, FileWatcherState>,
+) -> Result<(), String> {
+    watcher_state.unwatch()
 }
