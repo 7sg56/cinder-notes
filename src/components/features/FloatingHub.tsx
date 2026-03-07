@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { User, Palette, Settings } from 'lucide-react';
+import { Info, Settings } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 
 export function FloatingHub() {
@@ -86,32 +86,6 @@ export function FloatingHub() {
             <div className="max-h-[300px] overflow-y-auto no-scrollbar">
               <button
                 onClick={() => {
-                  openSystemTab('cinder-account');
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                <span className="font-medium flex items-center gap-2">
-                  <User size={14} />
-                  Account
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  openSystemTab('cinder-theme');
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                <span className="font-medium flex items-center gap-2">
-                  <Palette size={14} />
-                  Themes
-                </span>
-              </button>
-              <button
-                onClick={() => {
                   openSystemTab('cinder-settings');
                   setIsOpen(false);
                 }}
@@ -121,6 +95,19 @@ export function FloatingHub() {
                 <span className="font-medium flex items-center gap-2">
                   <Settings size={14} />
                   Settings
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  openSystemTab('cinder-info');
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <span className="font-medium flex items-center gap-2">
+                  <Info size={14} />
+                  About
                 </span>
               </button>
             </div>

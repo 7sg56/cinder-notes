@@ -38,11 +38,11 @@ const cinderEditorTheme = EditorView.theme(
       borderLeftWidth: '2px',
     },
     '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection':
-      {
-        backgroundColor: 'var(--editor-selection-bg) !important',
-      },
+    {
+      backgroundColor: 'var(--editor-selection-bg) !important',
+    },
     '.cm-activeLine': {
-      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+      backgroundColor: 'var(--bg-active)',
     },
     '.cm-gutters': {
       backgroundColor: 'var(--editor-bg)',
@@ -76,21 +76,20 @@ const cinderEditorTheme = EditorView.theme(
       opacity: '0.75',
     },
     '.cm-md-inline-code': {
-      backgroundColor: 'rgba(255, 255, 255, 0.06)',
+      backgroundColor: 'var(--bg-tertiary)',
       padding: '0.25em 0.5em',
       borderRadius: '6px',
       fontSize: '0.85em',
       fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
+      border: '1px solid var(--border-secondary)',
       color: 'var(--text-primary)',
-      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
     },
     '.cm-codeblock-line': {
-      backgroundColor: 'rgba(0, 0, 0, 0.2)',
+      backgroundColor: 'var(--bg-secondary)',
       paddingLeft: '1.3em',
       paddingRight: '1.3em',
-      borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-      borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+      borderLeft: '1px solid var(--border-secondary)',
+      borderRight: '1px solid var(--border-secondary)',
     },
     '.cm-codeblock-line *': {
       fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
@@ -118,15 +117,14 @@ const cinderEditorTheme = EditorView.theme(
       fontSize: '1.1rem !important',
     },
     '.cm-blockquote-line': {
-      background:
-        'linear-gradient(to right, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01))',
+      backgroundColor: 'var(--bg-active)',
       boxShadow: 'inset 4px 0 0 var(--editor-header-accent)',
       color: 'var(--text-secondary)',
       paddingLeft: '1.6em',
       paddingTop: '0.2em',
       paddingBottom: '0.2em',
       fontStyle: 'italic',
-      border: '1px solid rgba(255, 255, 255, 0.03)',
+      border: '1px solid var(--border-secondary)',
       borderLeft: 'none',
     },
 

@@ -15,7 +15,7 @@
 }
 
 /* Vertical rhythm */
-.markdown-preview > * + * {
+.markdown-preview>*+* {
   margin-top: 1.2em;
 }
 
@@ -109,8 +109,8 @@
   white-space: pre-wrap;
 }
 
-.markdown-preview ul > li::marker,
-.markdown-preview ol > li::marker {
+.markdown-preview ul>li::marker,
+.markdown-preview ol>li::marker {
   color: var(--markdown-list);
 }
 
@@ -126,14 +126,13 @@
    INLINE CODE
    ===================================================== */
 .markdown-preview code:not(pre code) {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-tertiary);
   padding: 0.25em 0.5em;
   border-radius: 6px;
   font-size: 0.85em;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-secondary);
   color: var(--text-primary);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* =====================================================
@@ -143,11 +142,9 @@
   margin: 2em 0;
   border-radius: 12px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 
 .markdown-preview .code-block-header {
@@ -155,8 +152,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.6em 1em;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-secondary);
   font-size: 0.72em;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -192,18 +189,14 @@
    BLOCKQUOTE
    ===================================================== */
 .markdown-preview blockquote {
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.01)
-  );
+  background: var(--bg-active);
   padding: 1.2em 1.6em;
   border-radius: 4px 12px 12px 4px;
   margin: 2em 0;
   box-shadow: inset 4px 0 0 var(--editor-header-accent);
   color: var(--text-secondary);
   font-style: italic;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-secondary);
   border-left: none;
 }
 
@@ -226,16 +219,16 @@
 .markdown-preview th,
 .markdown-preview td {
   padding: 0.75em 1em;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-secondary);
 }
 
 .markdown-preview th {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-tertiary);
   font-weight: 600;
 }
 
 .markdown-preview tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--bg-active);
 }
 
 /* =====================================================
@@ -274,7 +267,7 @@
   padding: 0.5em 0;
 }
 
-.markdown-preview .katex-display > .katex {
+.markdown-preview .katex-display>.katex {
   font-size: 1.08em;
 }
 
@@ -282,7 +275,7 @@
    SELECTION
    ===================================================== */
 .markdown-preview ::selection {
-  background: rgba(100, 150, 255, 0.25);
+  background: var(--editor-selection-bg);
 }
 
 /* =====================================================
