@@ -1,10 +1,10 @@
-import type { MutableRefObject } from 'react';
+import { useEffect, type MutableRefObject } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { MarkdownPreview } from './MarkdownPreview';
 import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
-import { AccountSettings } from '../../features/settings/AccountSettings';
-import { ThemeSettings } from '../../features/settings/ThemeSettings';
-import { GeneralSettings } from '../../features/settings/GeneralSettings';
+
+import { Settings } from '../../features/settings/Settings';
+import { Info } from '../../features/settings/Info';
 import { CodeMirrorEditor } from './CodeMirrorEditor';
 import type { EditorView } from '@codemirror/view';
 
@@ -20,7 +20,21 @@ export function Editor({
   editorViewRef,
   onCursorChange,
 }: EditorProps) {
-  const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
+  const { activeFileId, activeFileContent, updateFileContent, saveFile } =
+    useAppStore();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (activeFileId) {
+          saveFile(activeFileId);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeFileId, saveFile]);
 
   return (
     <div
@@ -32,9 +46,8 @@ export function Editor({
       activeFileId.startsWith('cinder-') ? (
         /* --- SYSTEM TABS & EMPTY STATE --- */
         <div className="flex-1 flex w-full h-full relative bg-[var(--bg-primary)]">
-          {activeFileId === 'cinder-account' && <AccountSettings />}
-          {activeFileId === 'cinder-theme' && <ThemeSettings />}
-          {activeFileId === 'cinder-settings' && <GeneralSettings />}
+          {activeFileId === 'cinder-settings' && <Settings />}
+          {activeFileId === 'cinder-info' && <Info />}
 
           {(!activeFileId || activeFileId === 'welcome') && (
             <div className="flex-1 flex items-center justify-center">
