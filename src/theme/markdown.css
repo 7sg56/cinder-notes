@@ -15,7 +15,7 @@
 }
 
 /* Vertical rhythm */
-.markdown-preview>*+* {
+.markdown-preview > * + * {
   margin-top: 1.2em;
 }
 
@@ -109,13 +109,13 @@
   white-space: pre-wrap;
 }
 
-.markdown-preview ul>li::marker,
-.markdown-preview ol>li::marker {
+.markdown-preview ul > li::marker,
+.markdown-preview ol > li::marker {
   color: var(--markdown-list);
 }
 
 /* Task Lists */
-.markdown-preview input[type="checkbox"] {
+.markdown-preview input[type='checkbox'] {
   accent-color: var(--editor-header-accent);
   margin-right: 0.5em;
   transform: scale(1.05);
@@ -192,7 +192,11 @@
    BLOCKQUOTE
    ===================================================== */
 .markdown-preview blockquote {
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.01)
+  );
   padding: 1.2em 1.6em;
   border-radius: 4px 12px 12px 4px;
   margin: 2em 0;
@@ -270,7 +274,7 @@
   padding: 0.5em 0;
 }
 
-.markdown-preview .katex-display>.katex {
+.markdown-preview .katex-display > .katex {
   font-size: 1.08em;
 }
 

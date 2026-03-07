@@ -1,46 +1,46 @@
-import { FilePlus, FolderOpen, Settings, Command, Blocks } from "lucide-react";
-import { useAppStore } from "../../store/useAppStore";
+import { FilePlus, FolderOpen, Settings, Command, Blocks } from 'lucide-react';
+import { useAppStore } from '../../store/useAppStore';
 
 export function WelcomePage() {
   const { createNewTab } = useAppStore();
 
   const sections = [
     {
-      title: "Get Started",
+      title: 'Get Started',
       items: [
         {
           icon: FilePlus,
-          label: "New File",
-          shortcut: "Ctrl+N",
+          label: 'New File',
+          shortcut: 'Ctrl+N',
           action: createNewTab,
         },
         {
           icon: FolderOpen,
-          label: "Open Project",
-          shortcut: "Ctrl+O",
+          label: 'Open Project',
+          shortcut: 'Ctrl+O',
           action: () => {},
         },
         {
           icon: Command,
-          label: "Open Command Palette",
-          shortcut: "Ctrl+Shift+P",
+          label: 'Open Command Palette',
+          shortcut: 'Ctrl+Shift+P',
           action: () => {},
         },
       ],
     },
     {
-      title: "Configure",
+      title: 'Configure',
       items: [
         {
           icon: Settings,
-          label: "Open Settings",
-          shortcut: "Ctrl+,",
+          label: 'Open Settings',
+          shortcut: 'Ctrl+,',
           action: () => {},
         },
         {
           icon: Blocks,
-          label: "Explore Extensions",
-          shortcut: "Ctrl+Shift+X",
+          label: 'Explore Extensions',
+          shortcut: 'Ctrl+Shift+X',
           action: () => {},
         },
       ],
@@ -50,7 +50,7 @@ export function WelcomePage() {
   return (
     <div
       className="h-full w-full flex flex-col items-center justify-center select-none relative"
-      style={{ backgroundColor: "var(--editor-bg)" }}
+      style={{ backgroundColor: 'var(--editor-bg)' }}
     >
       {/* Main Centered Content Wrapper */}
       <div className="flex flex-col items-center w-full max-w-[400px]">
@@ -60,7 +60,7 @@ export function WelcomePage() {
             <div key={idx} className="space-y-4">
               <h2
                 className="text-[10px] font-bold uppercase tracking-[0.2em] px-3 transition-colors"
-                style={{ color: "var(--text-tertiary)" }}
+                style={{ color: 'var(--text-tertiary)' }}
               >
                 {section.title}
               </h2>
@@ -70,14 +70,14 @@ export function WelcomePage() {
                     key={itemIdx}
                     onClick={item.action}
                     className="w-full flex items-center justify-between px-3 py-2 rounded-md group transition-colors"
-                    style={{ color: "var(--text-secondary)" }}
+                    style={{ color: 'var(--text-secondary)' }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--bg-hover)";
-                      e.currentTarget.style.color = "var(--text-primary)";
+                      e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                      e.currentTarget.style.color = 'var(--text-primary)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "";
-                      e.currentTarget.style.color = "var(--text-secondary)";
+                      e.currentTarget.style.backgroundColor = '';
+                      e.currentTarget.style.color = 'var(--text-secondary)';
                     }}
                   >
                     <div className="flex items-center gap-4">
@@ -91,17 +91,17 @@ export function WelcomePage() {
                     </div>
                     {item.shortcut && (
                       <div className="flex gap-1 items-center">
-                        {item.shortcut.split("+").map((key) => (
+                        {item.shortcut.split('+').map((key) => (
                           <kbd
                             key={key}
                             className="min-w-[20px] h-[18px] flex items-center justify-center text-[9px] rounded px-1 border transition-colors"
                             style={{
-                              backgroundColor: "var(--bg-secondary)",
-                              borderColor: "var(--border-primary)",
-                              color: "var(--text-tertiary)",
+                              backgroundColor: 'var(--bg-secondary)',
+                              borderColor: 'var(--border-primary)',
+                              color: 'var(--text-tertiary)',
                             }}
                           >
-                            {key === "Ctrl" ? "⌃" : key}
+                            {key === 'Ctrl' ? '⌃' : key}
                           </kbd>
                         ))}
                       </div>
@@ -118,12 +118,12 @@ export function WelcomePage() {
       <div className="absolute bottom-10 left-0 right-0 flex justify-center">
         <button
           className="text-[11px] transition-colors"
-          style={{ color: "var(--text-tertiary)" }}
+          style={{ color: 'var(--text-tertiary)' }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--text-secondary)")
+            (e.currentTarget.style.color = 'var(--text-secondary)')
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--text-tertiary)")
+            (e.currentTarget.style.color = 'var(--text-tertiary)')
           }
         >
           Return to Onboarding

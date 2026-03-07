@@ -1,6 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
-@import "tailwindcss";
-@import "./theme/theme.css";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import 'tailwindcss';
+@import './theme/theme.css';
 
 html {
   overscroll-behavior: none;
@@ -13,13 +13,13 @@ html {
 .markdown-preview,
 textarea,
 input,
-[contenteditable="true"] {
+[contenteditable='true'] {
   user-select: text;
   -webkit-user-select: text;
 }
 
 :root {
-  font-family: "Space Grotesk", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Space Grotesk', system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 body {

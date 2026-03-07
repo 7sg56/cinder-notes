@@ -1,4 +1,4 @@
-import { Monitor, Bell, FolderOpen, Globe } from "lucide-react";
+import { Monitor, Bell, FolderOpen, Globe } from 'lucide-react';
 
 export function GeneralSettings() {
   return (
@@ -25,17 +25,17 @@ export function GeneralSettings() {
             {[
               {
                 icon: Monitor,
-                title: "Default View",
-                desc: "Choose default view for new files",
-                action: "Split View",
-                options: ["Split View", "Editor Only", "Preview Only"],
+                title: 'Default View',
+                desc: 'Choose default view for new files',
+                action: 'Split View',
+                options: ['Split View', 'Editor Only', 'Preview Only'],
               },
               {
                 icon: FolderOpen,
-                title: "Sidebar Position",
-                desc: "Change the location of the sidebar",
-                action: "Left",
-                options: ["Left", "Right"],
+                title: 'Sidebar Position',
+                desc: 'Change the location of the sidebar',
+                action: 'Left',
+                options: ['Left', 'Right'],
               },
             ].map((item, idx) => (
               <div
@@ -73,17 +73,17 @@ export function GeneralSettings() {
             {[
               {
                 icon: Globe,
-                title: "Language",
-                desc: "Change interface language",
-                action: "English",
-                options: ["English", "Spanish", "French", "German", "Japanese"],
+                title: 'Language',
+                desc: 'Change interface language',
+                action: 'English',
+                options: ['English', 'Spanish', 'French', 'German', 'Japanese'],
               },
               {
                 icon: Bell,
-                title: "Notifications",
-                desc: "Configure desktop notifications",
-                action: "All",
-                options: ["All", "Important Only", "None"],
+                title: 'Notifications',
+                desc: 'Configure desktop notifications',
+                action: 'All',
+                options: ['All', 'Important Only', 'None'],
               },
             ].map((item, idx) => (
               <div

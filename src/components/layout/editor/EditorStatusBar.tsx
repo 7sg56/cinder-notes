@@ -1,5 +1,5 @@
-import { EditorStatusBarItem } from "./EditorStatusBarItem";
-import { useAppStore } from "../../../store/useAppStore";
+import { EditorStatusBarItem } from './EditorStatusBarItem';
+import { useAppStore } from '../../../store/useAppStore';
 
 interface EditorStatusBarProps {
   isPreview: boolean;
@@ -15,7 +15,7 @@ export function EditorStatusBar({
   const { activeFileContent, isAutoSave } = useAppStore();
 
   // Calculate lines and words
-  const lines = activeFileContent ? activeFileContent.split("\n").length : 0;
+  const lines = activeFileContent ? activeFileContent.split('\n').length : 0;
   const words = activeFileContent
     ? activeFileContent
         .trim()
@@ -24,18 +24,18 @@ export function EditorStatusBar({
     : 0;
 
   // Determine mode
-  const mode = isPreview ? "Preview" : "Editing";
+  const mode = isPreview ? 'Preview' : 'Editing';
 
   // Save mode text
-  const saveMode = isAutoSave ? "Auto Save" : "Manual";
+  const saveMode = isAutoSave ? 'Auto Save' : 'Manual';
 
   return (
     <div
       className="h-[28px] border-t text-[9px] font-medium uppercase tracking-[0.15em] flex items-center justify-between px-4 select-none z-10 transition-colors duration-200"
       style={{
-        backgroundColor: "var(--editor-bg)",
-        borderColor: "rgba(255, 255, 255, 0.05)",
-        color: "var(--text-tertiary)",
+        backgroundColor: 'var(--editor-bg)',
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        color: 'var(--text-tertiary)',
       }}
     >
       {/* Left side: Save Indicator & Mode */}
@@ -48,17 +48,17 @@ export function EditorStatusBar({
           <div
             className="w-1.5 h-1.5 rounded-full transition-all duration-300"
             style={{
-              backgroundColor: isAutoSave ? "#22c55e" : "#f59e0b",
+              backgroundColor: isAutoSave ? '#22c55e' : '#f59e0b',
               boxShadow: isAutoSave
-                ? "0 0 4px rgba(34, 197, 94, 0.3)"
-                : "0 0 4px rgba(245, 158, 11, 0.3)",
+                ? '0 0 4px rgba(34, 197, 94, 0.3)'
+                : '0 0 4px rgba(245, 158, 11, 0.3)',
             }}
           />
         </div>
 
         <EditorStatusBarItem>
           <span
-            style={{ color: "var(--text-secondary)" }}
+            style={{ color: 'var(--text-secondary)' }}
             className="opacity-75 hover:opacity-100 transition-opacity"
           >
             {saveMode}
@@ -73,7 +73,7 @@ export function EditorStatusBar({
           {!isPreview && cursorLine != null && cursorCol != null && (
             <EditorStatusBarItem>
               <span
-                style={{ color: "var(--text-secondary)" }}
+                style={{ color: 'var(--text-secondary)' }}
                 className="font-normal opacity-50"
               >
                 Ln {cursorLine}, Col {cursorCol}
@@ -82,7 +82,7 @@ export function EditorStatusBar({
           )}
           <EditorStatusBarItem>
             <span
-              style={{ color: "var(--text-secondary)" }}
+              style={{ color: 'var(--text-secondary)' }}
               className="font-normal opacity-50"
             >
               {lines} lines
@@ -90,7 +90,7 @@ export function EditorStatusBar({
           </EditorStatusBarItem>
           <EditorStatusBarItem>
             <span
-              style={{ color: "var(--text-secondary)" }}
+              style={{ color: 'var(--text-secondary)' }}
               className="font-normal opacity-50"
             >
               {words} words
@@ -100,7 +100,7 @@ export function EditorStatusBar({
 
         <EditorStatusBarItem>
           <span
-            style={{ color: "var(--text-secondary)" }}
+            style={{ color: 'var(--text-secondary)' }}
             className="opacity-75"
           >
             {mode}

@@ -12,14 +12,14 @@ export function normalizeCodeblock(text: string): string {
   result = result.replace(
     /^~~~(\w*)\n([\s\S]*?)^~~~/gm,
     (_match, lang, code) => {
-      return "```" + lang + "\n" + code + "```";
-    },
+      return '```' + lang + '\n' + code + '```';
+    }
   );
 
   // Ensure there's a newline after opening fence if missing
   // Only split when there's whitespace between the fence info and code
-  result = result.replace(/^```([A-Za-z0-9_-]+)[ \t]+([^\n]+)/gm, "```$1\n$2");
-  result = result.replace(/^```[ \t]+([^\n]+)/gm, "```\n$1");
+  result = result.replace(/^```([A-Za-z0-9_-]+)[ \t]+([^\n]+)/gm, '```$1\n$2');
+  result = result.replace(/^```[ \t]+([^\n]+)/gm, '```\n$1');
 
   return result;
 }

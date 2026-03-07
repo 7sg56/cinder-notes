@@ -1,7 +1,7 @@
-import { useEffect, useRef, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import { useWorkspace } from "./useWorkspace";
+import { useEffect, useRef, useCallback } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { useWorkspace } from './useWorkspace';
 
 /**
  * Hook that watches the workspace directory for external file changes
@@ -22,7 +22,7 @@ export function useFileWatcher() {
     try {
       await refreshRef.current();
     } catch (err) {
-      console.error("Failed to refresh workspace:", err);
+      console.error('Failed to refresh workspace:', err);
     } finally {
       isRefreshing.current = false;
     }
@@ -32,18 +32,18 @@ export function useFileWatcher() {
     if (!workspacePath) return;
 
     // Start watching the workspace directory
-    invoke("watch_workspace", { path: workspacePath }).catch((err) =>
-      console.error("Failed to start file watcher:", err),
+    invoke('watch_workspace', { path: workspacePath }).catch((err) =>
+      console.error('Failed to start file watcher:', err)
     );
 
     // Listen for change events from the backend
-    const unlisten = listen("workspace-changed", handleChange);
+    const unlisten = listen('workspace-changed', handleChange);
 
     return () => {
       // Clean up: stop watching and remove event listener
       unlisten.then((fn) => fn());
-      invoke("unwatch_workspace").catch((err) =>
-        console.error("Failed to stop file watcher:", err),
+      invoke('unwatch_workspace').catch((err) =>
+        console.error('Failed to stop file watcher:', err)
       );
     };
   }, [workspacePath, handleChange]);

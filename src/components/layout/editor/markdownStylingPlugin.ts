@@ -4,9 +4,9 @@ import {
   EditorView,
   ViewUpdate,
   type DecorationSet,
-} from "@codemirror/view";
-import { RangeSet } from "@codemirror/state";
-import { syntaxTree } from "@codemirror/language";
+} from '@codemirror/view';
+import { RangeSet } from '@codemirror/state';
+import { syntaxTree } from '@codemirror/language';
 
 /**
  * A CodeMirror ViewPlugin that adds css classes to markdown structural elements.
@@ -38,45 +38,45 @@ export const markdownStylingPlugin = ViewPlugin.fromClass(
 
             // Marks to dim
             if (
-              name.includes("Mark") ||
-              name === "HeaderMark" ||
-              name === "QuoteMark" ||
-              name === "ListMark"
+              name.includes('Mark') ||
+              name === 'HeaderMark' ||
+              name === 'QuoteMark' ||
+              name === 'ListMark'
             ) {
               decos.push({
                 from: node.from,
                 to: node.to,
-                deco: Decoration.mark({ class: "cm-md-mark" }),
+                deco: Decoration.mark({ class: 'cm-md-mark' }),
               });
             }
 
             // Inline Code
-            if (name === "InlineCode") {
+            if (name === 'InlineCode') {
               decos.push({
                 from: node.from,
                 to: node.to,
-                deco: Decoration.mark({ class: "cm-md-inline-code" }),
+                deco: Decoration.mark({ class: 'cm-md-inline-code' }),
               });
             }
 
             // Block structuring
-            let cls = "";
-            if (name === "FencedCode" || name === "CodeBlock")
-              cls = "cm-codeblock-line";
-            else if (name.includes("Heading")) {
+            let cls = '';
+            if (name === 'FencedCode' || name === 'CodeBlock')
+              cls = 'cm-codeblock-line';
+            else if (name.includes('Heading')) {
               const match = name.match(/\d/);
               const level = match ? parseInt(match[0]) : 1;
               cls = `cm-heading-line cm-h${level}`;
-            } else if (name === "Blockquote") cls = "cm-blockquote-line";
-            else if (name === "Paragraph") cls = "cm-paragraph-line";
+            } else if (name === 'Blockquote') cls = 'cm-blockquote-line';
+            else if (name === 'Paragraph') cls = 'cm-paragraph-line';
 
             if (cls) {
               let pos = node.from;
               while (pos <= node.to) {
                 const line = view.state.doc.lineAt(pos);
-                if (!lineClasses[line.from]) lineClasses[line.from] = "";
+                if (!lineClasses[line.from]) lineClasses[line.from] = '';
                 if (!lineClasses[line.from].includes(cls)) {
-                  lineClasses[line.from] += " " + cls;
+                  lineClasses[line.from] += ' ' + cls;
                 }
                 if (line.to >= node.to) break;
                 pos = line.to + 1;
@@ -110,11 +110,11 @@ export const markdownStylingPlugin = ViewPlugin.fromClass(
 
       return RangeSet.of(
         decos.map((d) => d.deco.range(d.from, d.to)),
-        true,
+        true
       );
     }
   },
   {
     decorations: (v) => v.decorations,
-  },
+  }
 );

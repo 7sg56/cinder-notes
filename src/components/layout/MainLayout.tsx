@@ -1,6 +1,6 @@
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState } from 'react';
 // import { ActivityBar } from '../features/activity-bar/ActivityBar';
-import { useAppStore } from "../../store/useAppStore";
+import { useAppStore } from '../../store/useAppStore';
 
 interface MainLayoutProps {
   sidebarContent: React.ReactNode;
@@ -24,8 +24,8 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
       isResizingRef.current = true;
       setIsResizing(true);
       e.preventDefault();
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
 
       const handleMouseMove = (e: MouseEvent) => {
         if (!isResizingRef.current || !sidebarRef.current) return;
@@ -54,16 +54,16 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
       const handleMouseUp = () => {
         isResizingRef.current = false;
         setIsResizing(false);
-        document.body.style.cursor = "";
-        document.body.style.userSelect = "";
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("mouseup", handleMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
       };
 
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
     },
-    [setSidebarWidth, setExplorerCollapsed],
+    [setSidebarWidth, setExplorerCollapsed]
   );
 
   const toggleSidebar = () => {
@@ -74,8 +74,8 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
     <div
       className="h-screen w-screen flex flex-col overflow-hidden"
       style={{
-        backgroundColor: "var(--bg-primary)",
-        color: "var(--text-primary)",
+        backgroundColor: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
       }}
     >
       {/* Main Content Area */}
@@ -87,9 +87,9 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
           ref={sidebarRef}
           className="flex flex-col h-full overflow-hidden relative transition-all duration-75 ease-out"
           style={{
-            width: isExplorerCollapsed ? "0px" : `${sidebarWidth}%`,
-            backgroundColor: "var(--bg-primary)",
-            transition: isResizing ? "none" : "width 200ms ease-in-out",
+            width: isExplorerCollapsed ? '0px' : `${sidebarWidth}%`,
+            backgroundColor: 'var(--bg-primary)',
+            transition: isResizing ? 'none' : 'width 200ms ease-in-out',
           }}
         >
           <div className="flex flex-col h-full w-full min-w-[200px]">
@@ -99,11 +99,11 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
 
         {/* Resize Handle */}
         <div
-          className={`w-[6px] h-full cursor-col-resize z-50 shrink-0 transition-colors ${isResizing ? "bg-blue-500 opacity-100" : "hover:bg-blue-400 hover:opacity-60"}`}
+          className={`w-[6px] h-full cursor-col-resize z-50 shrink-0 transition-colors ${isResizing ? 'bg-blue-500 opacity-100' : 'hover:bg-blue-400 hover:opacity-60'}`}
           style={{
             backgroundColor: isResizing
-              ? "var(--accent-primary, #3b82f6)"
-              : "var(--border-primary)",
+              ? 'var(--accent-primary, #3b82f6)'
+              : 'var(--border-primary)',
           }}
           onMouseDown={startResizing}
           onDoubleClick={toggleSidebar}
@@ -112,7 +112,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
         {/* Editor Area */}
         <div
           className="flex-1 min-w-0 h-full flex flex-col"
-          style={{ backgroundColor: "var(--bg-secondary)" }}
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
         >
           {editorContent}
         </div>

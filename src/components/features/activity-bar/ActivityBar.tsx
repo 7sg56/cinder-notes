@@ -5,15 +5,15 @@ import {
   CircleUser,
   Lock,
   Settings,
-} from "lucide-react";
-import { ActivityBarItem } from "./ActivityBarItem";
+} from 'lucide-react';
+import { ActivityBarItem } from './ActivityBarItem';
 
 export function ActivityBar() {
   return (
     <div
       className="w-[50px] flex-shrink-0 flex flex-col items-center py-2 z-10"
       style={{
-        backgroundColor: "var(--activity-bar-bg)",
+        backgroundColor: 'var(--activity-bar-bg)',
         borderLeft: `1px solid var(--activity-bar-border)`,
       }}
     >

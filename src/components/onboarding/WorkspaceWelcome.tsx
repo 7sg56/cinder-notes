@@ -1,5 +1,5 @@
-import { useWorkspace } from "../../hooks/useWorkspace";
-import "./WorkspaceWelcome.css";
+import { useWorkspace } from '../../hooks/useWorkspace';
+import './WorkspaceWelcome.css';
 
 export function WorkspaceWelcome() {
   const { selectAndLoadWorkspace } = useWorkspace();
@@ -8,7 +8,7 @@ export function WorkspaceWelcome() {
     const success = await selectAndLoadWorkspace();
     if (!success) {
       // Could show an error toast here, but for now just log
-      console.log("No folder selected or failed to load");
+      console.log('No folder selected or failed to load');
     }
   };
 

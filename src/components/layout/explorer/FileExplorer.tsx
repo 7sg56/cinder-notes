@@ -1,22 +1,22 @@
-import { useState, useMemo } from "react";
-import { useAppStore } from "../../../store/useAppStore";
-import type { FileNode } from "../../../types/fileSystem";
-import { FileTreeItem } from "./FileTreeItem";
-import { showExplorerContextMenu } from "../../../util/contextMenu";
+import { useState, useMemo } from 'react';
+import { useAppStore } from '../../../store/useAppStore';
+import type { FileNode } from '../../../types/fileSystem';
+import { FileTreeItem } from './FileTreeItem';
+import { showExplorerContextMenu } from '../../../util/contextMenu';
 
-import { VscSearch, VscTypeHierarchy } from "react-icons/vsc";
-import { SquarePen } from "lucide-react";
+import { VscSearch, VscTypeHierarchy } from 'react-icons/vsc';
+import { SquarePen } from 'lucide-react';
 
 // Helper to filter nodes recursively
 const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
   if (!query) return nodes;
 
   return nodes.reduce((acc, node) => {
-    if (node.type === "file") {
+    if (node.type === 'file') {
       if (node.name.toLowerCase().includes(query.toLowerCase())) {
         acc.push(node);
       }
-    } else if (node.type === "folder") {
+    } else if (node.type === 'folder') {
       const filteredChildren = node.children
         ? filterNodes(node.children, query)
         : [];
@@ -51,14 +51,14 @@ export function FileExplorer() {
     closeAllFiles,
     findFile,
   } = useAppStore();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Extract folder name from workspace path
   const workspaceName = workspacePath
-    ? workspacePath.split("/").pop() ||
-      workspacePath.split("\\").pop() ||
-      "Workspace"
-    : "Explorer";
+    ? workspacePath.split('/').pop() ||
+      workspacePath.split('\\').pop() ||
+      'Workspace'
+    : 'Explorer';
 
   const filteredFiles = useMemo(() => {
     if (!searchQuery.trim()) return files;
@@ -68,29 +68,29 @@ export function FileExplorer() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const sourceId = e.dataTransfer.getData("text/plain");
+    const sourceId = e.dataTransfer.getData('text/plain');
     if (sourceId) {
-      moveNode(sourceId, "root", "root");
+      moveNode(sourceId, 'root', 'root');
     }
   };
 
   return (
     <div
       className="h-full flex flex-col"
-      style={{ backgroundColor: "var(--bg-primary)" }}
+      style={{ backgroundColor: 'var(--bg-primary)' }}
     >
       {/* Header: Workspace Folder Name (Matches Tab Height) */}
       <div
         className="h-[40px] shrink-0 flex items-center justify-between px-4 border-b select-none"
         style={{
-          color: "var(--text-secondary)",
-          borderColor: "var(--border-primary)",
+          color: 'var(--text-secondary)',
+          borderColor: 'var(--border-primary)',
         }}
       >
         <span className="text-[11px] font-bold tracking-wider opacity-60 uppercase pl-1">
@@ -104,25 +104,25 @@ export function FileExplorer() {
         <div
           className="flex-1 min-w-0 flex items-center h-[28px] rounded-md px-2 gap-1.5 transition-colors focus-within:bg-[var(--bg-secondary)]"
           style={{
-            backgroundColor: "var(--bg-tertiary)",
-            border: "1px solid transparent",
+            backgroundColor: 'var(--bg-tertiary)',
+            border: '1px solid transparent',
           }}
         >
-          <VscSearch size={14} style={{ color: "var(--text-tertiary)" }} />
+          <VscSearch size={14} style={{ color: 'var(--text-tertiary)' }} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search..."
             className="flex-1 bg-transparent border-none outline-none text-[12px] placeholder:text-[var(--text-tertiary)] min-w-0"
-            style={{ color: "var(--text-primary)" }}
+            style={{ color: 'var(--text-primary)' }}
           />
         </div>
 
         <button
           onClick={() => createFile()}
           className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
-          style={{ color: "var(--text-secondary)" }}
+          style={{ color: 'var(--text-secondary)' }}
           title="New Note"
         >
           <SquarePen size={15} strokeWidth={2.5} />
@@ -139,7 +139,7 @@ export function FileExplorer() {
           // (not on a file/folder item, which handles its own context menu)
           if (
             e.target === e.currentTarget ||
-            (e.target as HTMLElement).closest("[data-filetree-item]") === null
+            (e.target as HTMLElement).closest('[data-filetree-item]') === null
           ) {
             e.preventDefault();
             showExplorerContextMenu({

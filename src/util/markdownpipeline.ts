@@ -1,7 +1,7 @@
-import { normalizeLatex } from "./normalizeLatex";
-import { normalizeCodeblock } from "./normalizeCodeblock";
-import { sanitize } from "./sanitize";
-import { CodeProtector } from "./codeProtector";
+import { normalizeLatex } from './normalizeLatex';
+import { normalizeCodeblock } from './normalizeCodeblock';
+import { sanitize } from './sanitize';
+import { CodeProtector } from './codeProtector';
 
 const codeProtector = new CodeProtector();
 
@@ -22,9 +22,9 @@ export function processMarkdown(rawText: string): string {
   let text = rawText;
 
   // Normalize uncommon line separators (e.g., pasted from ChatGPT)
-  text = text.replace(/[\u2028\u2029]/g, "\n");
+  text = text.replace(/[\u2028\u2029]/g, '\n');
   // Strip invisible zero-width characters that break parsing
-  text = text.replace(/\u200B|\u200C|\u200D|\uFEFF/g, "");
+  text = text.replace(/\u200B|\u200C|\u200D|\uFEFF/g, '');
 
   // Step 0: Normalize code fence syntax (fix ~~~ or missing newlines)
   text = normalizeCodeblock(text);
@@ -48,7 +48,7 @@ export function processMarkdown(rawText: string): string {
 }
 
 function preserveHardBreaks(text: string): string {
-  const lineBreak = text.includes("\r\n") ? "\r\n" : "\n";
+  const lineBreak = text.includes('\r\n') ? '\r\n' : '\n';
   const lines = text.split(/\r?\n/);
 
   const out = lines.map((line) => {

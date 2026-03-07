@@ -5,8 +5,8 @@
  * The menus are built on-demand and disposed after use.
  */
 
-import { Menu, MenuItem, PredefinedMenuItem } from "@tauri-apps/api/menu";
-import type { FileNode } from "../types/fileSystem";
+import { Menu, MenuItem, PredefinedMenuItem } from '@tauri-apps/api/menu';
+import type { FileNode } from '../types/fileSystem';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ type StoreActions = {
   selectFile: (fileId: string) => void;
   setRenamingFileId: (
     id: string | null,
-    source?: "explorer" | "editor",
+    source?: 'explorer' | 'editor'
   ) => void;
   deleteFile: (fileId: string) => void;
   deleteFolder: (folderId: string) => void;
@@ -32,14 +32,14 @@ type StoreActions = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 async function sep() {
-  return await PredefinedMenuItem.new({ item: "Separator" });
+  return await PredefinedMenuItem.new({ item: 'Separator' });
 }
 
 async function copyPathToClipboard(path: string) {
   try {
     await navigator.clipboard.writeText(path);
   } catch (err) {
-    console.error("Failed to copy path:", err);
+    console.error('Failed to copy path:', err);
   }
 }
 
@@ -47,37 +47,37 @@ async function copyPathToClipboard(path: string) {
 
 export async function showFileContextMenu(
   node: FileNode,
-  actions: StoreActions,
+  actions: StoreActions
 ) {
   const menu = await Menu.new({
     items: [
       await MenuItem.new({
-        id: "open",
-        text: "Open",
+        id: 'open',
+        text: 'Open',
         action: () => actions.openFileInNewTab(node.id),
       }),
       await sep(),
       await MenuItem.new({
-        id: "rename",
-        text: "Rename",
-        action: () => actions.setRenamingFileId(node.id, "explorer"),
+        id: 'rename',
+        text: 'Rename',
+        action: () => actions.setRenamingFileId(node.id, 'explorer'),
       }),
       await MenuItem.new({
-        id: "duplicate",
-        text: "Duplicate",
+        id: 'duplicate',
+        text: 'Duplicate',
         action: () => actions.duplicateFile(node.id),
       }),
       await MenuItem.new({
-        id: "copy-path",
-        text: "Copy Path",
+        id: 'copy-path',
+        text: 'Copy Path',
         action: () => {
           if (node.path) copyPathToClipboard(node.path);
         },
       }),
       await sep(),
       await MenuItem.new({
-        id: "delete",
-        text: "Move to Trash",
+        id: 'delete',
+        text: 'Move to Trash',
         action: () => actions.deleteFile(node.id),
       }),
     ],
@@ -90,37 +90,37 @@ export async function showFileContextMenu(
 
 export async function showFolderContextMenu(
   node: FileNode,
-  actions: StoreActions,
+  actions: StoreActions
 ) {
   const menu = await Menu.new({
     items: [
       await MenuItem.new({
-        id: "new-note",
-        text: "New Note",
+        id: 'new-note',
+        text: 'New Note',
         action: () => actions.createFileInFolder(node.id),
       }),
       await MenuItem.new({
-        id: "new-folder",
-        text: "New Folder",
+        id: 'new-folder',
+        text: 'New Folder',
         action: () => actions.createFolder(node.id),
       }),
       await sep(),
       await MenuItem.new({
-        id: "rename",
-        text: "Rename",
-        action: () => actions.setRenamingFileId(node.id, "explorer"),
+        id: 'rename',
+        text: 'Rename',
+        action: () => actions.setRenamingFileId(node.id, 'explorer'),
       }),
       await MenuItem.new({
-        id: "copy-path",
-        text: "Copy Path",
+        id: 'copy-path',
+        text: 'Copy Path',
         action: () => {
           if (node.path) copyPathToClipboard(node.path);
         },
       }),
       await sep(),
       await MenuItem.new({
-        id: "delete-folder",
-        text: "Move to Trash",
+        id: 'delete-folder',
+        text: 'Move to Trash',
         action: () => actions.deleteFolder(node.id),
       }),
     ],
@@ -135,13 +135,13 @@ export async function showExplorerContextMenu(actions: StoreActions) {
   const menu = await Menu.new({
     items: [
       await MenuItem.new({
-        id: "new-note",
-        text: "New Note",
+        id: 'new-note',
+        text: 'New Note',
         action: () => actions.createFile(),
       }),
       await MenuItem.new({
-        id: "new-folder",
-        text: "New Folder",
+        id: 'new-folder',
+        text: 'New Folder',
         action: () => actions.createFolder(null),
       }),
     ],
@@ -155,14 +155,14 @@ export async function showExplorerContextMenu(actions: StoreActions) {
 export async function showEditorContextMenu() {
   const menu = await Menu.new({
     items: [
-      await PredefinedMenuItem.new({ item: "Undo" }),
-      await PredefinedMenuItem.new({ item: "Redo" }),
+      await PredefinedMenuItem.new({ item: 'Undo' }),
+      await PredefinedMenuItem.new({ item: 'Redo' }),
       await sep(),
-      await PredefinedMenuItem.new({ item: "Cut" }),
-      await PredefinedMenuItem.new({ item: "Copy" }),
-      await PredefinedMenuItem.new({ item: "Paste" }),
+      await PredefinedMenuItem.new({ item: 'Cut' }),
+      await PredefinedMenuItem.new({ item: 'Copy' }),
+      await PredefinedMenuItem.new({ item: 'Paste' }),
       await sep(),
-      await PredefinedMenuItem.new({ item: "SelectAll" }),
+      await PredefinedMenuItem.new({ item: 'SelectAll' }),
     ],
   });
 
@@ -173,25 +173,25 @@ export async function showEditorContextMenu() {
 
 export async function showTabContextMenu(
   fileId: string,
-  actions: StoreActions,
+  actions: StoreActions
 ) {
   const file = actions.findFile(fileId);
   const filePath = file?.path;
 
   const items: (MenuItem | PredefinedMenuItem)[] = [
     await MenuItem.new({
-      id: "close",
-      text: "Close",
+      id: 'close',
+      text: 'Close',
       action: () => actions.closeFile(fileId),
     }),
     await MenuItem.new({
-      id: "close-others",
-      text: "Close Others",
+      id: 'close-others',
+      text: 'Close Others',
       action: () => actions.closeOtherFiles(fileId),
     }),
     await MenuItem.new({
-      id: "close-all",
-      text: "Close All",
+      id: 'close-all',
+      text: 'Close All',
       action: () => actions.closeAllFiles(),
     }),
   ];
@@ -200,10 +200,10 @@ export async function showTabContextMenu(
     items.push(
       await sep(),
       await MenuItem.new({
-        id: "copy-path",
-        text: "Copy Path",
+        id: 'copy-path',
+        text: 'Copy Path',
         action: () => copyPathToClipboard(filePath),
-      }),
+      })
     );
   }
 

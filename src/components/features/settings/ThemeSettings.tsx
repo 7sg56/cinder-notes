@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Upload, Shuffle, Sun, Moon, Monitor, Lock } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Upload, Shuffle, Sun, Moon, Monitor, Lock } from 'lucide-react';
 
 interface ThemePreset {
   id: string;
@@ -12,98 +12,98 @@ interface ThemePreset {
 
 const THEME_PRESETS: ThemePreset[] = [
   {
-    id: "cinder-dark",
-    name: "Cinder Dark",
-    value: "",
-    gradient: "linear-gradient(135deg, #1f1f23 0%, #141417 100%)",
-    accent: "#f48c25",
+    id: 'cinder-dark',
+    name: 'Cinder Dark',
+    value: '',
+    gradient: 'linear-gradient(135deg, #1f1f23 0%, #141417 100%)',
+    accent: '#f48c25',
   },
   {
-    id: "cinder-light",
-    name: "Cinder Light",
-    value: "theme-cinder-light",
-    gradient: "linear-gradient(135deg, #fdfaf0 0%, #f2efe7 100%)",
-    accent: "#d97706",
+    id: 'cinder-light',
+    name: 'Cinder Light',
+    value: 'theme-cinder-light',
+    gradient: 'linear-gradient(135deg, #fdfaf0 0%, #f2efe7 100%)',
+    accent: '#d97706',
   },
   {
-    id: "zen-black",
-    name: "Zen Black",
-    value: "theme-zen-black",
-    gradient: "linear-gradient(135deg, #0a0a0a 0%, #000000 100%)",
-    accent: "#333",
+    id: 'zen-black',
+    name: 'Zen Black',
+    value: 'theme-zen-black',
+    gradient: 'linear-gradient(135deg, #0a0a0a 0%, #000000 100%)',
+    accent: '#333',
   },
   // New Functional Themes
   {
-    id: "synthwave",
+    id: 'synthwave',
     name: "Synthwave '84",
-    value: "theme-synthwave",
-    gradient: "linear-gradient(135deg, #2a2139 0%, #262335 100%)",
-    accent: "#ff7edb",
+    value: 'theme-synthwave',
+    gradient: 'linear-gradient(135deg, #2a2139 0%, #262335 100%)',
+    accent: '#ff7edb',
   },
   {
-    id: "github-dark",
-    name: "GitHub Dark",
-    value: "theme-github-dark",
-    gradient: "linear-gradient(135deg, #161b22 0%, #0d1117 100%)",
-    accent: "#58a6ff",
+    id: 'github-dark',
+    name: 'GitHub Dark',
+    value: 'theme-github-dark',
+    gradient: 'linear-gradient(135deg, #161b22 0%, #0d1117 100%)',
+    accent: '#58a6ff',
   },
   {
-    id: "monokai",
-    name: "Monokai Pro",
-    value: "theme-monokai",
-    gradient: "linear-gradient(135deg, #272822 0%, #1e1f1c 100%)",
-    accent: "#a6e22e",
+    id: 'monokai',
+    name: 'Monokai Pro',
+    value: 'theme-monokai',
+    gradient: 'linear-gradient(135deg, #272822 0%, #1e1f1c 100%)',
+    accent: '#a6e22e',
   },
   {
-    id: "dracula",
-    name: "Dracula",
-    value: "theme-dracula",
-    gradient: "linear-gradient(135deg, #282a36 0%, #21222c 100%)",
-    accent: "#bd93f9",
+    id: 'dracula',
+    name: 'Dracula',
+    value: 'theme-dracula',
+    gradient: 'linear-gradient(135deg, #282a36 0%, #21222c 100%)',
+    accent: '#bd93f9',
   },
   {
-    id: "nord",
-    name: "Nord",
-    value: "theme-nord",
-    gradient: "linear-gradient(135deg, #3b4252 0%, #2e3440 100%)",
-    accent: "#88c0d0",
+    id: 'nord',
+    name: 'Nord',
+    value: 'theme-nord',
+    gradient: 'linear-gradient(135deg, #3b4252 0%, #2e3440 100%)',
+    accent: '#88c0d0',
   },
   {
-    id: "forest",
-    name: "Forest",
-    value: "theme-forest",
-    gradient: "linear-gradient(135deg, #273329 0%, #1e2820 100%)",
-    accent: "#a7c957",
+    id: 'forest',
+    name: 'Forest',
+    value: 'theme-forest',
+    gradient: 'linear-gradient(135deg, #273329 0%, #1e2820 100%)',
+    accent: '#a7c957',
   },
   {
-    id: "mustard",
-    name: "Muddy Mustard",
-    value: "theme-mustard",
-    gradient: "linear-gradient(135deg, #3b3728 0%, #2d2a1e 100%)",
-    accent: "#e9c46a",
+    id: 'mustard',
+    name: 'Muddy Mustard',
+    value: 'theme-mustard',
+    gradient: 'linear-gradient(135deg, #3b3728 0%, #2d2a1e 100%)',
+    accent: '#e9c46a',
   },
   {
-    id: "marine",
-    name: "Marine",
-    value: "theme-marine",
-    gradient: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-    accent: "#38bdf8",
+    id: 'marine',
+    name: 'Marine',
+    value: 'theme-marine',
+    gradient: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+    accent: '#38bdf8',
   },
   {
-    id: "ember",
-    name: "Ember",
-    value: "theme-ember",
-    gradient: "linear-gradient(135deg, #3f1818 0%, #2b1111 100%)",
-    accent: "#f87171",
+    id: 'ember',
+    name: 'Ember',
+    value: 'theme-ember',
+    gradient: 'linear-gradient(135deg, #3f1818 0%, #2b1111 100%)',
+    accent: '#f87171',
   },
 ];
 
 export function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(
-    () => localStorage.getItem("cinder-theme") || "",
+    () => localStorage.getItem('cinder-theme') || ''
   );
-  const [colorMode, setColorMode] = useState<"light" | "dark" | "system">(
-    "dark",
+  const [colorMode, setColorMode] = useState<'light' | 'dark' | 'system'>(
+    'dark'
   ); // Simplified for now
 
   // Apply theme changes
@@ -117,7 +117,7 @@ export function ThemeSettings() {
     if (currentTheme) {
       document.documentElement.classList.add(currentTheme);
     }
-    localStorage.setItem("cinder-theme", currentTheme);
+    localStorage.setItem('cinder-theme', currentTheme);
   }, [currentTheme]);
 
   return (
@@ -157,34 +157,34 @@ export function ThemeSettings() {
 
           <div className="flex gap-4">
             {[
-              { id: "light", label: "Light mode", icon: Sun },
-              { id: "dark", label: "Dark mode", icon: Moon },
-              { id: "system", label: "System", icon: Monitor },
+              { id: 'light', label: 'Light mode', icon: Sun },
+              { id: 'dark', label: 'Dark mode', icon: Moon },
+              { id: 'system', label: 'System', icon: Monitor },
             ].map((mode) => (
               <button
                 key={mode.id}
                 onClick={() =>
-                  setColorMode(mode.id as "light" | "dark" | "system")
+                  setColorMode(mode.id as 'light' | 'dark' | 'system')
                 }
                 className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-lg border transition-all ${
                   colorMode === mode.id
-                    ? "bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] ring-1 ring-[var(--editor-header-accent)]"
-                    : "bg-[var(--bg-secondary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)]"
+                    ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] ring-1 ring-[var(--editor-header-accent)]'
+                    : 'bg-[var(--bg-secondary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'
                 }`}
               >
                 <mode.icon
                   size={18}
                   className={
                     colorMode === mode.id
-                      ? "text-[var(--editor-header-accent)]"
-                      : "text-[var(--text-secondary)]"
+                      ? 'text-[var(--editor-header-accent)]'
+                      : 'text-[var(--text-secondary)]'
                   }
                 />
                 <span
                   className={
                     colorMode === mode.id
-                      ? "font-medium text-[var(--text-primary)]"
-                      : "text-[var(--text-secondary)]"
+                      ? 'font-medium text-[var(--text-primary)]'
+                      : 'text-[var(--text-secondary)]'
                   }
                 >
                   {mode.label}
@@ -210,14 +210,14 @@ export function ThemeSettings() {
                 <button
                   key={theme.id}
                   onClick={() =>
-                    !theme.disabled && setCurrentTheme(theme.value || "")
+                    !theme.disabled && setCurrentTheme(theme.value || '')
                   }
                   disabled={theme.disabled}
                   className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
                     isActive
-                      ? "bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] shadow-sm"
-                      : "bg-[var(--bg-secondary)] border-[var(--border-primary)]"
-                  } ${!theme.disabled ? "hover:bg-[var(--bg-hover)] cursor-pointer" : "opacity-50 cursor-not-allowed"}`}
+                      ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] shadow-sm'
+                      : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'
+                  } ${!theme.disabled ? 'hover:bg-[var(--bg-hover)] cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
                 >
                   {/* Preview Circle */}
                   <div
@@ -227,7 +227,7 @@ export function ThemeSettings() {
 
                   <div className="min-w-0">
                     <div
-                      className={`text-sm font-medium truncate ${isActive ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}
+                      className={`text-sm font-medium truncate ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
                     >
                       {theme.name}
                     </div>
@@ -266,12 +266,12 @@ export function ThemeSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { label: "Window background", hex: "#F1F5F9" },
-              { label: "Selected items", hex: "#F472B6" },
-              { label: "Online indication", hex: "#84CC16" },
-              { label: "Notifications", hex: "#6366F1" },
-              { label: "New inbox", hex: "#F97316" },
-              { label: "Sidebar", hex: "#7C3AED" },
+              { label: 'Window background', hex: '#F1F5F9' },
+              { label: 'Selected items', hex: '#F472B6' },
+              { label: 'Online indication', hex: '#84CC16' },
+              { label: 'Notifications', hex: '#6366F1' },
+              { label: 'New inbox', hex: '#F97316' },
+              { label: 'Sidebar', hex: '#7C3AED' },
             ].map((item, idx) => (
               <div
                 key={idx}

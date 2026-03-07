@@ -1,12 +1,12 @@
-import type { MutableRefObject } from "react";
-import { useAppStore } from "../../../store/useAppStore";
-import { MarkdownPreview } from "./MarkdownPreview";
-import { Eye, ChevronLeft, FileText, Save } from "lucide-react";
-import { AccountSettings } from "../../features/settings/AccountSettings";
-import { ThemeSettings } from "../../features/settings/ThemeSettings";
-import { GeneralSettings } from "../../features/settings/GeneralSettings";
-import { CodeMirrorEditor } from "./CodeMirrorEditor";
-import type { EditorView } from "@codemirror/view";
+import type { MutableRefObject } from 'react';
+import { useAppStore } from '../../../store/useAppStore';
+import { MarkdownPreview } from './MarkdownPreview';
+import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
+import { AccountSettings } from '../../features/settings/AccountSettings';
+import { ThemeSettings } from '../../features/settings/ThemeSettings';
+import { GeneralSettings } from '../../features/settings/GeneralSettings';
+import { CodeMirrorEditor } from './CodeMirrorEditor';
+import type { EditorView } from '@codemirror/view';
 
 interface EditorProps {
   isPreview: boolean;
@@ -25,29 +25,29 @@ export function Editor({
   return (
     <div
       className="h-full flex flex-col relative group transition-colors duration-300"
-      style={{ backgroundColor: "var(--editor-bg)" }}
+      style={{ backgroundColor: 'var(--editor-bg)' }}
     >
       {!activeFileId ||
-      activeFileId === "welcome" ||
-      activeFileId.startsWith("cinder-") ? (
+      activeFileId === 'welcome' ||
+      activeFileId.startsWith('cinder-') ? (
         /* --- SYSTEM TABS & EMPTY STATE --- */
         <div className="flex-1 flex w-full h-full relative bg-[var(--bg-primary)]">
-          {activeFileId === "cinder-account" && <AccountSettings />}
-          {activeFileId === "cinder-theme" && <ThemeSettings />}
-          {activeFileId === "cinder-settings" && <GeneralSettings />}
+          {activeFileId === 'cinder-account' && <AccountSettings />}
+          {activeFileId === 'cinder-theme' && <ThemeSettings />}
+          {activeFileId === 'cinder-settings' && <GeneralSettings />}
 
-          {(!activeFileId || activeFileId === "welcome") && (
+          {(!activeFileId || activeFileId === 'welcome') && (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center max-w-md px-6 z-10">
                 <h1
                   className="mb-2 text-3xl font-bold tracking-tight"
-                  style={{ color: "var(--text-primary)" }}
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   Cinder Notes
                 </h1>
                 <p
                   className="mb-10 text-[11px] uppercase tracking-[0.2em] font-bold opacity-40"
-                  style={{ color: "var(--text-secondary)" }}
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   Distraction-free writing
                 </p>
@@ -56,23 +56,23 @@ export function Editor({
                   {[
                     {
                       icon: ChevronLeft,
-                      text: "Select a file",
-                      highlight: "from the explorer",
+                      text: 'Select a file',
+                      highlight: 'from the explorer',
                     },
                     {
                       icon: FileText,
-                      text: "Markdown",
-                      highlight: "format support",
+                      text: 'Markdown',
+                      highlight: 'format support',
                     },
                     {
                       icon: Eye,
-                      text: "Toggle preview",
-                      highlight: "to render content",
+                      text: 'Toggle preview',
+                      highlight: 'to render content',
                     },
                     {
                       icon: Save,
-                      text: "Auto-saves",
-                      highlight: "locally as you type",
+                      text: 'Auto-saves',
+                      highlight: 'locally as you type',
                     },
                   ].map((item, i) => (
                     <div
@@ -81,20 +81,20 @@ export function Editor({
                     >
                       <div
                         className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-active)]"
-                        style={{ backgroundColor: "var(--bg-hover)" }}
+                        style={{ backgroundColor: 'var(--bg-hover)' }}
                       >
                         <item.icon
                           size={16}
-                          style={{ color: "var(--text-secondary)" }}
+                          style={{ color: 'var(--text-secondary)' }}
                         />
                       </div>
-                      <p style={{ color: "var(--text-secondary)" }}>
+                      <p style={{ color: 'var(--text-secondary)' }}>
                         <span
-                          style={{ color: "var(--text-primary)" }}
+                          style={{ color: 'var(--text-primary)' }}
                           className="font-medium"
                         >
                           {item.text}
-                        </span>{" "}
+                        </span>{' '}
                         {item.highlight}
                       </p>
                     </div>
