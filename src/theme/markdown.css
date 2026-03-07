@@ -15,7 +15,7 @@
 }
 
 /* Vertical rhythm */
-.markdown-preview>*+* {
+.markdown-preview > * + * {
   margin-top: 1.2em;
 }
 
@@ -109,8 +109,8 @@
   white-space: pre-wrap;
 }
 
-.markdown-preview ul>li::marker,
-.markdown-preview ol>li::marker {
+.markdown-preview ul > li::marker,
+.markdown-preview ol > li::marker {
   color: var(--markdown-list);
 }
 
@@ -267,7 +267,7 @@
   padding: 0.5em 0;
 }
 
-.markdown-preview .katex-display>.katex {
+.markdown-preview .katex-display > .katex {
   font-size: 1.08em;
 }
 

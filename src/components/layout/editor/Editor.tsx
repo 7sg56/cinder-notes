@@ -28,11 +28,10 @@ export function Editor({
       style={{ backgroundColor: 'var(--editor-bg)' }}
     >
       {!activeFileId ||
-        activeFileId === 'welcome' ||
-        activeFileId.startsWith('cinder-') ? (
+      activeFileId === 'welcome' ||
+      activeFileId.startsWith('cinder-') ? (
         /* --- SYSTEM TABS & EMPTY STATE --- */
         <div className="flex-1 flex w-full h-full relative bg-[var(--bg-primary)]">
-
           {activeFileId === 'cinder-settings' && <Settings />}
           {activeFileId === 'cinder-info' && <Info />}
 

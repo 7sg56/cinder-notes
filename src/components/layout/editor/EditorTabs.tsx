@@ -6,7 +6,6 @@ import {
   Gift,
   Maximize2,
   Minimize2,
-
   Info,
   Settings,
 } from 'lucide-react';
@@ -55,7 +54,6 @@ export function EditorTabs() {
           let tabName = '';
           if (isWelcomeTab) tabName = 'Welcome';
           else if (isBlankTab) tabName = 'Untitled';
-
           else if (fileId === 'cinder-settings') tabName = 'Settings';
           else if (fileId === 'cinder-info') tabName = 'About';
           else tabName = file?.name.replace(/\.md$/, '') || 'Unknown';
@@ -118,7 +116,6 @@ export function EditorTabs() {
                     color: isActive ? 'var(--editor-header-accent)' : 'inherit',
                   }}
                 >
-
                   {fileId === 'cinder-settings' && <Settings size={14} />}
                   {fileId === 'cinder-info' && <Info size={14} />}
                 </span>
