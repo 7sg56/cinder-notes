@@ -383,7 +383,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (!targetFileId) return;
 
     const file = state.findFile(targetFileId);
-    const contentToSave = targetFileId === state.activeFileId ? state.activeFileContent : (file?.content || '');
+    const contentToSave =
+      targetFileId === state.activeFileId
+        ? state.activeFileContent
+        : file?.content || '';
 
     if (file && file.path) {
       try {
@@ -970,7 +973,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => {
       const newAutoSave = !state.isAutoSave;
       if (newAutoSave && state.dirtyFiles.size > 0) {
-        Array.from(state.dirtyFiles).forEach(fileId => {
+        Array.from(state.dirtyFiles).forEach((fileId) => {
           get().saveFile(fileId);
         });
       }
@@ -1324,7 +1327,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   closeOtherFiles: async (fileId: string) => {
     const state = get();
-    const otherDirtyFiles = Array.from(state.dirtyFiles).filter(id => id !== fileId && state.openFiles.includes(id));
+    const otherDirtyFiles = Array.from(state.dirtyFiles).filter(
+      (id) => id !== fileId && state.openFiles.includes(id)
+    );
     if (otherDirtyFiles.length > 0) {
       const confirmed = await ask(
         'You have unsaved changes in other files. Are you sure you want to close them without saving?',
@@ -1334,7 +1339,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     const newDirtyFiles = new Set(state.dirtyFiles);
-    state.openFiles.forEach(id => {
+    state.openFiles.forEach((id) => {
       if (id !== fileId) newDirtyFiles.delete(id);
     });
 
@@ -1352,7 +1357,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   closeAllFiles: async () => {
     const state = get();
-    const dirtyOpenFiles = Array.from(state.dirtyFiles).filter(id => state.openFiles.includes(id));
+    const dirtyOpenFiles = Array.from(state.dirtyFiles).filter((id) =>
+      state.openFiles.includes(id)
+    );
     if (dirtyOpenFiles.length > 0) {
       const confirmed = await ask(
         'You have unsaved changes. Are you sure you want to close all files without saving?',
@@ -1362,7 +1369,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     const newDirtyFiles = new Set(state.dirtyFiles);
-    state.openFiles.forEach(id => newDirtyFiles.delete(id));
+    state.openFiles.forEach((id) => newDirtyFiles.delete(id));
 
     set({
       openFiles: [],
