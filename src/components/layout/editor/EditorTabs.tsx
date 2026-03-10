@@ -6,8 +6,7 @@ import {
   Gift,
   Maximize2,
   Minimize2,
-  User,
-  Palette,
+  Info,
   Settings,
 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
@@ -55,9 +54,8 @@ export function EditorTabs() {
           let tabName = '';
           if (isWelcomeTab) tabName = 'Welcome';
           else if (isBlankTab) tabName = 'Untitled';
-          else if (fileId === 'cinder-account') tabName = 'Account';
-          else if (fileId === 'cinder-theme') tabName = 'Themes';
           else if (fileId === 'cinder-settings') tabName = 'Settings';
+          else if (fileId === 'cinder-info') tabName = 'About';
           else tabName = file?.name.replace(/\.md$/, '') || 'Unknown';
 
           return (
@@ -118,9 +116,8 @@ export function EditorTabs() {
                     color: isActive ? 'var(--editor-header-accent)' : 'inherit',
                   }}
                 >
-                  {fileId === 'cinder-account' && <User size={14} />}
-                  {fileId === 'cinder-theme' && <Palette size={14} />}
                   {fileId === 'cinder-settings' && <Settings size={14} />}
+                  {fileId === 'cinder-info' && <Info size={14} />}
                 </span>
               )}
 
