@@ -9,6 +9,8 @@ import {
   Bell,
   FolderOpen,
   Globe,
+  Save,
+  ChevronDown,
 } from 'lucide-react';
 
 interface ThemePreset {
@@ -138,6 +140,7 @@ export function Settings() {
   const [colorMode, setColorMode] = useState<'light' | 'dark' | 'system'>(
     'dark'
   );
+  const [showAllThemes, setShowAllThemes] = useState(false);
 
   useEffect(() => {
     THEME_PRESETS.forEach((t) => {
@@ -155,9 +158,9 @@ export function Settings() {
   }, [currentTheme]);
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
-      {/* Sidebar-style Tabs */}
-      <div className="flex flex-1 overflow-hidden">
+    <div className="flex-1 flex justify-center h-full bg-[var(--bg-primary)] overflow-hidden">
+      <div className="w-full max-w-5xl flex h-full border-x border-[var(--border-primary)] shadow-sm">
+        {/* Sidebar-style Tabs */}
         <div className="w-64 border-r border-[var(--border-primary)] bg-[var(--bg-secondary)] flex flex-col p-4 gap-2">
           <h2 className="px-3 py-2 text-[10px] uppercase tracking-widest font-bold opacity-30">
             Settings
@@ -180,7 +183,7 @@ export function Settings() {
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-8 no-scrollbar">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-2xl mx-auto">
             {activeTab === 'general' ? (
               <div className="space-y-10">
                 <div className="pb-6 border-b border-[var(--border-primary)]">
@@ -197,6 +200,31 @@ export function Settings() {
                     Editor
                   </h2>
                   <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)] opacity-60">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
+                          <Save size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+                            Auto-save
+                            <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded">
+                              Coming Soon
+                            </span>
+                          </h3>
+                          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                            Automatically save changes while typing
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        disabled
+                        className="w-10 h-6 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-full relative cursor-not-allowed"
+                      >
+                        <div className="w-4 h-4 bg-[var(--text-tertiary)] rounded-full absolute left-1 top-[3px]" />
+                      </button>
+                    </div>
+
                     {[
                       {
                         icon: Monitor,
@@ -344,10 +372,14 @@ export function Settings() {
 
                 <div className="space-y-4 pt-4">
                   <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Preset themes
+                    Main Themes
                   </h2>
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    {THEME_PRESETS.map((theme) => {
+                    {THEME_PRESETS.filter((t) =>
+                      ['cinder-dark', 'cinder-light', 'zen-black'].includes(
+                        t.id
+                      )
+                    ).map((theme) => {
                       const isActive =
                         currentTheme === theme.value && !theme.disabled;
                       return (
@@ -380,6 +412,66 @@ export function Settings() {
                         </button>
                       );
                     })}
+                  </div>
+
+                  <div className="pt-4">
+                    <button
+                      onClick={() => setShowAllThemes(!showAllThemes)}
+                      className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-4 focus:outline-none"
+                    >
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-200 ${showAllThemes ? 'rotate-180' : ''}`}
+                      />
+                      {showAllThemes
+                        ? 'Hide other themes'
+                        : 'Show other themes'}
+                    </button>
+
+                    {showAllThemes && (
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {THEME_PRESETS.filter(
+                          (t) =>
+                            ![
+                              'cinder-dark',
+                              'cinder-light',
+                              'zen-black',
+                            ].includes(t.id)
+                        ).map((theme) => {
+                          const isActive =
+                            currentTheme === theme.value && !theme.disabled;
+                          return (
+                            <button
+                              key={theme.id}
+                              onClick={() =>
+                                !theme.disabled &&
+                                setCurrentTheme(theme.value || '')
+                              }
+                              disabled={theme.disabled}
+                              className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isActive ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] shadow-sm' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'} ${!theme.disabled ? 'hover:bg-[var(--bg-hover)] cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+                            >
+                              <div
+                                className="w-10 h-10 rounded-full shrink-0 shadow-inner"
+                                style={{ background: theme.gradient }}
+                              />
+                              <div className="min-w-0">
+                                <div
+                                  className={`text-sm font-medium truncate ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+                                >
+                                  {theme.name}
+                                </div>
+                              </div>
+                              {theme.disabled && (
+                                <Lock
+                                  size={14}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] opacity-30"
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
