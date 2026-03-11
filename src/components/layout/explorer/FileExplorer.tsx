@@ -71,7 +71,10 @@ export function FileExplorer() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.dataTransfer.types.includes('Files')) {
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) {
       e.dataTransfer.dropEffect = 'copy';
     } else {
       e.dataTransfer.dropEffect = 'move';
@@ -82,7 +85,10 @@ export function FileExplorer() {
     e.preventDefault();
     e.stopPropagation();
 
-    if (e.dataTransfer.types.includes('Files') && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       if (!workspacePath) return;
 
       const filesArr = Array.from(e.dataTransfer.files);

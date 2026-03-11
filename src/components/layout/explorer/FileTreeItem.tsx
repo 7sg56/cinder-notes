@@ -112,6 +112,13 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) {
+      return; // Bubble up to let FileExplorer handle external files
+    }
+
     e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
 
@@ -160,6 +167,11 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) return;
+
     e.stopPropagation();
     setDragState((prev) => ({ ...prev, isOver: false }));
 
@@ -171,6 +183,11 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) return; // Bubble to FileExplorer
+
     e.stopPropagation();
     setDragState((prev) => ({ ...prev, isOver: false }));
 
