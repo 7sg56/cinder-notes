@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { useAppStore } from '../../../store/useAppStore';
+import { useWorkspace } from '../../../hooks/useWorkspace';
 import type { FileNode } from '../../../types/fileSystem';
 import { FileTreeItem } from './FileTreeItem';
 import { showExplorerContextMenu } from '../../../util/contextMenu';
@@ -51,6 +53,7 @@ export function FileExplorer() {
     closeAllFiles,
     findFile,
   } = useAppStore();
+  const { refreshWorkspace } = useWorkspace();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Extract folder name from workspace path
@@ -68,12 +71,42 @@ export function FileExplorer() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = 'move';
+    if (e.dataTransfer.types.includes('Files')) {
+      e.dataTransfer.dropEffect = 'copy';
+    } else {
+      e.dataTransfer.dropEffect = 'move';
+    }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (e.dataTransfer.types.includes('Files') && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      if (!workspacePath) return;
+
+      const filesArr = Array.from(e.dataTransfer.files);
+      let importedAny = false;
+
+      for (const file of filesArr) {
+        if (file.name.toLowerCase().endsWith('.md')) {
+          try {
+            const content = await file.text();
+            const targetPath = `${workspacePath}/${file.name}`;
+            await invoke('write_note', { path: targetPath, content });
+            importedAny = true;
+          } catch (err) {
+            console.error('Failed to import dropped file:', err);
+          }
+        }
+      }
+
+      if (importedAny) {
+        await refreshWorkspace();
+      }
+      return;
+    }
+
     const sourceId = e.dataTransfer.getData('text/plain');
     if (sourceId) {
       moveNode(sourceId, 'root', 'root');
