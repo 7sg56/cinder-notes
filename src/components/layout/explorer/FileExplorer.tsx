@@ -1,7 +1,5 @@
 import { useState, useMemo } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 import { useAppStore } from '../../../store/useAppStore';
-import { useWorkspace } from '../../../hooks/useWorkspace';
 import type { FileNode } from '../../../types/fileSystem';
 import { FileTreeItem } from './FileTreeItem';
 import { showExplorerContextMenu } from '../../../util/contextMenu';
@@ -38,8 +36,6 @@ export function FileExplorer() {
   const {
     files,
     createFile,
-    moveNode,
-    workspacePath,
     openFileInNewTab,
     selectFile,
     setRenamingFileId,
@@ -52,11 +48,12 @@ export function FileExplorer() {
     closeOtherFiles,
     closeAllFiles,
     findFile,
+    setDraggingFiles,
   } = useAppStore();
-  const { refreshWorkspace } = useWorkspace();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Extract folder name from workspace path
+  const workspacePath = useAppStore((state) => state.workspacePath);
   const workspaceName = workspacePath
     ? workspacePath.split('/').pop() ||
       workspacePath.split('\\').pop() ||
@@ -67,6 +64,22 @@ export function FileExplorer() {
     if (!searchQuery.trim()) return files;
     return filterNodes(files, searchQuery.trim());
   }, [files, searchQuery]);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) {
+      setDraggingFiles(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -81,48 +94,13 @@ export function FileExplorer() {
     }
   };
 
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const hasFiles =
-      e.dataTransfer.types &&
-      Array.from(e.dataTransfer.types).includes('Files');
-    if (hasFiles && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      if (!workspacePath) return;
-
-      const filesArr = Array.from(e.dataTransfer.files);
-      let importedAny = false;
-
-      for (const file of filesArr) {
-        if (file.name.toLowerCase().endsWith('.md')) {
-          try {
-            const content = await file.text();
-            const targetPath = `${workspacePath}/${file.name}`;
-            await invoke('write_note', { path: targetPath, content });
-            importedAny = true;
-          } catch (err) {
-            console.error('Failed to import dropped file:', err);
-          }
-        }
-      }
-
-      if (importedAny) {
-        await refreshWorkspace();
-      }
-      return;
-    }
-
-    const sourceId = e.dataTransfer.getData('text/plain');
-    if (sourceId) {
-      moveNode(sourceId, 'root', 'root');
-    }
-  };
-
   return (
     <div
-      className="h-full flex flex-col"
+      className="h-full flex flex-col relative"
       style={{ backgroundColor: 'var(--bg-primary)' }}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
     >
       {/* Header: Workspace Folder Name (Matches Tab Height) */}
       <div
@@ -171,8 +149,6 @@ export function FileExplorer() {
       {/* Main File List */}
       <div
         className="flex-1 overflow-y-auto no-scrollbar pt-0 px-2 pb-2"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
         onContextMenu={(e) => {
           // Only show the explorer menu if right-clicking the empty area
           // (not on a file/folder item, which handles its own context menu)

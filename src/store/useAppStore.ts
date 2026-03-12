@@ -30,6 +30,10 @@ interface AppState {
   searchQuery: string;
   searchResults: SearchResult[];
 
+  // Drag and Drop State
+  isDraggingFiles: boolean;
+  setDraggingFiles: (isDragging: boolean) => void;
+
   // Workspace Actions
   setWorkspacePath: (path: string | null) => void;
   setFiles: (files: FileNode[]) => void;
@@ -99,6 +103,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   isSearchOpen: false,
   searchQuery: '',
   searchResults: [],
+
+  isDraggingFiles: false,
+  setDraggingFiles: (isDragging: boolean) =>
+    set({ isDraggingFiles: isDragging }),
 
   // Workspace actions
   setWorkspacePath: (path: string | null) => set({ workspacePath: path }),

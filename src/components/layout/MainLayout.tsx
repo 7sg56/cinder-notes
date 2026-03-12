@@ -1,6 +1,8 @@
 import { useRef, useCallback, useState } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 // import { ActivityBar } from '../features/activity-bar/ActivityBar';
 import { useAppStore } from '../../store/useAppStore';
+import { useWorkspace } from '../../hooks/useWorkspace';
 
 interface MainLayoutProps {
   sidebarContent: React.ReactNode;
@@ -13,11 +15,15 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
     setExplorerCollapsed,
     sidebarWidth,
     setSidebarWidth,
+    isDraggingFiles,
+    setDraggingFiles,
+    workspacePath,
   } = useAppStore();
 
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const { refreshWorkspace } = useWorkspace();
 
   const startResizing = useCallback(
     (e: React.MouseEvent) => {
@@ -70,14 +76,90 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
     setExplorerCollapsed(!isExplorerCollapsed);
   };
 
+  const handleWindowDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  };
+
+  const handleWindowDragLeave = (e: React.DragEvent) => {
+    // Only hide when leaving the window entirely
+    if (e.currentTarget === e.target) {
+      setDraggingFiles(false);
+    }
+  };
+
+  const handleWindowDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingFiles(false);
+
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+
+    if (hasFiles && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      if (!workspacePath) return;
+
+      const filesArr = Array.from(e.dataTransfer.files);
+      let importedAny = false;
+
+      for (const file of filesArr) {
+        if (file.name.toLowerCase().endsWith('.md')) {
+          try {
+            const content = await file.text();
+            const targetPath = `${workspacePath}/${file.name}`;
+            await invoke('write_note', { path: targetPath, content });
+            importedAny = true;
+          } catch (err) {
+            console.error('Failed to import dropped file:', err);
+          }
+        }
+      }
+
+      if (importedAny) {
+        await refreshWorkspace();
+      }
+    }
+  };
+
   return (
     <div
-      className="h-screen w-screen flex flex-col overflow-hidden"
+      className="h-screen w-screen flex flex-col overflow-hidden relative"
       style={{
         backgroundColor: 'var(--bg-primary)',
         color: 'var(--text-primary)',
       }}
+      onDragOver={handleWindowDragOver}
+      onDragLeave={handleWindowDragLeave}
+      onDrop={handleWindowDrop}
     >
+      {/* Full Window Drag Overlay */}
+      {isDraggingFiles && (
+        <div
+          className="absolute inset-0 z-[9999] flex items-center justify-center pointer-events-none"
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(6px)',
+          }}
+        >
+          <div
+            className="px-12 py-8 rounded-xl border-2 border-dashed"
+            style={{
+              borderColor: 'var(--accent-primary)',
+              backgroundColor: 'var(--bg-secondary)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            <p className="text-xl font-medium">Drop files here</p>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Area */}
       <div className="flex-1 flex min-h-0 relative">
         {/* <ActivityBar /> */}
