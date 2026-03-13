@@ -1,5 +1,6 @@
 import { EditorStatusBarItem } from './EditorStatusBarItem';
 import { useAppStore } from '../../../store/useAppStore';
+import { getTranslation } from '../../../utils/i18n';
 
 interface EditorStatusBarProps {
   isPreview: boolean;
@@ -12,7 +13,8 @@ export function EditorStatusBar({
   cursorLine,
   cursorCol,
 }: EditorStatusBarProps) {
-  const { activeFileContent, isAutoSave } = useAppStore();
+  const { activeFileContent, isAutoSave, language } = useAppStore();
+  const t = (key: string) => getTranslation(language, key);
 
   // Calculate lines and words
   const lines = activeFileContent ? activeFileContent.split('\n').length : 0;
@@ -24,10 +26,11 @@ export function EditorStatusBar({
     : 0;
 
   // Determine mode
-  const mode = isPreview ? 'Preview' : 'Editing';
+  // Determine mode
+  const mode = isPreview ? t('preview') : t('editing');
 
   // Save mode text
-  const saveMode = isAutoSave ? 'Auto Save' : 'Manual';
+  const saveMode = isAutoSave ? t('autoSave') : t('manual');
 
   return (
     <div
@@ -85,7 +88,7 @@ export function EditorStatusBar({
               style={{ color: 'var(--text-secondary)' }}
               className="font-normal opacity-50"
             >
-              {lines} lines
+              {lines} {t('lines')}
             </span>
           </EditorStatusBarItem>
           <EditorStatusBarItem>
@@ -93,7 +96,7 @@ export function EditorStatusBar({
               style={{ color: 'var(--text-secondary)' }}
               className="font-normal opacity-50"
             >
-              {words} words
+              {words} {t('words')}
             </span>
           </EditorStatusBarItem>
         </div>

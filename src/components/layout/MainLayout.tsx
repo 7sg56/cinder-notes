@@ -13,6 +13,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
     setExplorerCollapsed,
     sidebarWidth,
     setSidebarWidth,
+    sidebarPosition,
   } = useAppStore();
 
   const isResizingRef = useRef(false);
@@ -32,8 +33,12 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
 
         // Calculate width relative to sidebar start
         const sidebarRect = sidebarRef.current.getBoundingClientRect();
-        const sidebarLeft = sidebarRect.left;
-        const newWidthPx = e.clientX - sidebarLeft;
+        const sidebarLeft =
+          sidebarPosition === 'right' ? sidebarRect.right : sidebarRect.left;
+        const newWidthPx =
+          sidebarPosition === 'right'
+            ? sidebarRect.right - e.clientX
+            : e.clientX - sidebarLeft;
 
         const windowWidth = window.innerWidth;
         const computedWidth = (newWidthPx / windowWidth) * 100;
@@ -63,7 +68,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     },
-    [setSidebarWidth, setExplorerCollapsed]
+    [setSidebarWidth, setExplorerCollapsed, sidebarPosition]
   );
 
   const toggleSidebar = () => {
@@ -79,7 +84,12 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
       }}
     >
       {/* Main Content Area */}
-      <div className="flex-1 flex min-h-0 relative">
+      <div
+        className="flex-1 flex min-h-0 relative"
+        style={{
+          flexDirection: sidebarPosition === 'right' ? 'row-reverse' : 'row',
+        }}
+      >
         {/* <ActivityBar /> */}
 
         {/* Sidebar Area */}

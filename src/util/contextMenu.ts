@@ -27,6 +27,8 @@ type StoreActions = {
   closeOtherFiles: (fileId: string) => void;
   closeAllFiles: () => void;
   findFile: (id: string) => FileNode | null;
+  togglePinFile?: (fileId: string) => void;
+  isPinned?: (fileId: string) => boolean;
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -55,6 +57,12 @@ export async function showFileContextMenu(
         id: 'open',
         text: 'Open',
         action: () => actions.openFileInNewTab(node.id),
+      }),
+      await sep(),
+      await MenuItem.new({
+        id: 'pin',
+        text: actions.isPinned?.(node.id) ? 'Unpin' : 'Pin',
+        action: () => actions.togglePinFile?.(node.id),
       }),
       await sep(),
       await MenuItem.new({
@@ -178,7 +186,20 @@ export async function showTabContextMenu(
   const file = actions.findFile(fileId);
   const filePath = file?.path;
 
-  const items: (MenuItem | PredefinedMenuItem)[] = [
+  const items: (MenuItem | PredefinedMenuItem)[] = [];
+
+  if (actions.togglePinFile && actions.isPinned) {
+    items.push(
+      await MenuItem.new({
+        id: 'pin',
+        text: actions.isPinned(fileId) ? 'Unpin' : 'Pin',
+        action: () => actions.togglePinFile?.(fileId),
+      }),
+      await sep()
+    );
+  }
+
+  items.push(
     await MenuItem.new({
       id: 'close',
       text: 'Close',
@@ -193,8 +214,8 @@ export async function showTabContextMenu(
       id: 'close-all',
       text: 'Close All',
       action: () => actions.closeAllFiles(),
-    }),
-  ];
+    })
+  );
 
   if (filePath) {
     items.push(

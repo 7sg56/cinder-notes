@@ -8,6 +8,7 @@ import {
   Minimize2,
   Info,
   Settings,
+  Pin,
 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
 import { showTabContextMenu } from '../../../util/contextMenu';
@@ -32,7 +33,17 @@ export function EditorTabs() {
     createFolder,
     closeOtherFiles,
     closeAllFiles,
+    pinnedFiles,
+    togglePinFile,
   } = useAppStore();
+
+  const sortedFiles = [...openFiles].sort((a, b) => {
+    const aPinned = pinnedFiles.includes(a);
+    const bPinned = pinnedFiles.includes(b);
+    if (aPinned && !bPinned) return -1;
+    if (!aPinned && bPinned) return 1;
+    return 0;
+  });
 
   return (
     <div
@@ -45,9 +56,10 @@ export function EditorTabs() {
     >
       {/* Tabs List - Takes available space */}
       <div className="flex-1 flex overflow-x-auto no-scrollbar h-full">
-        {openFiles.map((fileId) => {
+        {sortedFiles.map((fileId) => {
           const file = findFile(fileId);
           const isActive = activeFileId === fileId;
+          const isPinned = pinnedFiles.includes(fileId);
           const isBlankTab = fileId.startsWith('new-tab-');
           const isWelcomeTab = fileId === 'welcome';
 
@@ -56,7 +68,10 @@ export function EditorTabs() {
           else if (isBlankTab) tabName = 'Untitled';
           else if (fileId === 'cinder-settings') tabName = 'Settings';
           else if (fileId === 'cinder-info') tabName = 'About';
-          else tabName = file?.name.replace(/\.md$/, '') || 'Unknown';
+          else if (file) tabName = file.name.replace(/\.md$/, '');
+          else
+            tabName =
+              fileId.split(/[/\\]/).pop()?.replace(/\.md$/, '') || 'Unknown';
 
           return (
             <div
@@ -78,6 +93,8 @@ export function EditorTabs() {
                   closeOtherFiles,
                   closeAllFiles,
                   findFile,
+                  togglePinFile,
+                  isPinned: (id) => pinnedFiles.includes(id),
                 });
               }}
               className={`group flex items-center min-w-[140px] max-w-[220px] h-full px-4 border-r cursor-pointer text-[12px] font-medium select-none transition-all relative shrink-0`}
@@ -126,6 +143,13 @@ export function EditorTabs() {
               >
                 {tabName}
               </span>
+
+              {isPinned && (
+                <Pin
+                  size={12}
+                  className={`ml-1 shrink-0 ${isActive ? 'text-[var(--editor-header-accent)]' : 'opacity-40'}`}
+                />
+              )}
 
               <button
                 onClick={(e) => {

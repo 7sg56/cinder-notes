@@ -107,4 +107,3 @@ Allow dragging `.md` files from Finder/Explorer into the workspace to import the
 ### 10. Note Pinning
 
 Allow users to pin frequently accessed notes to the top of the explorer or tabs.
-
