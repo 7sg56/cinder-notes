@@ -76,6 +76,16 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
     setExplorerCollapsed(!isExplorerCollapsed);
   };
 
+  const handleWindowDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) {
+      setDraggingFiles(true);
+    }
+  };
+
   const handleWindowDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     const hasFiles =
@@ -83,12 +93,15 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
       Array.from(e.dataTransfer.types).includes('Files');
     if (hasFiles) {
       e.dataTransfer.dropEffect = 'copy';
+      if (!isDraggingFiles) {
+        setDraggingFiles(true);
+      }
     }
   };
 
   const handleWindowDragLeave = (e: React.DragEvent) => {
     // Only hide when leaving the window entirely
-    if (e.currentTarget === e.target) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setDraggingFiles(false);
     }
   };
@@ -134,6 +147,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
         backgroundColor: 'var(--bg-primary)',
         color: 'var(--text-primary)',
       }}
+      onDragEnter={handleWindowDragEnter}
       onDragOver={handleWindowDragOver}
       onDragLeave={handleWindowDragLeave}
       onDrop={handleWindowDrop}

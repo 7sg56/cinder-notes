@@ -48,7 +48,7 @@ export function FileExplorer() {
     closeOtherFiles,
     closeAllFiles,
     findFile,
-    setDraggingFiles,
+    moveNode,
   } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -66,31 +66,46 @@ export function FileExplorer() {
   }, [files, searchQuery]);
 
   const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     const hasFiles =
       e.dataTransfer.types &&
       Array.from(e.dataTransfer.types).includes('Files');
-    if (hasFiles) {
-      setDraggingFiles(true);
-    }
+    if (hasFiles) return;
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) return;
     e.preventDefault();
     e.stopPropagation();
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     const hasFiles =
       e.dataTransfer.types &&
       Array.from(e.dataTransfer.types).includes('Files');
-    if (hasFiles) {
-      e.dataTransfer.dropEffect = 'copy';
-    } else {
-      e.dataTransfer.dropEffect = 'move';
+    if (hasFiles) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    const hasFiles =
+      e.dataTransfer.types &&
+      Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const sourceId = e.dataTransfer.getData('text/plain');
+    if (sourceId) {
+      moveNode(sourceId, 'root', 'root');
     }
   };
 
@@ -101,6 +116,7 @@ export function FileExplorer() {
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
+      onDrop={handleDrop}
     >
       {/* Header: Workspace Folder Name (Matches Tab Height) */}
       <div
