@@ -28,6 +28,10 @@ interface AppState {
   sidebarPosition: 'left' | 'right';
   language: string;
 
+  // Pinned Files
+  pinnedFiles: string[];
+  togglePinFile: (fileId: string) => void;
+
   // Search State
   isSearchOpen: boolean;
   searchQuery: string;
@@ -108,6 +112,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     (localStorage.getItem('cinder-sidebar-position') as 'left' | 'right') ||
     'left',
   language: localStorage.getItem('cinder-language') || 'English',
+  pinnedFiles: JSON.parse(localStorage.getItem('cinder-pinned-files') || '[]'),
 
   isSearchOpen: false,
   searchQuery: '',
@@ -115,6 +120,16 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Workspace actions
   setWorkspacePath: (path: string | null) => set({ workspacePath: path }),
+
+  togglePinFile: (fileId: string) =>
+    set((state) => {
+      const isPinned = state.pinnedFiles.includes(fileId);
+      const newPinned = isPinned
+        ? state.pinnedFiles.filter((id) => id !== fileId)
+        : [...state.pinnedFiles, fileId];
+      localStorage.setItem('cinder-pinned-files', JSON.stringify(newPinned));
+      return { pinnedFiles: newPinned };
+    }),
 
   setSearchOpen: (isOpen: boolean) => set({ isSearchOpen: isOpen }),
   setSearchQuery: (query: string) => set({ searchQuery: query }),
@@ -140,14 +155,23 @@ export const useAppStore = create<AppState>((set, get) => ({
       expandedFolderIds: [],
     }),
 
-  findFile: (id: string, nodes = get().files): FileNode | null => {
-    for (const node of nodes) {
+  findFile: (id: string, nodes?: FileNode[]): FileNode | null => {
+    const isRootCall = nodes === undefined;
+    const searchNodes = nodes || get().files;
+
+    for (const node of searchNodes) {
       if (node.id === id) return node;
       if (node.children) {
         const found = get().findFile(id, node.children);
         if (found) return found;
       }
     }
+
+    if (isRootCall && get().pinnedFiles?.includes(id)) {
+      const name = id.split(/[/\\]/).pop() || 'Unknown';
+      return { id, name, type: 'file', path: id, content: '' };
+    }
+
     return null;
   },
 

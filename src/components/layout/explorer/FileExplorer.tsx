@@ -52,9 +52,18 @@ export function FileExplorer() {
     closeAllFiles,
     findFile,
     language,
+    pinnedFiles,
   } = useAppStore();
   const t = (key: string) => getTranslation(language, key);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const pinnedNodes = useMemo(() => {
+    const nodes = pinnedFiles
+      .map((id) => findFile(id))
+      .filter(Boolean) as FileNode[];
+    if (!searchQuery.trim()) return nodes;
+    return filterNodes(nodes, searchQuery.trim());
+  }, [pinnedFiles, searchQuery, findFile]);
 
   // Extract folder name from workspace path
   const workspaceName = workspacePath
@@ -163,12 +172,35 @@ export function FileExplorer() {
           }
         }}
       >
-        {filteredFiles.length === 0 ? (
+        {filteredFiles.length === 0 && pinnedNodes.length === 0 ? (
           <div className="px-4 py-4 text-center text-[12px] opacity-50 select-none">
             {t('noMatches')}
           </div>
         ) : (
-          <div>
+          <div className="pb-2">
+            {pinnedNodes.length > 0 && (
+              <div className="mb-2">
+                <div
+                  className="px-4 py-1 text-[10px] font-bold opacity-50 uppercase tracking-wider select-none mb-0.5 mt-1"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  Pinned
+                </div>
+                {pinnedNodes.map((node) => (
+                  <FileTreeItem key={`pinned-${node.id}`} node={node} />
+                ))}
+              </div>
+            )}
+
+            {pinnedNodes.length > 0 && filteredFiles.length > 0 && (
+              <div
+                className="px-4 py-1 text-[10px] font-bold opacity-50 uppercase tracking-wider select-none mb-0.5 mt-2"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Files
+              </div>
+            )}
+
             {filteredFiles.map((node) => (
               <FileTreeItem key={node.id} node={node} />
             ))}
