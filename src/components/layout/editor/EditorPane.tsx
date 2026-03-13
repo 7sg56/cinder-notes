@@ -8,8 +8,8 @@ import { useAppStore } from '../../../store/useAppStore';
 import type { EditorView } from '@codemirror/view';
 
 export function EditorPane() {
-  const [isPreview, setIsPreview] = useState(false);
-  const { activeFileId } = useAppStore();
+  const { activeFileId, defaultView } = useAppStore();
+  const [isPreview, setIsPreview] = useState(defaultView === 'preview');
   const editorViewRef = useRef<EditorView | null>(null);
   const [cursorLine, setCursorLine] = useState(1);
   const [cursorCol, setCursorCol] = useState(1);

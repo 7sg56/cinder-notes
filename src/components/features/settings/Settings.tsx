@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAppStore } from '../../../store/useAppStore';
+import { getTranslation } from '../../../utils/i18n';
 import {
   Sun,
   Moon,
@@ -138,24 +140,60 @@ export function Settings() {
     () => localStorage.getItem('cinder-theme') || ''
   );
   const [colorMode, setColorMode] = useState<'light' | 'dark' | 'system'>(
-    'dark'
+    () =>
+      (localStorage.getItem('cinder-color-mode') as
+        | 'light'
+        | 'dark'
+        | 'system') || 'dark'
   );
   const [showAllThemes, setShowAllThemes] = useState(false);
+  const {
+    defaultView,
+    setDefaultView,
+    sidebarPosition,
+    setSidebarPosition,
+    isAutoSave,
+    toggleAutoSave,
+    language,
+    setLanguage,
+  } = useAppStore();
+
+  const t = (key: string) => getTranslation(language, key);
 
   useEffect(() => {
-    THEME_PRESETS.forEach((t) => {
-      if (t.value) document.documentElement.classList.remove(t.value);
-    });
+    const applyTheme = (theme: string) => {
+      THEME_PRESETS.forEach((t) => {
+        if (t.value) document.documentElement.classList.remove(t.value);
+      });
+      THEME_VARIABLES.forEach((v) =>
+        document.documentElement.style.removeProperty(v)
+      );
+      if (theme) {
+        document.documentElement.classList.add(theme);
+      }
+    };
 
-    THEME_VARIABLES.forEach((v) =>
-      document.documentElement.style.removeProperty(v)
-    );
-
-    if (currentTheme) {
-      document.documentElement.classList.add(currentTheme);
+    if (colorMode === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+      const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+        if (e.matches) {
+          applyTheme('theme-cinder-light');
+        } else {
+          applyTheme(currentTheme || '');
+        }
+      };
+      handleChange(mediaQuery);
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else if (colorMode === 'light') {
+      applyTheme('theme-cinder-light');
+    } else {
+      applyTheme(currentTheme);
     }
+
     localStorage.setItem('cinder-theme', currentTheme);
-  }, [currentTheme]);
+    localStorage.setItem('cinder-color-mode', colorMode);
+  }, [currentTheme, colorMode]);
 
   return (
     <div className="flex-1 flex justify-center h-full bg-[var(--bg-primary)] overflow-hidden">
@@ -163,21 +201,21 @@ export function Settings() {
         {/* Sidebar-style Tabs */}
         <div className="w-64 border-r border-[var(--border-primary)] bg-[var(--bg-secondary)] flex flex-col p-4 gap-2">
           <h2 className="px-3 py-2 text-[10px] uppercase tracking-widest font-bold opacity-30">
-            Settings
+            {t('settings')}
           </h2>
           <button
             onClick={() => setActiveTab('general')}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTab === 'general' ? 'bg-[var(--bg-active)] text-[var(--editor-header-accent)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
           >
             <SettingsIcon size={16} />
-            General
+            {t('general')}
           </button>
           <button
             onClick={() => setActiveTab('theme')}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTab === 'theme' ? 'bg-[var(--bg-active)] text-[var(--editor-header-accent)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
           >
             <Palette size={16} />
-            Appearance
+            {t('appearance')}
           </button>
         </div>
 
@@ -188,135 +226,150 @@ export function Settings() {
               <div className="space-y-10">
                 <div className="pb-6 border-b border-[var(--border-primary)]">
                   <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                    General Settings
+                    {t('general')}
                   </h1>
                   <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                    Customize your editor experience
+                    {t('generalDesc') || 'Customize your editor experience'}
                   </p>
                 </div>
 
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Editor
+                    {t('editor')}
                   </h2>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)] opacity-60">
+                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]">
                       <div className="flex items-center gap-4">
                         <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
                           <Save size={20} />
                         </div>
                         <div>
-                          <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
-                            Auto-save
-                            <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded">
-                              Coming Soon
-                            </span>
+                          <h3 className="text-sm font-medium text-[var(--text-primary)]">
+                            {t('autoSave')}
                           </h3>
                           <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                            Automatically save changes while typing
+                            {t('autoSaveDesc')}
                           </p>
                         </div>
                       </div>
                       <button
-                        disabled
-                        className="w-10 h-6 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-full relative cursor-not-allowed"
+                        onClick={toggleAutoSave}
+                        className={`w-10 h-6 transition-colors duration-200 rounded-full relative ${isAutoSave ? 'bg-[var(--editor-header-accent)]' : 'bg-[var(--bg-tertiary)] border border-[var(--border-primary)]'}`}
                       >
-                        <div className="w-4 h-4 bg-[var(--text-tertiary)] rounded-full absolute left-1 top-[3px]" />
+                        <div
+                          className={`w-4 h-4 bg-white rounded-full absolute top-[3px] transition-all duration-200 ${isAutoSave ? 'left-5' : 'left-1'}`}
+                        />
                       </button>
                     </div>
 
-                    {[
-                      {
-                        icon: Monitor,
-                        title: 'Default View',
-                        desc: 'Choose default view for new files',
-                        options: ['Split View', 'Editor Only', 'Preview Only'],
-                      },
-                      {
-                        icon: FolderOpen,
-                        title: 'Sidebar Position',
-                        desc: 'Change the location of the sidebar',
-                        options: ['Left', 'Right'],
-                      },
-                    ].map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
-                            <item.icon size={20} />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-[var(--text-primary)]">
-                              {item.title}
-                            </h3>
-                            <p className="text-xs text-[var(--text-secondary)]">
-                              {item.desc}
-                            </p>
-                          </div>
+                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
+                          <Monitor size={20} />
                         </div>
-                        <select className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded hover:bg-[var(--bg-hover)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none transition-all">
-                          {item.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
+                        <div>
+                          <h3 className="text-sm font-medium text-[var(--text-primary)]">
+                            {t('defaultView')}
+                          </h3>
+                          <p className="text-xs text-[var(--text-secondary)]">
+                            {t('defaultViewDesc')}
+                          </p>
+                        </div>
                       </div>
-                    ))}
+                      <select
+                        value={defaultView}
+                        onChange={(e) =>
+                          setDefaultView(e.target.value as 'editor' | 'preview')
+                        }
+                        className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded hover:bg-[var(--bg-hover)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none transition-all cursor-pointer"
+                      >
+                        <option value="editor">Editor</option>
+                        <option value="preview">Preview</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
+                          <FolderOpen size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[var(--text-primary)]">
+                            {t('sidebarPosition')}
+                          </h3>
+                          <p className="text-xs text-[var(--text-secondary)]">
+                            {t('sidebarPositionDesc')}
+                          </p>
+                        </div>
+                      </div>
+                      <select
+                        value={sidebarPosition}
+                        onChange={(e) =>
+                          setSidebarPosition(e.target.value as 'left' | 'right')
+                        }
+                        className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded hover:bg-[var(--bg-hover)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none transition-all cursor-pointer"
+                      >
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                      </select>
+                    </div>
                   </div>
 
                   <h2 className="text-lg font-semibold text-[var(--text-primary)] mt-8">
-                    System
+                    {t('system')}
                   </h2>
                   <div className="space-y-3">
-                    {[
-                      {
-                        icon: Globe,
-                        title: 'Language',
-                        desc: 'Change interface language',
-                        options: [
-                          'English',
-                          'Spanish',
-                          'French',
-                          'German',
-                          'Japanese',
-                        ],
-                      },
-                      {
-                        icon: Bell,
-                        title: 'Notifications',
-                        desc: 'Configure desktop notifications',
-                        options: ['All', 'Important Only', 'None'],
-                      },
-                    ].map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
-                            <item.icon size={20} />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-[var(--text-primary)]">
-                              {item.title}
-                            </h3>
-                            <p className="text-xs text-[var(--text-secondary)]">
-                              {item.desc}
-                            </p>
-                          </div>
+                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
+                          <Globe size={20} />
                         </div>
-                        <select className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded hover:bg-[var(--bg-hover)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none transition-all">
-                          {item.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
+                        <div>
+                          <h3 className="text-sm font-medium text-[var(--text-primary)]">
+                            {t('language')}
+                          </h3>
+                          <p className="text-xs text-[var(--text-secondary)]">
+                            {t('languageDesc')}
+                          </p>
+                        </div>
                       </div>
-                    ))}
+                      <select
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                        className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded hover:bg-[var(--bg-hover)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none transition-all cursor-pointer"
+                      >
+                        <option value="English">English</option>
+                        <option value="Spanish">Español</option>
+                        <option value="French">Français</option>
+                        <option value="German">Deutsch</option>
+                        <option value="Japanese">日本語</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)] opacity-60">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
+                          <Bell size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+                            {t('notifications')}
+                            <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded">
+                              Coming Soon
+                            </span>
+                          </h3>
+                          <p className="text-xs text-[var(--text-secondary)]">
+                            {t('notificationsDesc')}
+                          </p>
+                        </div>
+                      </div>
+                      <select
+                        disabled
+                        className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none cursor-not-allowed opacity-50"
+                      >
+                        <option>All</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -324,22 +377,23 @@ export function Settings() {
               <div className="space-y-10">
                 <div className="pb-6 border-b border-[var(--border-primary)]">
                   <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                    Themes
+                    {t('themes')}
                   </h1>
                   <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                    Manage app appearance and customization
+                    {t('themesDesc') ||
+                      'Manage app appearance and customization'}
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Color Mode
+                    {t('colorMode')}
                   </h2>
                   <div className="flex gap-4">
                     {[
-                      { id: 'light', label: 'Light mode', icon: Sun },
-                      { id: 'dark', label: 'Dark mode', icon: Moon },
-                      { id: 'system', label: 'System', icon: Monitor },
+                      { id: 'light', label: t('lightMode'), icon: Sun },
+                      { id: 'dark', label: t('darkMode'), icon: Moon },
+                      { id: 'system', label: t('system'), icon: Monitor },
                     ].map((mode) => (
                       <button
                         key={mode.id}
@@ -372,7 +426,7 @@ export function Settings() {
 
                 <div className="space-y-4 pt-4">
                   <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Main Themes
+                    {t('mainThemes')}
                   </h2>
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     {THEME_PRESETS.filter((t) =>
@@ -385,10 +439,14 @@ export function Settings() {
                       return (
                         <button
                           key={theme.id}
-                          onClick={() =>
-                            !theme.disabled &&
-                            setCurrentTheme(theme.value || '')
-                          }
+                          onClick={() => {
+                            if (!theme.disabled) {
+                              setCurrentTheme(theme.value || '');
+                              setColorMode(
+                                theme.id === 'cinder-light' ? 'light' : 'dark'
+                              );
+                            }
+                          }}
                           disabled={theme.disabled}
                           className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isActive ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] shadow-sm' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'} ${!theme.disabled ? 'hover:bg-[var(--bg-hover)] cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
                         >
@@ -443,10 +501,16 @@ export function Settings() {
                           return (
                             <button
                               key={theme.id}
-                              onClick={() =>
-                                !theme.disabled &&
-                                setCurrentTheme(theme.value || '')
-                              }
+                              onClick={() => {
+                                if (!theme.disabled) {
+                                  setCurrentTheme(theme.value || '');
+                                  setColorMode(
+                                    theme.id === 'cinder-light'
+                                      ? 'light'
+                                      : 'dark'
+                                  );
+                                }
+                              }}
                               disabled={theme.disabled}
                               className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isActive ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] shadow-sm' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'} ${!theme.disabled ? 'hover:bg-[var(--bg-hover)] cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
                             >

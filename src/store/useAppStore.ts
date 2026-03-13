@@ -24,6 +24,9 @@ interface AppState {
   expandedFolderIds: string[]; // List of folder IDs that are expanded
   pendingFileId: string | null;
   isAutoSave: boolean;
+  defaultView: 'editor' | 'preview';
+  sidebarPosition: 'left' | 'right';
+  language: string;
 
   // Search State
   isSearchOpen: boolean;
@@ -70,6 +73,9 @@ interface AppState {
   ) => void;
   toggleAutoSave: () => void;
   openSystemTab: (tabId: string) => void;
+  setDefaultView: (view: 'editor' | 'preview') => void;
+  setSidebarPosition: (position: 'left' | 'right') => void;
+  setLanguage: (lang: string) => void;
 
   // Context Menu Actions
   deleteFile: (fileId: string) => void;
@@ -95,6 +101,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   lastSidebarWidth: 20,
   expandedFolderIds: [],
   isAutoSave: true,
+  defaultView:
+    (localStorage.getItem('cinder-default-view') as 'editor' | 'preview') ||
+    'editor',
+  sidebarPosition:
+    (localStorage.getItem('cinder-sidebar-position') as 'left' | 'right') ||
+    'left',
+  language: localStorage.getItem('cinder-language') || 'English',
 
   isSearchOpen: false,
   searchQuery: '',
@@ -909,6 +922,21 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   toggleAutoSave: () => {
     set((state) => ({ isAutoSave: !state.isAutoSave }));
+  },
+
+  setDefaultView: (view: 'editor' | 'preview') => {
+    localStorage.setItem('cinder-default-view', view);
+    set({ defaultView: view });
+  },
+
+  setSidebarPosition: (position: 'left' | 'right') => {
+    localStorage.setItem('cinder-sidebar-position', position);
+    set({ sidebarPosition: position });
+  },
+
+  setLanguage: (lang: string) => {
+    localStorage.setItem('cinder-language', lang);
+    set({ language: lang });
   },
 
   // --- Context Menu Actions ---

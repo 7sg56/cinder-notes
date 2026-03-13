@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
+import { getTranslation } from '../../../utils/i18n';
 import type { FileNode } from '../../../types/fileSystem';
 import { FileTreeItem } from './FileTreeItem';
 import { showExplorerContextMenu } from '../../../util/contextMenu';
@@ -50,7 +51,9 @@ export function FileExplorer() {
     closeOtherFiles,
     closeAllFiles,
     findFile,
+    language,
   } = useAppStore();
+  const t = (key: string) => getTranslation(language, key);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Extract folder name from workspace path
@@ -113,7 +116,7 @@ export function FileExplorer() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search..."
+            placeholder={t('searchPlaceholder')}
             className="flex-1 bg-transparent border-none outline-none text-[12px] placeholder:text-[var(--text-tertiary)] min-w-0"
             style={{ color: 'var(--text-primary)' }}
           />
@@ -123,7 +126,7 @@ export function FileExplorer() {
           onClick={() => createFile()}
           className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
           style={{ color: 'var(--text-secondary)' }}
-          title="New Note"
+          title={t('newNote')}
         >
           <SquarePen size={15} strokeWidth={2.5} />
         </button>
@@ -162,7 +165,7 @@ export function FileExplorer() {
       >
         {filteredFiles.length === 0 ? (
           <div className="px-4 py-4 text-center text-[12px] opacity-50 select-none">
-            No matches found
+            {t('noMatches')}
           </div>
         ) : (
           <div>
