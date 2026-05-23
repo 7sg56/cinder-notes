@@ -77,16 +77,31 @@ function App() {
 
     if (shouldAutoLoad && lastWorkspacePath) {
       loadWorkspace(lastWorkspacePath)
+        .then((success) => {
+          if (!success) {
+            // Failed to auto-load, open onboarding window
+            changeWorkspaceRef.current();
+          }
+        })
         .catch((err) => {
           console.error('Failed to auto-load workspace:', err);
+          changeWorkspaceRef.current();
         })
         .finally(() => {
           setIsAutoLoading(false);
         });
-    } else {
+    } else if (windowLabel === 'main' && !workspacePath) {
+      // No recent workspaces, open onboarding window immediately
+      changeWorkspaceRef.current();
       setIsAutoLoading(false);
     }
-  }, [shouldAutoLoad, lastWorkspacePath, loadWorkspace]);
+  }, [
+    shouldAutoLoad,
+    lastWorkspacePath,
+    loadWorkspace,
+    windowLabel,
+    workspacePath,
+  ]);
 
   // Listen for native menu bar events
   useEffect(() => {
@@ -102,8 +117,7 @@ function App() {
 
     unlistens.push(
       listen('menu-close-workspace', () => {
-        const { resetWorkspace } = useAppStore.getState();
-        resetWorkspace();
+        changeWorkspaceRef.current();
       })
     );
 
@@ -159,9 +173,9 @@ function App() {
     );
   }
 
-  // Show workspace selection inline if no workspace is set in the main window
+  // If no workspace is set, return null (the main window is hidden)
   if (!workspacePath) {
-    return <WorkspaceWelcome isStandaloneWindow={false} />;
+    return null;
   }
 
   return (

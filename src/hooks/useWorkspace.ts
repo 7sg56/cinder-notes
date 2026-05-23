@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useAppStore } from '../store/useAppStore';
 
 export interface FileEntry {
@@ -73,6 +74,11 @@ export function useWorkspace() {
 
   const changeWorkspace = async (): Promise<boolean> => {
     try {
+      resetWorkspace();
+      const win = getCurrentWindow();
+      if (win.label === 'main') {
+        await win.hide();
+      }
       await invoke('open_onboarding_window');
       return true;
     } catch (e) {
