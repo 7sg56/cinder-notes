@@ -8,6 +8,7 @@
 //! - `commands`: Tauri commands exposed to the frontend
 
 mod commands;
+mod trash;
 mod types;
 mod watcher;
 mod workspace;
@@ -39,6 +40,10 @@ pub fn run() {
             commands::watch_workspace,
             commands::unwatch_workspace,
             commands::open_onboarding_window,
+            commands::list_trash,
+            commands::restore_trash_item,
+            commands::delete_trash_item,
+            commands::empty_trash,
         ])
         .setup(|app| {
             // Build a custom app menu without Cmd+W (Close Window)

@@ -63,17 +63,18 @@ pub fn write_note(path: String, content: String) -> Result<(), String> {
     fs::write(&path, &content).map_err(|e| format!("Failed to write file '{}': {}", path, e))
 }
 
-/// Delete a markdown note
+/// Delete a markdown note by moving it to the workspace's `.trash/` directory
 ///
 /// # Arguments
 /// * `path` - Absolute path to the file
+/// * `workspace_path` - Absolute path to the workspace root
 ///
 /// # Returns
 /// * `Ok(())` - Success
-/// * `Err(String)` - Error message if delete fails
+/// * `Err(String)` - Error message if trash fails
 #[tauri::command]
-pub fn delete_note(path: String) -> Result<(), String> {
-    fs::remove_file(&path).map_err(|e| format!("Failed to delete file '{}': {}", path, e))
+pub fn delete_note(path: String, workspace_path: String) -> Result<(), String> {
+    crate::trash::move_to_trash(Path::new(&workspace_path), Path::new(&path), "file").map(|_| ())
 }
 
 /// Create a new empty markdown note
@@ -126,17 +127,18 @@ pub fn create_folder(path: String) -> Result<(), String> {
     fs::create_dir_all(&path).map_err(|e| format!("Failed to create folder '{}': {}", path, e))
 }
 
-/// Delete a folder and all its contents
+/// Delete a folder and all its contents by moving it to the workspace's `.trash/` directory
 ///
 /// # Arguments
 /// * `path` - Absolute path to the folder
+/// * `workspace_path` - Absolute path to the workspace root
 ///
 /// # Returns
-/// * `Ok(())` - Success  
-/// * `Err(String)` - Error message if delete fails
+/// * `Ok(())` - Success
+/// * `Err(String)` - Error message if trash fails
 #[tauri::command]
-pub fn delete_folder(path: String) -> Result<(), String> {
-    fs::remove_dir_all(&path).map_err(|e| format!("Failed to delete folder '{}': {}", path, e))
+pub fn delete_folder(path: String, workspace_path: String) -> Result<(), String> {
+    crate::trash::move_to_trash(Path::new(&workspace_path), Path::new(&path), "folder").map(|_| ())
 }
 
 /// Search workspace for files whose name matches a query
@@ -274,4 +276,58 @@ pub fn open_onboarding_window(app: tauri::AppHandle) -> Result<(), String> {
     println!("onboarding window built successfully! calling show()...");
     let _ = win.show();
     Ok(())
+}
+
+/// List all items currently in the workspace trash
+///
+/// # Arguments
+/// * `workspace_path` - Absolute path to the workspace root
+///
+/// # Returns
+/// * `Ok(Vec<TrashEntry>)` - List of trashed items
+/// * `Err(String)` - Error message if listing fails
+#[tauri::command]
+pub fn list_trash(workspace_path: String) -> Result<Vec<crate::trash::TrashEntry>, String> {
+    crate::trash::read_manifest(Path::new(&workspace_path))
+}
+
+/// Restore a single item from trash back to its original location
+///
+/// # Arguments
+/// * `workspace_path` - Absolute path to the workspace root
+/// * `trash_id` - ID of the trash entry to restore
+///
+/// # Returns
+/// * `Ok(String)` - The original path the item was restored to
+/// * `Err(String)` - Error message if restore fails
+#[tauri::command]
+pub fn restore_trash_item(workspace_path: String, trash_id: String) -> Result<String, String> {
+    crate::trash::restore_item(Path::new(&workspace_path), &trash_id)
+}
+
+/// Permanently delete a single item from the trash
+///
+/// # Arguments
+/// * `workspace_path` - Absolute path to the workspace root
+/// * `trash_id` - ID of the trash entry to delete
+///
+/// # Returns
+/// * `Ok(())` - Success
+/// * `Err(String)` - Error message if deletion fails
+#[tauri::command]
+pub fn delete_trash_item(workspace_path: String, trash_id: String) -> Result<(), String> {
+    crate::trash::delete_item(Path::new(&workspace_path), &trash_id)
+}
+
+/// Permanently delete all items in the workspace trash
+///
+/// # Arguments
+/// * `workspace_path` - Absolute path to the workspace root
+///
+/// # Returns
+/// * `Ok(())` - Success
+/// * `Err(String)` - Error message if emptying fails
+#[tauri::command]
+pub fn empty_trash(workspace_path: String) -> Result<(), String> {
+    crate::trash::empty_all(Path::new(&workspace_path))
 }
