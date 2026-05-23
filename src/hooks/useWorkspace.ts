@@ -75,9 +75,12 @@ export function useWorkspace() {
   const changeWorkspace = async (): Promise<boolean> => {
     try {
       resetWorkspace();
+      // Fire-and-forget: hide the main window (don't let failure block onboarding)
       const win = getCurrentWindow();
       if (win.label === 'main') {
-        await win.hide();
+        win
+          .hide()
+          .catch((err) => console.warn('Could not hide main window:', err));
       }
       await invoke('open_onboarding_window');
       return true;
