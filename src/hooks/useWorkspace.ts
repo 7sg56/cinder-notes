@@ -11,8 +11,13 @@ export interface FileEntry {
 }
 
 export function useWorkspace() {
-  const { workspacePath, setWorkspacePath, setFiles, resetWorkspace } =
-    useAppStore();
+  const {
+    workspacePath,
+    setWorkspacePath,
+    setFiles,
+    resetWorkspace,
+    addRecentWorkspace,
+  } = useAppStore();
 
   const selectWorkspace = async (): Promise<string | null> => {
     try {
@@ -50,6 +55,7 @@ export function useWorkspace() {
       const files = entries.map(convertToFileNode);
       setFiles(files);
       setWorkspacePath(path);
+      addRecentWorkspace(path);
       return true;
     } catch (error) {
       console.error('Failed to load workspace:', error);
@@ -66,9 +72,56 @@ export function useWorkspace() {
   };
 
   const changeWorkspace = async (): Promise<boolean> => {
-    const path = await selectWorkspace();
+    try {
+      await invoke('open_onboarding_window');
+      return true;
+    } catch (e) {
+      console.error('Failed to open onboarding window:', e);
+      return false;
+    }
+  };
+
+  const openRecentWorkspace = async (path: string): Promise<boolean> => {
+    resetWorkspace();
+    return await loadWorkspace(path);
+  };
+
+  const createWorkspace = async (): Promise<string | null> => {
+    try {
+      const parentDir = await open({
+        directory: true,
+        multiple: false,
+        title: 'Choose location for new workspace',
+      });
+
+      if (!parentDir || typeof parentDir !== 'string') {
+        return null;
+      }
+
+      const baseName = 'My Notes';
+      let folderName = baseName;
+      let attempt = 0;
+
+      while (attempt < 50) {
+        const folderPath = `${parentDir}/${folderName}`;
+        try {
+          await invoke('create_folder', { path: folderPath });
+          return folderPath;
+        } catch {
+          attempt++;
+          folderName = `${baseName} ${attempt}`;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to create workspace folder:', error);
+      return null;
+    }
+  };
+
+  const createAndLoadWorkspace = async (): Promise<boolean> => {
+    const path = await createWorkspace();
     if (path) {
-      resetWorkspace();
       return await loadWorkspace(path);
     }
     return false;
@@ -84,9 +137,12 @@ export function useWorkspace() {
   return {
     workspacePath,
     selectWorkspace,
+    createWorkspace,
     loadWorkspace,
     selectAndLoadWorkspace,
+    createAndLoadWorkspace,
     changeWorkspace,
+    openRecentWorkspace,
     refreshWorkspace,
     hasWorkspace: !!workspacePath,
   };

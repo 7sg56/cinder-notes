@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Info, Settings } from 'lucide-react';
+import { Info, Settings, FolderOpen } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { useWorkspace } from '../../hooks/useWorkspace';
 
 export function FloatingHub() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
   const { openSystemTab } = useAppStore();
+  const { changeWorkspace } = useWorkspace();
 
   // Close when clicking outside
   useEffect(() => {
@@ -84,6 +86,19 @@ export function FloatingHub() {
             </div>
 
             <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+              <button
+                onClick={() => {
+                  changeWorkspace();
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 text-[12px] hover:bg-[var(--bg-hover)] transition-colors group"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <span className="font-medium flex items-center gap-2">
+                  <FolderOpen size={14} />
+                  Change Workspace
+                </span>
+              </button>
               <button
                 onClick={() => {
                   openSystemTab('cinder-settings');
