@@ -331,3 +331,46 @@ pub fn delete_trash_item(workspace_path: String, trash_id: String) -> Result<(),
 pub fn empty_trash(workspace_path: String) -> Result<(), String> {
     crate::trash::empty_all(Path::new(&workspace_path))
 }
+
+/// Get workspace statistics (total file count and size)
+///
+/// Recursively walks the workspace, excluding hidden directories (`.trash`, etc.).
+/// Only counts `.md` files to match what the explorer shows.
+///
+/// # Returns
+/// * `Ok((file_count, total_bytes))` - Tuple of file count and total size
+#[tauri::command]
+pub fn workspace_stats(workspace_path: String) -> Result<(u64, u64), String> {
+    fn walk(dir: &Path, file_count: &mut u64, total_bytes: &mut u64) -> Result<(), String> {
+        let entries = fs::read_dir(dir)
+            .map_err(|e| format!("Failed to read dir '{}': {}", dir.display(), e))?;
+        for entry in entries {
+            let entry = entry.map_err(|e| e.to_string())?;
+            let path = entry.path();
+            let name = entry.file_name().to_string_lossy().to_string();
+
+            if name.starts_with('.') {
+                continue;
+            }
+
+            if path.is_dir() {
+                walk(&path, file_count, total_bytes)?;
+            } else if name.ends_with(".md") {
+                *file_count += 1;
+                if let Ok(meta) = fs::metadata(&path) {
+                    *total_bytes += meta.len();
+                }
+            }
+        }
+        Ok(())
+    }
+
+    let mut file_count = 0u64;
+    let mut total_bytes = 0u64;
+    walk(
+        Path::new(&workspace_path),
+        &mut file_count,
+        &mut total_bytes,
+    )?;
+    Ok((file_count, total_bytes))
+}

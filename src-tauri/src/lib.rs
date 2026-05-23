@@ -44,6 +44,7 @@ pub fn run() {
             commands::restore_trash_item,
             commands::delete_trash_item,
             commands::empty_trash,
+            commands::workspace_stats,
         ])
         .setup(|app| {
             // Build a custom app menu without Cmd+W (Close Window)
