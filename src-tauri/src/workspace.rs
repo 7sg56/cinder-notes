@@ -6,15 +6,14 @@ use std::fs;
 use std::path::Path;
 
 /// Recursively scan a directory and build a file tree
-/// 
+///
 /// Only includes `.md` files and folders containing them.
 /// Hidden files/folders (starting with `.`) are excluded.
 pub fn scan_directory_recursive(path: &Path) -> Result<Vec<FileEntry>, String> {
     let mut entries = Vec::new();
 
-    let read_dir = fs::read_dir(path).map_err(|e| {
-        format!("Failed to read directory {}: {}", path.display(), e)
-    })?;
+    let read_dir = fs::read_dir(path)
+        .map_err(|e| format!("Failed to read directory {}: {}", path.display(), e))?;
 
     for entry in read_dir {
         let entry = entry.map_err(|e| e.to_string())?;
@@ -27,7 +26,11 @@ pub fn scan_directory_recursive(path: &Path) -> Result<Vec<FileEntry>, String> {
         }
 
         let metadata = entry.metadata().map_err(|e| {
-            format!("Failed to read metadata for {}: {}", entry_path.display(), e)
+            format!(
+                "Failed to read metadata for {}: {}",
+                entry_path.display(),
+                e
+            )
         })?;
 
         if metadata.is_dir() {
@@ -46,12 +49,10 @@ pub fn scan_directory_recursive(path: &Path) -> Result<Vec<FileEntry>, String> {
     }
 
     // Sort: folders first, then files, alphabetically
-    entries.sort_by(|a, b| {
-        match (&a.entry_type[..], &b.entry_type[..]) {
-            ("folder", "file") => Ordering::Less,
-            ("file", "folder") => Ordering::Greater,
-            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
-        }
+    entries.sort_by(|a, b| match (&a.entry_type[..], &b.entry_type[..]) {
+        ("folder", "file") => Ordering::Less,
+        ("file", "folder") => Ordering::Greater,
+        _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
     });
 
     Ok(entries)
@@ -63,7 +64,10 @@ pub fn validate_workspace_path(path: &Path) -> Result<(), String> {
         return Err(format!("Workspace path does not exist: {}", path.display()));
     }
     if !path.is_dir() {
-        return Err(format!("Workspace path is not a directory: {}", path.display()));
+        return Err(format!(
+            "Workspace path is not a directory: {}",
+            path.display()
+        ));
     }
     Ok(())
 }
@@ -85,13 +89,13 @@ mod tests {
     #[test]
     fn test_scan_with_markdown_files() {
         let dir = tempdir().unwrap();
-        
+
         // Create test files
         let mut file = File::create(dir.path().join("test.md")).unwrap();
         writeln!(file, "# Test").unwrap();
-        
+
         File::create(dir.path().join("other.txt")).unwrap(); // Should be ignored
-        
+
         let result = scan_directory_recursive(dir.path()).unwrap();
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].name, "test.md");
@@ -101,7 +105,7 @@ mod tests {
     fn test_hidden_files_ignored() {
         let dir = tempdir().unwrap();
         File::create(dir.path().join(".hidden.md")).unwrap();
-        
+
         let result = scan_directory_recursive(dir.path()).unwrap();
         assert!(result.is_empty());
     }
