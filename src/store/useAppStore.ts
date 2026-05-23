@@ -664,7 +664,10 @@ export const useAppStore = create<AppState>()(
 
           // Delete from disk if it exists
           if (filePath) {
-            invoke('delete_note', { path: filePath })
+            invoke('delete_note', {
+              path: filePath,
+              workspacePath: get().workspacePath,
+            })
               .then(() =>
                 console.log('Pending file deleted from disk:', filePath)
               )
@@ -985,7 +988,10 @@ export const useAppStore = create<AppState>()(
 
         // Delete from disk
         if (filePath) {
-          invoke('delete_note', { path: filePath })
+          invoke('delete_note', {
+            path: filePath,
+            workspacePath: state.workspacePath,
+          })
             .then(() => console.log('File deleted from disk:', filePath))
             .catch((err) => console.error('Failed to delete file:', err));
         }
@@ -1041,7 +1047,10 @@ export const useAppStore = create<AppState>()(
 
         // Delete from disk
         if (folderPath) {
-          invoke('delete_folder', { path: folderPath })
+          invoke('delete_folder', {
+            path: folderPath,
+            workspacePath: state.workspacePath,
+          })
             .then(() => console.log('Folder deleted from disk:', folderPath))
             .catch((err) => console.error('Failed to delete folder:', err));
         }

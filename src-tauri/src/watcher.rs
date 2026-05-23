@@ -48,6 +48,15 @@ impl FileWatcherState {
 
         let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
             if let Ok(event) = res {
+                // Ignore events inside the .trash directory
+                let in_trash = event
+                    .paths
+                    .iter()
+                    .any(|p| p.components().any(|c| c.as_os_str() == ".trash"));
+                if in_trash {
+                    return;
+                }
+
                 let is_structural_change = matches!(
                     event.kind,
                     EventKind::Create(_)

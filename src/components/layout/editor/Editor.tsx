@@ -5,6 +5,7 @@ import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
 
 import { Settings } from '../../features/settings/Settings';
 import { Info } from '../../features/settings/Info';
+import { TrashView } from '../../features/trash/TrashView';
 import { CodeMirrorEditor } from './CodeMirrorEditor';
 import type { EditorView } from '@codemirror/view';
 
@@ -34,6 +35,7 @@ export function Editor({
         <div className="flex-1 flex w-full h-full relative bg-[var(--bg-primary)]">
           {activeFileId === 'cinder-settings' && <Settings />}
           {activeFileId === 'cinder-info' && <Info />}
+          {activeFileId === 'cinder-trash' && <TrashView />}
 
           {(!activeFileId || activeFileId === 'welcome') && (
             <div className="flex-1 flex items-center justify-center">

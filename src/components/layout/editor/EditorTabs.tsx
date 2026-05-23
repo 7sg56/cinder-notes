@@ -8,6 +8,7 @@ import {
   Minimize2,
   Info,
   Settings,
+  Trash2,
 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
 import { showTabContextMenu } from '../../../util/contextMenu';
@@ -57,6 +58,7 @@ export function EditorTabs() {
           else if (isBlankTab) tabName = 'Untitled';
           else if (fileId === 'cinder-settings') tabName = 'Settings';
           else if (fileId === 'cinder-info') tabName = 'About';
+          else if (fileId === 'cinder-trash') tabName = 'Trash';
           else tabName = file?.name.replace(/\.md$/, '') || 'Unknown';
 
           return (
@@ -120,6 +122,7 @@ export function EditorTabs() {
                 >
                   {fileId === 'cinder-settings' && <Settings size={14} />}
                   {fileId === 'cinder-info' && <Info size={14} />}
+                  {fileId === 'cinder-trash' && <Trash2 size={14} />}
                 </span>
               )}
 

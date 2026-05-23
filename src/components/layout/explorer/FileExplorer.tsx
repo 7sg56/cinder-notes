@@ -4,6 +4,8 @@ import type { FileNode } from '../../../types/fileSystem';
 import { FileTreeItem } from './FileTreeItem';
 import { showExplorerContextMenu } from '../../../util/contextMenu';
 
+import { SidebarFooter } from './SidebarFooter';
+
 import { VscSearch, VscTypeHierarchy } from 'react-icons/vsc';
 import { SquarePen } from 'lucide-react';
 
@@ -206,6 +208,7 @@ export function FileExplorer() {
           </div>
         )}
       </div>
+      <SidebarFooter />
     </div>
   );
 }
