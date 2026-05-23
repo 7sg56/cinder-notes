@@ -32,6 +32,7 @@ export function EditorTabs() {
     createFolder,
     closeOtherFiles,
     closeAllFiles,
+    togglePin,
   } = useAppStore();
 
   return (
@@ -78,6 +79,7 @@ export function EditorTabs() {
                   closeOtherFiles,
                   closeAllFiles,
                   findFile,
+                  togglePin,
                 });
               }}
               className={`group flex items-center min-w-[140px] max-w-[220px] h-full px-4 border-r cursor-pointer text-[12px] font-medium select-none transition-all relative shrink-0`}

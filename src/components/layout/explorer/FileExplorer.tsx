@@ -50,6 +50,8 @@ export function FileExplorer() {
     closeOtherFiles,
     closeAllFiles,
     findFile,
+    togglePin,
+    pinnedFiles,
   } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -156,6 +158,7 @@ export function FileExplorer() {
               closeOtherFiles,
               closeAllFiles,
               findFile,
+              togglePin,
             });
           }
         }}
@@ -166,6 +169,37 @@ export function FileExplorer() {
           </div>
         ) : (
           <div>
+            {/* Pinned Files Section */}
+            {!searchQuery.trim() && pinnedFiles.length > 0 && (
+              <div className="mb-2">
+                <div className="px-2 py-1 flex items-center gap-1.5 opacity-60">
+                  <span className="text-[10px] font-bold tracking-wider uppercase">
+                    Pinned Notes
+                  </span>
+                </div>
+                {pinnedFiles.map((fileId) => {
+                  const node = findFile(fileId, files);
+                  // Ignore nodes that no longer exist
+                  if (!node) return null;
+                  return (
+                    <FileTreeItem
+                      key={`pinned-${node.id}`}
+                      node={node}
+                      isPinnedItem
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {!searchQuery.trim() && pinnedFiles.length > 0 && (
+              <div className="px-2 py-1 flex items-center gap-1.5 opacity-60 mt-1">
+                <span className="text-[10px] font-bold tracking-wider uppercase">
+                  All Notes
+                </span>
+              </div>
+            )}
+
             {filteredFiles.map((node) => (
               <FileTreeItem key={node.id} node={node} />
             ))}

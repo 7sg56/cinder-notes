@@ -9,7 +9,6 @@ import {
   Bell,
   FolderOpen,
   Globe,
-  Save,
   ChevronDown,
 } from 'lucide-react';
 
@@ -200,31 +199,6 @@ export function Settings() {
                     Editor
                   </h2>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)] opacity-60">
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
-                          <Save size={20} />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
-                            Auto-save
-                            <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded">
-                              Coming Soon
-                            </span>
-                          </h3>
-                          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                            Automatically save changes while typing
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        disabled
-                        className="w-10 h-6 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-full relative cursor-not-allowed"
-                      >
-                        <div className="w-4 h-4 bg-[var(--text-tertiary)] rounded-full absolute left-1 top-[3px]" />
-                      </button>
-                    </div>
-
                     {[
                       {
                         icon: Monitor,

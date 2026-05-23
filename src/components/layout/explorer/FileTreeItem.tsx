@@ -56,9 +56,14 @@ function RenameInput({ initialValue, onRename, onCancel }: RenameInputProps) {
 interface FileTreeItemProps {
   node: FileNode;
   depth?: number;
+  isPinnedItem?: boolean;
 }
 
-export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
+export function FileTreeItem({
+  node,
+  depth = 0,
+  isPinnedItem = false,
+}: FileTreeItemProps) {
   const {
     openFileInNewTab,
     activeFileId,
@@ -80,6 +85,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
     closeAllFiles,
     createFile,
     findFile,
+    togglePin,
   } = useAppStore();
 
   // Derived state from store
@@ -230,6 +236,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
       closeOtherFiles,
       closeAllFiles,
       findFile,
+      togglePin,
     };
     if (node.type === 'folder') {
       showFolderContextMenu(node, actions);
@@ -271,12 +278,12 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
           onClick={handleClick}
           onDoubleClick={handleDoubleClick}
           onContextMenu={handleContextMenu}
-          draggable={!isRenaming}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          draggable={!isRenaming && !isPinnedItem}
+          onDragStart={!isPinnedItem ? handleDragStart : undefined}
+          onDragEnd={!isPinnedItem ? handleDragEnd : undefined}
+          onDragOver={!isPinnedItem ? handleDragOver : undefined}
+          onDragLeave={!isPinnedItem ? handleDragLeave : undefined}
+          onDrop={!isPinnedItem ? handleDrop : undefined}
           style={{
             paddingLeft,
             // Background logic: Active gets priority, but drag 'inside' overrides it
@@ -338,7 +345,7 @@ export function FileTreeItem({ node, depth = 0 }: FileTreeItemProps) {
         </div>
       </div>
 
-      {node.type === 'folder' && isOpen && node.children && (
+      {node.type === 'folder' && isOpen && node.children && !isPinnedItem && (
         <div className="">
           {node.children.map((child) => (
             <FileTreeItem key={child.id} node={child} depth={depth + 1} /> // Recursive rendering

@@ -27,6 +27,7 @@ type StoreActions = {
   closeOtherFiles: (fileId: string) => void;
   closeAllFiles: () => void;
   findFile: (id: string) => FileNode | null;
+  togglePin: (fileId: string) => void;
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -61,6 +62,11 @@ export async function showFileContextMenu(
         id: 'rename',
         text: 'Rename',
         action: () => actions.setRenamingFileId(node.id, 'explorer'),
+      }),
+      await MenuItem.new({
+        id: 'pin',
+        text: 'Pin / Unpin',
+        action: () => actions.togglePin(node.id),
       }),
       await MenuItem.new({
         id: 'duplicate',
@@ -183,6 +189,11 @@ export async function showTabContextMenu(
       id: 'close',
       text: 'Close',
       action: () => actions.closeFile(fileId),
+    }),
+    await MenuItem.new({
+      id: 'pin',
+      text: 'Pin / Unpin',
+      action: () => actions.togglePin(fileId),
     }),
     await MenuItem.new({
       id: 'close-others',
