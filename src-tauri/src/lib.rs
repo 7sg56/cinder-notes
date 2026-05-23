@@ -1,7 +1,7 @@
 //! Cinder Notes - A Tauri-based markdown note-taking application
 //!
 //! This is the main entry point for the Tauri backend.
-//! 
+//!
 //! # Modules
 //! - `types`: Data structures used throughout the app
 //! - `workspace`: Workspace scanning and file tree operations
@@ -15,7 +15,9 @@ mod workspace;
 // Re-export types for use in other modules
 pub use types::FileEntry;
 
-use tauri::menu::{MenuBuilder, SubmenuBuilder};
+use tauri::menu::{MenuBuilder, MenuItem, SubmenuBuilder};
+use tauri::Emitter;
+use tauri::Manager;
 
 /// Main entry point for the Tauri application
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -36,6 +38,7 @@ pub fn run() {
             commands::search_workspace,
             commands::watch_workspace,
             commands::unwatch_workspace,
+            commands::open_onboarding_window,
         ])
         .setup(|app| {
             // Build a custom app menu without Cmd+W (Close Window)
@@ -53,6 +56,36 @@ pub fn run() {
                 .quit()
                 .build()?;
 
+            let open_folder_item = MenuItem::with_id(
+                app,
+                "open-folder",
+                "Open Folder...",
+                true,
+                Some("CmdOrCtrl+O"),
+            )?;
+
+            let close_workspace_item = MenuItem::with_id(
+                app,
+                "close-workspace",
+                "Close Workspace",
+                true,
+                Some("CmdOrCtrl+Shift+W"),
+            )?;
+
+            let change_workspace_item = MenuItem::with_id(
+                app,
+                "change-workspace",
+                "Change Workspace...",
+                true,
+                Some("CmdOrCtrl+Shift+O"),
+            )?;
+
+            let file_submenu = SubmenuBuilder::new(app, "File")
+                .item(&open_folder_item)
+                .item(&close_workspace_item)
+                .item(&change_workspace_item)
+                .build()?;
+
             let edit_submenu = SubmenuBuilder::new(app, "Edit")
                 .undo()
                 .redo()
@@ -66,10 +99,24 @@ pub fn run() {
 
             let menu = MenuBuilder::new(app)
                 .item(&app_submenu)
+                .item(&file_submenu)
                 .item(&edit_submenu)
                 .build()?;
 
             app.set_menu(menu)?;
+
+            app.on_menu_event(|app_handle, event| match event.id().as_ref() {
+                "change-workspace" => {
+                    let _ = app_handle.emit("menu-change-workspace", ());
+                }
+                "open-folder" => {
+                    let _ = app_handle.emit("menu-open-folder", ());
+                }
+                "close-workspace" => {
+                    let _ = app_handle.emit("menu-close-workspace", ());
+                }
+                _ => {}
+            });
 
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -79,6 +126,18 @@ pub fn run() {
                 )?;
             }
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { .. } = event {
+                if window.label() == "onboarding" {
+                    let app_handle = window.app_handle();
+                    if let Some(main_win) = app_handle.get_webview_window("main") {
+                        if !main_win.is_visible().unwrap_or(false) {
+                            app_handle.exit(0);
+                        }
+                    }
+                }
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

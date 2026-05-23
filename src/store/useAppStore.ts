@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { invoke } from '@tauri-apps/api/core';
 import type { FileNode } from '../types/fileSystem';
+import type { RecentWorkspace } from '../types/recentWorkspace';
 
 export interface SearchResult {
   file_path: string;
@@ -26,6 +27,7 @@ interface AppState {
   pendingFileId: string | null;
   isAutoSave: boolean;
   pinnedFiles: string[];
+  recentWorkspaces: RecentWorkspace[];
 
   // Search State
   isSearchOpen: boolean;
@@ -35,6 +37,11 @@ interface AppState {
   // Workspace Actions
   setWorkspacePath: (path: string | null) => void;
   setFiles: (files: FileNode[]) => void;
+
+  // Recent Workspaces Actions
+  addRecentWorkspace: (path: string) => void;
+  removeRecentWorkspace: (path: string) => void;
+  clearRecentWorkspaces: () => void;
   resetWorkspace: () => void;
 
   // Search Actions
@@ -101,6 +108,7 @@ export const useAppStore = create<AppState>()(
       expandedFolderIds: [],
       isAutoSave: true,
       pinnedFiles: [],
+      recentWorkspaces: [],
 
       isSearchOpen: false,
       searchQuery: '',
@@ -108,6 +116,30 @@ export const useAppStore = create<AppState>()(
 
       // Workspace actions
       setWorkspacePath: (path: string | null) => set({ workspacePath: path }),
+
+      addRecentWorkspace: (path: string) => {
+        const MAX_RECENT = 3;
+        const name = path.split('/').pop() || path.split('\\').pop() || path;
+        set((state) => {
+          const filtered = state.recentWorkspaces.filter(
+            (w) => w.path !== path
+          );
+          const entry: RecentWorkspace = { path, name, lastOpened: Date.now() };
+          return {
+            recentWorkspaces: [entry, ...filtered].slice(0, MAX_RECENT),
+          };
+        });
+      },
+
+      removeRecentWorkspace: (path: string) => {
+        set((state) => ({
+          recentWorkspaces: state.recentWorkspaces.filter(
+            (w) => w.path !== path
+          ),
+        }));
+      },
+
+      clearRecentWorkspaces: () => set({ recentWorkspaces: [] }),
 
       setSearchOpen: (isOpen: boolean) => set({ isSearchOpen: isOpen }),
       setSearchQuery: (query: string) => set({ searchQuery: query }),
@@ -1324,6 +1356,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         isAutoSave: state.isAutoSave,
         pinnedFiles: state.pinnedFiles,
+        recentWorkspaces: state.recentWorkspaces,
       }),
     }
   )
