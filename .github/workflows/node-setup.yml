@@ -1,4 +1,4 @@
-name: Setup
+name: Node Setup
 
 on:
   workflow_call:

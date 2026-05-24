@@ -9,7 +9,7 @@ on:
 jobs:
   setup:
     name: Setup
-    uses: ./.github/workflows/setup.yml
+    uses: ./.github/workflows/node-setup.yml
 
   # ── Rust backend tests ──
 
