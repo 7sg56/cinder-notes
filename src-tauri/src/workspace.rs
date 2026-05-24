@@ -4,6 +4,7 @@ use crate::types::FileEntry;
 use std::cmp::Ordering;
 use std::fs;
 use std::path::Path;
+use std::time::SystemTime;
 
 /// Recursively scan a directory and build a file tree
 ///
@@ -33,17 +34,25 @@ pub fn scan_directory_recursive(path: &Path) -> Result<Vec<FileEntry>, String> {
             )
         })?;
 
+        let modified_at = metadata.modified().ok().and_then(|t| {
+            t.duration_since(SystemTime::UNIX_EPOCH)
+                .ok()
+                .map(|d| d.as_secs())
+        });
+
         if metadata.is_dir() {
             let children = scan_directory_recursive(&entry_path)?;
             entries.push(FileEntry::new_folder(
                 entry_path.to_string_lossy().to_string(),
                 file_name,
                 children,
+                modified_at,
             ));
         } else if file_name.ends_with(".md") {
             entries.push(FileEntry::new_file(
                 entry_path.to_string_lossy().to_string(),
                 file_name,
+                modified_at,
             ));
         }
     }

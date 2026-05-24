@@ -75,3 +75,31 @@ body {
   scrollbar-width: none;
   /* Firefox */
 }
+
+/* ============================================
+   VS Code-style File Tree
+   ============================================ */
+.vsc-icon-btn:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.vsc-section-header:hover {
+  background-color: var(--vsc-tree-hover) !important;
+}
+
+.vsc-tree-row {
+  transition: background-color 60ms ease;
+}
+
+.vsc-tree-row:focus-visible {
+  outline: 1px solid var(--editor-header-accent);
+  outline-offset: -1px;
+}
+
+/* Highlight indent guide on row hover */
+.vsc-tree-row:hover ~ .vsc-indent-guide,
+.vsc-tree-row:hover .vsc-indent-guide {
+  background-color: var(--vsc-indent-guide) !important;
+  opacity: 1.5;
+}

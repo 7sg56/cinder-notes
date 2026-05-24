@@ -31,6 +31,25 @@ const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
   }, [] as FileNode[]);
 };
 
+// Sort nodes so pinned files bubble to the top, preserving relative order otherwise
+const sortWithPinnedFirst = (
+  nodes: FileNode[],
+  pinnedSet: Set<string>
+): FileNode[] => {
+  const pinned: FileNode[] = [];
+  const rest: FileNode[] = [];
+
+  for (const node of nodes) {
+    if (pinnedSet.has(node.id)) {
+      pinned.push(node);
+    } else {
+      rest.push(node);
+    }
+  }
+
+  return [...pinned, ...rest];
+};
+
 export function FileExplorer() {
   const {
     files,
@@ -52,14 +71,26 @@ export function FileExplorer() {
     pinnedFiles,
     openSystemTab,
   } = useAppStore();
+
+  const workspacePath = useAppStore((s) => s.workspacePath);
+  const workspaceName = workspacePath
+    ? workspacePath.split('/').pop() ||
+      workspacePath.split('\\').pop() ||
+      'Workspace'
+    : 'Explorer';
+
   const [searchQuery, setSearchQuery] = useState('');
   const [showNewMenu, setShowNewMenu] = useState(false);
   const newMenuRef = useRef<HTMLDivElement>(null);
 
+  const pinnedSet = useMemo(() => new Set(pinnedFiles), [pinnedFiles]);
+
   const filteredFiles = useMemo(() => {
-    if (!searchQuery.trim()) return files;
-    return filterNodes(files, searchQuery.trim());
-  }, [files, searchQuery]);
+    const base = searchQuery.trim()
+      ? filterNodes(files, searchQuery.trim())
+      : files;
+    return sortWithPinnedFirst(base, pinnedSet);
+  }, [files, searchQuery, pinnedSet]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -92,11 +123,14 @@ export function FileExplorer() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div
+      className="h-full flex flex-col"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
+    >
       {/* Drag region spacer for macOS traffic lights */}
       <div data-tauri-drag-region className="h-[46px] shrink-0 select-none" />
 
-      {/* Search bar + New button */}
+      {/* Search bar + New button (original Cinder style) */}
       <div className="shrink-0 px-3 pb-3 flex items-center gap-1.5">
         <div
           className="flex-1 min-w-0 flex items-center h-[30px] rounded-full px-3 gap-2 transition-colors focus-within:bg-[var(--bg-secondary)]"
@@ -162,9 +196,31 @@ export function FileExplorer() {
         </div>
       </div>
 
+      {/* Workspace section header */}
+      <div
+        className="vsc-section-header"
+        style={{
+          height: '26px',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 14px',
+          userSelect: 'none',
+          fontWeight: 700,
+          fontSize: '11px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+          color: 'var(--text-secondary)',
+          backgroundColor: 'transparent',
+          flexShrink: 0,
+        }}
+      >
+        {workspaceName}
+      </div>
+
       {/* File tree */}
       <div
-        className="flex-1 overflow-y-auto no-scrollbar pt-0 px-2 pb-2"
+        className="flex-1 overflow-y-auto no-scrollbar"
+        style={{ paddingTop: '2px', paddingBottom: '2px' }}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onContextMenu={(e) => {
@@ -193,66 +249,79 @@ export function FileExplorer() {
         }}
       >
         {filteredFiles.length === 0 ? (
-          <div className="px-4 py-4 text-center text-[12px] opacity-50 select-none">
-            No matches found
+          <div
+            style={{
+              padding: '16px',
+              textAlign: 'center',
+              fontSize: '12px',
+              opacity: 0.5,
+              userSelect: 'none',
+              color: 'var(--text-tertiary)',
+            }}
+          >
+            {searchQuery.trim() ? 'No matches found' : 'No files yet'}
           </div>
         ) : (
-          <div>
-            {/* Pinned Files Section */}
-            {!searchQuery.trim() && pinnedFiles.length > 0 && (
-              <div className="mb-2">
-                <div className="px-2 py-1 flex items-center gap-1.5 opacity-60">
-                  <span className="text-[10px] font-bold tracking-wider uppercase">
-                    Pinned Notes
-                  </span>
-                </div>
-                {pinnedFiles.map((fileId) => {
-                  const node = findFile(fileId, files);
-                  if (!node) return null;
-                  return (
-                    <FileTreeItem
-                      key={`pinned-${node.id}`}
-                      node={node}
-                      isPinnedItem
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {!searchQuery.trim() && pinnedFiles.length > 0 && (
-              <div className="px-2 py-1 flex items-center gap-1.5 opacity-60 mt-1">
-                <span className="text-[10px] font-bold tracking-wider uppercase">
-                  All Notes
-                </span>
-              </div>
-            )}
-
-            {filteredFiles.map((node) => (
-              <FileTreeItem key={node.id} node={node} />
-            ))}
-          </div>
+          filteredFiles.map((node) => (
+            <FileTreeItem
+              key={node.id}
+              node={node}
+              isPinned={pinnedSet.has(node.id)}
+            />
+          ))
         )}
       </div>
 
       {/* Bottom: Settings & Trash */}
-      <div className="shrink-0 flex items-center justify-between px-3 py-2 select-none">
-        <button
-          onClick={() => openSystemTab('cinder-settings')}
-          className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
-          style={{ color: 'var(--text-tertiary)' }}
-          title="Settings"
+      <div className="shrink-0 select-none" style={{}}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: '36px',
+            padding: '0 8px',
+          }}
         >
-          <Settings size={15} strokeWidth={2} />
-        </button>
-        <button
-          onClick={() => openSystemTab('cinder-trash')}
-          className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
-          style={{ color: 'var(--text-tertiary)' }}
-          title="Trash"
-        >
-          <Trash2 size={15} strokeWidth={2} />
-        </button>
+          <button
+            onClick={() => openSystemTab('cinder-settings')}
+            className="vsc-icon-btn"
+            title="Settings"
+            style={{
+              width: '26px',
+              height: '26px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '4px',
+              border: 'none',
+              background: 'transparent',
+              color: 'var(--text-tertiary)',
+              cursor: 'pointer',
+            }}
+          >
+            <Settings size={15} strokeWidth={2} />
+          </button>
+          <button
+            onClick={() => openSystemTab('cinder-trash')}
+            className="vsc-icon-btn"
+            title="Trash"
+            style={{
+              width: '26px',
+              height: '26px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '4px',
+              border: 'none',
+              background: 'transparent',
+              color: 'var(--text-tertiary)',
+              cursor: 'pointer',
+            }}
+          >
+            <Trash2 size={15} strokeWidth={2} />
+          </button>
+        </div>
       </div>
     </div>
   );

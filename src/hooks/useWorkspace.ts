@@ -8,6 +8,7 @@ export interface FileEntry {
   name: string;
   type: 'file' | 'folder';
   path: string;
+  modifiedAt?: number;
   children?: FileEntry[];
 }
 
@@ -50,6 +51,7 @@ export function useWorkspace() {
         name: entry.name,
         type: entry.type,
         path: entry.path,
+        modifiedAt: entry.modifiedAt,
         children: entry.children?.map(convertToFileNode),
       });
 
