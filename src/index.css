@@ -8,6 +8,30 @@ html {
   -webkit-user-select: none;
 }
 
+*[data-tauri-drag-region],
+*[data-tauri-drag-region] * {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+button,
+input,
+a,
+select,
+textarea,
+[contenteditable],
+.no-drag,
+[data-no-drag],
+[data-no-drag] *,
+*[data-tauri-drag-region] button,
+*[data-tauri-drag-region] input,
+*[data-tauri-drag-region] a,
+*[data-tauri-drag-region] [data-no-drag],
+*[data-tauri-drag-region] [data-no-drag] * {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
 /* Re-enable text selection for content areas */
 .editor,
 .markdown-preview,
@@ -23,7 +47,7 @@ input,
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: transparent;
   color: var(--text-primary);
   margin: 0;
   padding: 0;

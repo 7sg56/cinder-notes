@@ -63,6 +63,26 @@ function App() {
   // Watch workspace directory for external file changes
   useFileWatcher();
 
+  // Global window drag handler - uses Tauri JS API since CSS app-region
+  // doesn't work reliably with transparent overlay windows on macOS
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if click is on a drag region element itself
+      const dragRegion = target.closest('[data-tauri-drag-region]');
+      if (!dragRegion) return;
+      // Don't drag if clicking interactive elements
+      const interactive = target.closest(
+        'button, input, a, select, textarea, [contenteditable], [data-no-drag]'
+      );
+      if (interactive) return;
+      e.preventDefault();
+      getCurrentWindow().startDragging();
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, []);
+
   // Show the main window once a workspace is successfully loaded
   useEffect(() => {
     if (windowLabel === 'main' && workspacePath) {
@@ -161,7 +181,7 @@ function App() {
           alignItems: 'center',
           justifyContent: 'center',
           height: '100vh',
-          background: 'var(--bg-primary)',
+          background: 'transparent',
           color: 'var(--text-tertiary)',
           fontFamily: 'inherit',
           fontSize: '0.875rem',
