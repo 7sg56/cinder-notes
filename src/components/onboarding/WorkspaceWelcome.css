@@ -1,17 +1,28 @@
 /* ============================================
-   Welcome Screen - Dual Column Redesign
+   Welcome View - Inline VS Code-style
    ============================================ */
 
-.welcome-screen {
+.welcome-view {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background: var(--bg-primary);
+  width: 100%;
+  height: 100vh;
+  background: transparent;
   color: var(--text-primary);
   overflow: hidden;
   user-select: none;
+}
+
+/* Drag region for window movement */
+.welcome-drag-region {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  z-index: 10;
 }
 
 /* Ambient glow orbs */
@@ -19,57 +30,55 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(140px);
-  opacity: 0.12;
+  opacity: 0.1;
   pointer-events: none;
-  animation: glow-drift 15s ease-in-out infinite alternate;
+  animation: welcome-glow-drift 18s ease-in-out infinite alternate;
 }
 
 .welcome-bg-glow--1 {
-  width: 450px;
-  height: 450px;
+  width: 400px;
+  height: 400px;
   background: var(--editor-header-accent);
-  top: -100px;
-  right: -50px;
+  top: -120px;
+  right: -80px;
 }
 
 .welcome-bg-glow--2 {
-  width: 320px;
-  height: 320px;
+  width: 280px;
+  height: 280px;
   background: var(--editor-header-accent);
-  bottom: -60px;
-  left: -60px;
-  animation-delay: -7.5s;
-  opacity: 0.05;
+  bottom: -80px;
+  left: -80px;
+  animation-delay: -9s;
+  opacity: 0.04;
 }
 
-@keyframes glow-drift {
+@keyframes welcome-glow-drift {
   0% {
     transform: translate(0, 0) scale(1);
   }
   100% {
-    transform: translate(25px, -15px) scale(1.1);
+    transform: translate(20px, -12px) scale(1.08);
   }
 }
 
-/* Container Grid */
-.welcome-container {
+/* Main content */
+.welcome-content {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: 310px 1px 1fr;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 2.25rem;
-  padding: 2.5rem 3rem;
-  max-width: 760px;
+  max-width: 340px;
   width: 100%;
-  height: 450px;
-  animation: welcome-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: welcome-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes welcome-fade-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -77,140 +86,39 @@
   }
 }
 
-/* Divider */
-.welcome-divider {
-  width: 1px;
-  height: 380px;
-  background: var(--border-primary);
-  opacity: 0.75;
-  align-self: center;
-}
-
-/* Panes */
-.welcome-pane {
-  display: flex;
-  flex-direction: column;
-  height: 390px;
-}
-
-.welcome-pane--left {
-  gap: 1rem;
-}
-
-.welcome-pane--right {
-  gap: 1.5rem;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-/* ---- Title Row & Header ---- */
-.welcome-section-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  flex-shrink: 0;
-}
-
-.welcome-pane-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-}
-
-.welcome-pane-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-/* ---- Search bar ---- */
-.welcome-search-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.welcome-search-icon {
-  position: absolute;
-  left: 0.625rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-tertiary);
-  pointer-events: none;
-  opacity: 0.7;
-}
-
-.welcome-search-input {
-  width: 100%;
-  padding: 0.45rem 0.625rem 0.45rem 1.85rem;
-  font-size: 0.75rem;
-  font-family: inherit;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
-  border-radius: 6px;
-  color: var(--text-primary);
-  outline: none;
-  transition: all 0.15s ease;
-}
-
-.welcome-search-input:focus {
-  border-color: var(--editor-header-accent);
-  box-shadow: 0 0 10px var(--accent-glow, rgba(244, 140, 37, 0.15));
-  background: var(--bg-tertiary);
-}
-
-.welcome-search-input::placeholder {
-  color: var(--text-tertiary);
-  opacity: 0.6;
-}
-
-/* ---- Recents Container ---- */
-.welcome-recents-container {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: none; /* Hide default scrollbar Firefox */
-}
-
-.welcome-recents-container::-webkit-scrollbar {
-  display: none; /* Hide default scrollbar Chrome/Safari */
-}
-
-/* ---- Action Cards (Right Pane) ---- */
+/* Brand */
 .welcome-brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.4rem;
 }
 
 .welcome-logo-ring {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(
     135deg,
     var(--editor-header-accent),
-    color-mix(in srgb, var(--editor-header-accent) 55%, transparent)
+    color-mix(in srgb, var(--editor-header-accent) 50%, transparent)
   );
-  box-shadow: 0 0 24px var(--accent-glow, rgba(244, 140, 37, 0.22));
-  margin-bottom: 0.25rem;
+  box-shadow: 0 0 28px var(--accent-glow, rgba(244, 140, 37, 0.2));
+  margin-bottom: 0.35rem;
 }
 
 .welcome-logo-icon {
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   font-weight: 700;
   color: var(--text-white, #fff);
   letter-spacing: -0.02em;
 }
 
 .welcome-title {
-  font-size: 1.45rem;
+  font-size: 1.55rem;
   font-weight: 700;
   margin: 0;
   color: var(--text-primary);
@@ -224,10 +132,9 @@
   letter-spacing: 0.02em;
 }
 
-/* Start Section */
+/* Actions Section */
 .welcome-section {
   width: 100%;
-  max-width: 320px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -237,7 +144,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.625rem;
+  font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -248,7 +155,7 @@
 .welcome-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
 .welcome-action-card {
@@ -256,7 +163,7 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.7rem 0.85rem;
+  padding: 0.75rem 0.9rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-primary);
   border-radius: 8px;
@@ -271,7 +178,7 @@
   border-color: var(--border-secondary);
   background: var(--bg-tertiary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
 .welcome-action-card:active {
@@ -279,8 +186,8 @@
 }
 
 .welcome-action-icon {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -303,11 +210,11 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .welcome-action-title {
-  font-size: 0.785rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -330,155 +237,22 @@
   transform: translateX(0);
 }
 
-/* ---- Recents List (Left Pane) ---- */
-.welcome-recents-list {
-  display: flex;
-  flex-direction: column;
+/* Shortcut hints */
+.welcome-hint {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  opacity: 0.4;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.welcome-hint kbd {
+  display: inline-block;
+  padding: 0.1em 0.35em;
+  font-family: inherit;
+  font-size: inherit;
   background: var(--bg-secondary);
   border: 1px solid var(--border-primary);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.welcome-recent-item {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  width: 100%;
-  padding: 0.45rem 0.75rem;
-  font-family: inherit;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border-primary);
-  cursor: pointer;
-  transition: background 0.15s ease;
-  text-align: left;
-  position: relative;
-  animation: recent-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.welcome-recent-item:last-child {
-  border-bottom: none;
-}
-
-@keyframes recent-slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.welcome-recent-item:hover {
-  background: var(--bg-hover);
-}
-
-.welcome-recent-item:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
-
-.welcome-recent-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: var(--bg-hover);
-  color: var(--editor-header-accent);
-  flex-shrink: 0;
-}
-
-.welcome-recent-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.welcome-recent-name {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.welcome-recent-path {
-  font-size: 0.6rem;
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.welcome-recent-time {
-  font-size: 0.58rem;
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-right: 0.25rem;
-}
-
-.welcome-recent-remove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-  font-family: inherit;
-}
-
-.welcome-recent-item:hover .welcome-recent-remove {
-  opacity: 1;
-}
-
-.welcome-recent-remove:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-/* Empty State */
-.welcome-empty-recents {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: 180px;
-  gap: 0.5rem;
-  color: var(--text-tertiary);
-  font-size: 0.725rem;
-  text-align: center;
-  border: 1px dashed var(--border-primary);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--bg-secondary) 30%, transparent);
-}
-
-.welcome-empty-recents span {
-  opacity: 0.75;
-}
-
-/* ---- Version ---- */
-.welcome-version {
-  font-size: 0.6rem;
-  color: var(--text-tertiary);
-  margin: 0;
-  opacity: 0.35;
-  letter-spacing: 0.04em;
-  margin-top: auto;
+  border-radius: 3px;
+  margin: 0 0.1em;
 }

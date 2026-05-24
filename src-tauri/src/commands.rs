@@ -11,7 +11,7 @@ use crate::workspace::{scan_directory_recursive, validate_workspace_path};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use tauri::{Manager, State};
+use tauri::State;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
@@ -235,47 +235,6 @@ pub fn watch_workspace(
 #[tauri::command]
 pub fn unwatch_workspace(watcher_state: State<'_, FileWatcherState>) -> Result<(), String> {
     watcher_state.unwatch()
-}
-
-/// Open the standalone onboarding window
-///
-/// We do this from Rust to avoid frontend capability restrictions on window creation.
-///
-/// # Arguments
-/// * `app` - Tauri AppHandle
-///
-/// # Returns
-/// * `Ok(())` - Window created or focused
-/// * `Err(String)` - Error message if creation fails
-#[tauri::command]
-pub fn open_onboarding_window(app: tauri::AppHandle) -> Result<(), String> {
-    println!("open_onboarding_window command invoked!");
-    if let Some(window) = app.get_webview_window("onboarding") {
-        println!("onboarding window already exists, focusing it.");
-        let _ = window.set_focus();
-        return Ok(());
-    }
-
-    println!("onboarding window does not exist, building it now...");
-    let builder = tauri::WebviewWindowBuilder::new(
-        &app,
-        "onboarding",
-        tauri::WebviewUrl::App("index.html".into()),
-    )
-    .title("Welcome to Cinder Notes")
-    .inner_size(800.0, 500.0)
-    .center()
-    .resizable(false)
-    .maximizable(false);
-
-    let win = builder.build().map_err(|e| {
-        println!("Failed to build onboarding window: {}", e);
-        format!("Failed to build window: {}", e)
-    })?;
-
-    println!("onboarding window built successfully! calling show()...");
-    let _ = win.show();
-    Ok(())
 }
 
 /// List all items currently in the workspace trash

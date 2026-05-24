@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useAppStore } from '../store/useAppStore';
 import { joinPath } from '../utils/pathUtils';
 
@@ -75,22 +74,8 @@ export function useWorkspace() {
     return false;
   };
 
-  const changeWorkspace = async (): Promise<boolean> => {
-    try {
-      resetWorkspace();
-      // Fire-and-forget: hide the main window (don't let failure block onboarding)
-      const win = getCurrentWindow();
-      if (win.label === 'main') {
-        win
-          .hide()
-          .catch((err) => console.warn('Could not hide main window:', err));
-      }
-      await invoke('open_onboarding_window');
-      return true;
-    } catch (e) {
-      console.error('Failed to open onboarding window:', e);
-      return false;
-    }
+  const changeWorkspace = () => {
+    resetWorkspace();
   };
 
   const openRecentWorkspace = async (path: string): Promise<boolean> => {
