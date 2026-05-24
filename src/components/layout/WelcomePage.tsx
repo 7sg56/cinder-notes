@@ -48,10 +48,7 @@ export function WelcomePage() {
   ];
 
   return (
-    <div
-      className="h-full w-full flex flex-col items-center justify-center select-none relative"
-      style={{ backgroundColor: 'var(--editor-bg)' }}
-    >
+    <div className="h-full w-full flex flex-col items-center justify-center select-none relative">
       {/* Main Centered Content Wrapper */}
       <div className="flex flex-col items-center w-full max-w-[400px]">
         {/* Actions List */}

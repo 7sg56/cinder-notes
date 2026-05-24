@@ -45,7 +45,7 @@ export function EditorHeader({
       className="flex items-center justify-between px-6 py-2 shrink-0 border-b"
       style={{
         backgroundColor: 'var(--editor-bg)',
-        borderColor: 'rgba(255, 255, 255, 0.05)',
+        borderColor: 'var(--border-primary)',
       }}
     >
       {/* Left side: Breadcrumb path */}

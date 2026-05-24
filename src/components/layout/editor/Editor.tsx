@@ -32,7 +32,10 @@ export function Editor({
       activeFileId === 'welcome' ||
       activeFileId.startsWith('cinder-') ? (
         /* --- SYSTEM TABS & EMPTY STATE --- */
-        <div className="flex-1 flex w-full h-full relative bg-[var(--bg-primary)]">
+        <div
+          className="flex-1 flex w-full h-full relative"
+          style={{ backgroundColor: 'var(--editor-bg)' }}
+        >
           {activeFileId === 'cinder-settings' && <Settings />}
           {activeFileId === 'cinder-info' && <Info />}
           {activeFileId === 'cinder-trash' && <TrashView />}
