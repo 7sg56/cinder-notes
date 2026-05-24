@@ -4,12 +4,15 @@
    Editor:  #141417 (Darker)
    ============================================ */
 :root {
+  /* Aero: 0 = pure vibrancy, 0.5 = tinted, 1 = fully opaque */
+  --aero-opacity: 0.25;
+
   /* Surface hierarchy */
-  --bg-primary: #141417;
+  --bg-primary: rgba(20, 20, 23, var(--aero-opacity));
   /* Editor */
-  --bg-secondary: #1f1f23;
+  --bg-secondary: rgba(31, 31, 35, 0.82);
   /* Sidebar/Status Bar - Lighter */
-  --bg-tertiary: #1a1a1c;
+  --bg-tertiary: rgba(26, 26, 28, 0.82);
   /* Tabs/Popups */
   --bg-hover: rgba(255, 255, 255, 0.05);
   --bg-active: rgba(244, 140, 37, 0.1);
@@ -28,8 +31,9 @@
   --editor-header-accent: #f48c25;
   --accent-glow: rgba(244, 140, 37, 0.4);
 
-  /* Modern Glassy Borders */
-  --border-primary: rgba(255, 255, 255, 0.08);
+  /* Separators & Borders */
+  --separator: rgba(255, 255, 255, 0.12);
+  --border-primary: rgba(255, 255, 255, 0.15);
   --border-secondary: rgba(255, 255, 255, 0.15);
   --border-hover: var(--editor-header-accent);
 
@@ -42,7 +46,7 @@
   --markdown-list: var(--editor-header-accent);
 
   /* Interactive Components */
-  --editor-bg: var(--bg-primary);
+  --editor-bg: #141417;
   --editor-text: #e4e4e7;
   --editor-selection-bg: rgba(244, 140, 37, 0.25);
   --activity-bar-bg: var(--bg-secondary);
@@ -58,12 +62,13 @@
    Editor:  #fdfaf0 (Warm Cream)
    ============================================ */
 :root.theme-cinder-light {
+  --aero-opacity: 0;
   /* Surface hierarchy */
-  --bg-primary: #fdfaf0;
+  --bg-primary: rgba(253, 250, 240, var(--aero-opacity));
   /* Editor - Warm Cream */
-  --bg-secondary: #f2efe7;
+  --bg-secondary: rgba(242, 239, 231, 0.82);
   /* Sidebar - Darker Beige */
-  --bg-tertiary: #e8e5dd;
+  --bg-tertiary: rgba(232, 229, 221, 0.82);
   /* Tabs/Popups */
   --bg-hover: rgba(0, 0, 0, 0.05);
   --bg-active: rgba(244, 140, 37, 0.1);
@@ -80,6 +85,7 @@
   /* For reverse contrast needs */
 
   /* Borders */
+  --separator: rgba(0, 0, 0, 0.1);
   --border-primary: rgba(0, 0, 0, 0.08);
   --border-secondary: rgba(0, 0, 0, 0.15);
   /* --border-hover is inherited */
@@ -89,7 +95,7 @@
   --markdown-code-bg: #f4f4f5;
 
   /* Interactive */
-  --editor-bg: var(--bg-primary);
+  --editor-bg: #fdfaf0;
   --editor-text: var(--text-primary);
   --editor-selection-bg: rgba(244, 140, 37, 0.2);
   --activity-bar-bg: var(--bg-secondary);
@@ -105,16 +111,18 @@
    Editor:  #000000 (Darker - Pitch Black)
    ============================================ */
 :root.theme-zen-black {
+  --aero-opacity: 0;
   /* Surface hierarchy */
-  --bg-primary: #000000;
+  --bg-primary: rgba(0, 0, 0, var(--aero-opacity));
   /* Pitch Black - Editor */
-  --bg-secondary: #0a0a0a;
+  --bg-secondary: rgba(10, 10, 10, 0.82);
   /* Sidebar - Lighter */
-  --bg-tertiary: #121212;
+  --bg-tertiary: rgba(18, 18, 18, 0.82);
   /* Tabs/Popups */
   --bg-hover: rgba(255, 255, 255, 0.08);
 
   /* Borders - More subtle */
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: rgba(255, 255, 255, 0.05);
   --border-secondary: rgba(255, 255, 255, 0.1);
 
@@ -128,9 +136,10 @@
    Cyberpunk / Retro aesthetics
    ============================================ */
 :root.theme-synthwave {
-  --bg-primary: #262335;
-  --bg-secondary: #2a2139;
-  --bg-tertiary: #241b2f;
+  --aero-opacity: 0;
+  --bg-primary: rgba(38, 35, 53, var(--aero-opacity));
+  --bg-secondary: rgba(42, 33, 57, 0.82);
+  --bg-tertiary: rgba(36, 27, 47, 0.82);
 
   --bg-hover: rgba(255, 75, 255, 0.1);
   --bg-active: rgba(54, 249, 246, 0.1);
@@ -143,6 +152,7 @@
   /* Neon Pink */
   --accent-glow: rgba(255, 126, 219, 0.5);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: rgba(54, 249, 246, 0.2);
   --border-secondary: rgba(255, 75, 255, 0.2);
   --border-hover: #36f9f6;
@@ -167,9 +177,10 @@
    Clean, developer-focused dark theme
    ============================================ */
 :root.theme-github-dark {
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #010409;
+  --aero-opacity: 0;
+  --bg-primary: rgba(13, 17, 23, var(--aero-opacity));
+  --bg-secondary: rgba(22, 27, 34, 0.82);
+  --bg-tertiary: rgba(1, 4, 9, 0.82);
 
   --bg-hover: rgba(177, 186, 196, 0.12);
   --bg-active: rgba(56, 139, 253, 0.1);
@@ -181,6 +192,7 @@
   --editor-header-accent: #58a6ff;
   --accent-glow: rgba(56, 139, 253, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: #30363d;
   --border-secondary: #21262d;
   --border-hover: #8b949e;
@@ -204,10 +216,11 @@
    High contrast, vivid colors
    ============================================ */
 :root.theme-monokai {
-  --bg-primary: #272822;
-  --bg-secondary: #1e1f1c;
+  --aero-opacity: 0;
+  --bg-primary: rgba(39, 40, 34, var(--aero-opacity));
+  --bg-secondary: rgba(30, 31, 28, 0.82);
   /* Slightly darker */
-  --bg-tertiary: #171814;
+  --bg-tertiary: rgba(23, 24, 20, 0.82);
 
   --bg-hover: rgba(255, 255, 255, 0.1);
   --bg-active: rgba(253, 151, 31, 0.2);
@@ -220,6 +233,7 @@
   /* Green */
   --accent-glow: rgba(166, 226, 46, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: rgba(255, 255, 255, 0.1);
   --border-secondary: rgba(255, 255, 255, 0.15);
   --border-hover: #f92672;
@@ -245,10 +259,11 @@
    Dark purple/blue background
    ============================================ */
 :root.theme-dracula {
-  --bg-primary: #282a36;
-  --bg-secondary: #21222c;
+  --aero-opacity: 0;
+  --bg-primary: rgba(40, 42, 54, var(--aero-opacity));
+  --bg-secondary: rgba(33, 34, 44, 0.82);
   /* Sidebar */
-  --bg-tertiary: #191a21;
+  --bg-tertiary: rgba(25, 26, 33, 0.82);
   /* Status/Darker */
 
   --bg-hover: rgba(255, 255, 255, 0.1);
@@ -262,6 +277,7 @@
   /* Pink */
   --accent-glow: rgba(255, 121, 198, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: #44475a;
   --border-secondary: #6272a4;
   --border-hover: #bd93f9;
@@ -286,9 +302,10 @@
    Arctic, north-bluish clean design
    ============================================ */
 :root.theme-nord {
-  --bg-primary: #2e3440;
-  --bg-secondary: #3b4252;
-  --bg-tertiary: #242933;
+  --aero-opacity: 0;
+  --bg-primary: rgba(46, 52, 64, var(--aero-opacity));
+  --bg-secondary: rgba(59, 66, 82, 0.82);
+  --bg-tertiary: rgba(36, 41, 51, 0.82);
   /* Darker than primary */
 
   --bg-hover: #434c5e;
@@ -303,6 +320,7 @@
   /* Frost */
   --accent-glow: rgba(136, 192, 208, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: #434c5e;
   --border-secondary: #4c566a;
   --border-hover: #81a1c1;
@@ -326,10 +344,11 @@
    Greenish, nature-inspired
    ============================================ */
 :root.theme-forest {
+  --aero-opacity: 0;
   /* Surface hierarchy */
-  --bg-primary: #1e2820;
-  --bg-secondary: #273329;
-  --bg-tertiary: #161e18;
+  --bg-primary: rgba(30, 40, 32, var(--aero-opacity));
+  --bg-secondary: rgba(39, 51, 41, 0.82);
+  --bg-tertiary: rgba(22, 30, 24, 0.82);
 
   --bg-hover: rgba(167, 201, 87, 0.1);
   --bg-active: rgba(106, 153, 78, 0.2);
@@ -345,6 +364,7 @@
   /* Light Green */
   --accent-glow: rgba(167, 201, 87, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: rgba(56, 102, 65, 0.5);
   --border-secondary: rgba(106, 153, 78, 0.5);
   --border-hover: #a7c957;
@@ -372,10 +392,11 @@
    Earthy, yellow/mustard tones
    ============================================ */
 :root.theme-mustard {
+  --aero-opacity: 0;
   /* Surface hierarchy */
-  --bg-primary: #2d2a1e;
-  --bg-secondary: #3b3728;
-  --bg-tertiary: #221f16;
+  --bg-primary: rgba(45, 42, 30, var(--aero-opacity));
+  --bg-secondary: rgba(59, 55, 40, 0.82);
+  --bg-tertiary: rgba(34, 31, 22, 0.82);
 
   --bg-hover: rgba(233, 196, 106, 0.1);
   --bg-active: rgba(212, 163, 115, 0.2);
@@ -391,6 +412,7 @@
   /* Mustard Yellow */
   --accent-glow: rgba(233, 196, 106, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: rgba(96, 108, 56, 0.4);
   --border-secondary: rgba(221, 161, 94, 0.4);
   --border-hover: #e9c46a;
@@ -417,10 +439,11 @@
    Deep ocean blues, calm and professional
    ============================================ */
 :root.theme-marine {
+  --aero-opacity: 0;
   /* Surface hierarchy */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #020617;
+  --bg-primary: rgba(15, 23, 42, var(--aero-opacity));
+  --bg-secondary: rgba(30, 41, 59, 0.82);
+  --bg-tertiary: rgba(2, 6, 23, 0.82);
 
   --bg-hover: rgba(56, 189, 248, 0.1);
   --bg-active: rgba(14, 165, 233, 0.2);
@@ -436,6 +459,7 @@
   /* Sky Blue */
   --accent-glow: rgba(56, 189, 248, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: rgba(30, 41, 59, 0.8);
   --border-secondary: rgba(51, 65, 85, 0.8);
   --border-hover: #38bdf8;
@@ -463,11 +487,12 @@
    Deep red, intense and bold
    ============================================ */
 :root.theme-ember {
+  --aero-opacity: 0;
   /* Surface hierarchy */
-  --bg-primary: #2b1111;
+  --bg-primary: rgba(43, 17, 17, var(--aero-opacity));
   /* Very dark red/brown */
-  --bg-secondary: #3f1818;
-  --bg-tertiary: #1a0808;
+  --bg-secondary: rgba(63, 24, 24, 0.82);
+  --bg-tertiary: rgba(26, 8, 8, 0.82);
 
   --bg-hover: rgba(252, 165, 165, 0.1);
   --bg-active: rgba(248, 113, 113, 0.2);
@@ -483,6 +508,7 @@
   /* Red-400 */
   --accent-glow: rgba(248, 113, 113, 0.4);
 
+  --separator: rgba(255, 255, 255, 0.12);
   --border-primary: rgba(127, 29, 29, 0.4);
   --border-secondary: rgba(153, 27, 27, 0.4);
   --border-hover: #ef4444;
