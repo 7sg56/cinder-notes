@@ -1,7 +1,6 @@
 import type { MutableRefObject } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { MarkdownPreview } from './MarkdownPreview';
-import { Eye, ChevronLeft, FileText, Save } from 'lucide-react';
 
 import { Settings } from '../../features/settings/Settings';
 import { Info } from '../../features/settings/Info';
@@ -22,6 +21,7 @@ export function Editor({
   onCursorChange,
 }: EditorProps) {
   const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
+  const isMac = navigator.userAgent.includes('Mac');
 
   return (
     <div
@@ -42,65 +42,94 @@ export function Editor({
 
           {(!activeFileId || activeFileId === 'welcome') && (
             <div className="flex-1 flex items-center justify-center">
-              <div className="text-center max-w-md px-6 z-10">
-                <h1
-                  className="mb-2 text-3xl font-bold tracking-tight"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  Cinder Notes
-                </h1>
-                <p
-                  className="mb-10 text-[11px] uppercase tracking-[0.2em] font-bold opacity-40"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  Distraction-free writing
-                </p>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '2.5rem',
+                  userSelect: 'none',
+                }}
+              >
+                {/* Watermark logo */}
+                <img
+                  src="/app-icon.png"
+                  alt=""
+                  draggable={false}
+                  style={{
+                    width: 120,
+                    height: 120,
+                    opacity: 0.25,
+                  }}
+                />
 
-                <div className="space-y-5 text-sm">
+                {/* Shortcut hints */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.65rem',
+                    alignItems: 'flex-end',
+                  }}
+                >
                   {[
                     {
-                      icon: ChevronLeft,
-                      text: 'Select a file',
-                      highlight: 'from the explorer',
+                      label: 'New File',
+                      keys: isMac ? ['\u2318', 'N'] : ['Ctrl', 'N'],
+                      action: () => useAppStore.getState().createFile(),
                     },
                     {
-                      icon: FileText,
-                      text: 'Markdown',
-                      highlight: 'format support',
+                      label: 'Open Folder',
+                      keys: isMac ? ['\u2318', 'O'] : ['Ctrl', 'O'],
                     },
-                    {
-                      icon: Eye,
-                      text: 'Toggle preview',
-                      highlight: 'to render content',
-                    },
-                    {
-                      icon: Save,
-                      text: 'Auto-saves',
-                      highlight: 'locally as you type',
-                    },
-                  ].map((item, i) => (
+                  ].map((item) => (
                     <div
-                      key={i}
-                      className="flex items-center gap-4 text-left group/item cursor-default"
+                      key={item.label}
+                      onClick={item.action}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        cursor: item.action ? 'pointer' : 'default',
+                      }}
                     >
-                      <div
-                        className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-active)]"
-                        style={{ backgroundColor: 'var(--bg-hover)' }}
+                      <span
+                        style={{
+                          fontSize: '0.72rem',
+                          color: 'var(--text-tertiary)',
+                          opacity: 1,
+                        }}
                       >
-                        <item.icon
-                          size={16}
-                          style={{ color: 'var(--text-secondary)' }}
-                        />
+                        {item.label}
+                      </span>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '3px',
+                        }}
+                      >
+                        {item.keys.map((k) => (
+                          <kbd
+                            key={k}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              minWidth: '20px',
+                              padding: '2px 5px',
+                              fontSize: '0.62rem',
+                              fontFamily: 'inherit',
+                              color: 'var(--text-tertiary)',
+                              opacity: 0.9,
+                              background: 'var(--bg-secondary)',
+                              border: '1px solid var(--border-primary)',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            {k}
+                          </kbd>
+                        ))}
                       </div>
-                      <p style={{ color: 'var(--text-secondary)' }}>
-                        <span
-                          style={{ color: 'var(--text-primary)' }}
-                          className="font-medium"
-                        >
-                          {item.text}
-                        </span>{' '}
-                        {item.highlight}
-                      </p>
                     </div>
                   ))}
                 </div>
