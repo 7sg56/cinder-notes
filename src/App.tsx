@@ -14,25 +14,22 @@ import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function App() {
-  const windowLabel = useMemo(() => getCurrentWindow().label, []);
-
   const workspacePath = useAppStore((state) => state.workspacePath);
-  const { loadWorkspace, changeWorkspace, selectAndLoadWorkspace } =
-    useWorkspace();
+  const resetWorkspace = useAppStore((state) => state.resetWorkspace);
+  const { loadWorkspace, selectAndLoadWorkspace } = useWorkspace();
 
   // Keep stable refs for event listeners
-  const changeWorkspaceRef = useRef(changeWorkspace);
-  changeWorkspaceRef.current = changeWorkspace;
+  const selectAndLoadWorkspaceRef = useRef(selectAndLoadWorkspace);
+  selectAndLoadWorkspaceRef.current = selectAndLoadWorkspace;
+
+  const resetWorkspaceRef = useRef(resetWorkspace);
+  resetWorkspaceRef.current = resetWorkspace;
 
   const loadWorkspaceRef = useRef(loadWorkspace);
   loadWorkspaceRef.current = loadWorkspace;
 
-  const selectAndLoadWorkspaceRef = useRef(selectAndLoadWorkspace);
-  selectAndLoadWorkspaceRef.current = selectAndLoadWorkspace;
-
   // Synchronously retrieve the last opened workspace path from localStorage to avoid hydration race conditions on startup
   const lastWorkspacePath = useMemo(() => {
-    if (windowLabel !== 'main') return null;
     try {
       const stored = localStorage.getItem('cinder-app-storage');
       if (stored) {
@@ -46,13 +43,13 @@ function App() {
       console.error('Failed to parse last workspace from localStorage:', e);
     }
     return null;
-  }, [windowLabel]);
+  }, []);
 
-  // Determine once whether we should attempt auto-load (only in main window)
+  // Determine once whether we should attempt auto-load
   const shouldAutoLoad = useMemo(() => {
-    return windowLabel === 'main' && !workspacePath && !!lastWorkspacePath;
+    return !workspacePath && !!lastWorkspacePath;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [windowLabel, lastWorkspacePath]);
+  }, [lastWorkspacePath]);
 
   const [isAutoLoading, setIsAutoLoading] = useState(shouldAutoLoad);
   const attemptedRef = useRef(false);
@@ -63,12 +60,40 @@ function App() {
   // Watch workspace directory for external file changes
   useFileWatcher();
 
-  // Show the main window once a workspace is successfully loaded
+  // Global window drag handler - uses Tauri JS API since CSS app-region
+  // doesn't work reliably with transparent overlay windows on macOS
   useEffect(() => {
-    if (windowLabel === 'main' && workspacePath) {
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if click is on a drag region element itself
+      const dragRegion = target.closest('[data-tauri-drag-region]');
+      if (!dragRegion) return;
+      // Don't drag if clicking interactive elements
+      const interactive = target.closest(
+        'button, input, a, select, textarea, [contenteditable], [data-no-drag]'
+      );
+      if (interactive) return;
+      e.preventDefault();
+      getCurrentWindow().startDragging();
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, []);
+
+  // Show the main window once the app is ready
+  useEffect(() => {
+    // Show immediately if no auto-load, or after auto-load completes
+    if (!isAutoLoading) {
       getCurrentWindow().show().catch(console.error);
     }
-  }, [windowLabel, workspacePath]);
+  }, [isAutoLoading]);
+
+  // Also show once workspace loads (covers the auto-load success case)
+  useEffect(() => {
+    if (workspacePath) {
+      getCurrentWindow().show().catch(console.error);
+    }
+  }, [workspacePath]);
 
   // Auto-reopen last workspace on launch
   useEffect(() => {
@@ -77,47 +102,24 @@ function App() {
 
     if (shouldAutoLoad && lastWorkspacePath) {
       loadWorkspace(lastWorkspacePath)
-        .then((success) => {
-          if (!success) {
-            // Failed to auto-load, open onboarding window
-            changeWorkspaceRef.current();
-          }
-        })
         .catch((err) => {
           console.error('Failed to auto-load workspace:', err);
-          changeWorkspaceRef.current();
         })
         .finally(() => {
           setIsAutoLoading(false);
         });
-    } else if (windowLabel === 'main' && !workspacePath) {
-      // No recent workspaces, open onboarding window immediately
-      changeWorkspaceRef.current();
+    } else {
       setIsAutoLoading(false);
     }
-  }, [
-    shouldAutoLoad,
-    lastWorkspacePath,
-    loadWorkspace,
-    windowLabel,
-    workspacePath,
-  ]);
+  }, [shouldAutoLoad, lastWorkspacePath, loadWorkspace]);
 
   // Listen for native menu bar events
   useEffect(() => {
-    if (windowLabel !== 'main') return;
-
     const unlistens: Promise<() => void>[] = [];
 
     unlistens.push(
-      listen('menu-change-workspace', () => {
-        changeWorkspaceRef.current();
-      })
-    );
-
-    unlistens.push(
       listen('menu-close-workspace', () => {
-        changeWorkspaceRef.current();
+        resetWorkspaceRef.current();
       })
     );
 
@@ -132,28 +134,10 @@ function App() {
         unlisten.then((fn) => fn());
       });
     };
-  }, [windowLabel]);
-
-  // Listen for cross-window load requests (from onboarding window)
-  useEffect(() => {
-    if (windowLabel !== 'main') return;
-    const unlisten = listen<string>('load-workspace-request', (event) => {
-      if (event.payload) {
-        loadWorkspaceRef.current(event.payload).catch(console.error);
-      }
-    });
-    return () => {
-      unlisten.then((fn) => fn());
-    };
-  }, [windowLabel]);
-
-  // Standalone onboarding window mode
-  if (windowLabel === 'onboarding') {
-    return <WorkspaceWelcome isStandaloneWindow={true} />;
-  }
+  }, []);
 
   // Show loading state while auto-reopening
-  if (isAutoLoading && !workspacePath) {
+  if (isAutoLoading) {
     return (
       <div
         style={{
@@ -161,7 +145,7 @@ function App() {
           alignItems: 'center',
           justifyContent: 'center',
           height: '100vh',
-          background: 'var(--bg-primary)',
+          background: 'transparent',
           color: 'var(--text-tertiary)',
           fontFamily: 'inherit',
           fontSize: '0.875rem',
@@ -173,9 +157,9 @@ function App() {
     );
   }
 
-  // If no workspace is set, return null (the main window is hidden)
+  // No workspace open -- show inline welcome
   if (!workspacePath) {
-    return null;
+    return <WorkspaceWelcome />;
   }
 
   return (

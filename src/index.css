@@ -8,6 +8,30 @@ html {
   -webkit-user-select: none;
 }
 
+*[data-tauri-drag-region],
+*[data-tauri-drag-region] * {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+button,
+input,
+a,
+select,
+textarea,
+[contenteditable],
+.no-drag,
+[data-no-drag],
+[data-no-drag] *,
+*[data-tauri-drag-region] button,
+*[data-tauri-drag-region] input,
+*[data-tauri-drag-region] a,
+*[data-tauri-drag-region] [data-no-drag],
+*[data-tauri-drag-region] [data-no-drag] * {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
 /* Re-enable text selection for content areas */
 .editor,
 .markdown-preview,
@@ -23,7 +47,7 @@ input,
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: transparent;
   color: var(--text-primary);
   margin: 0;
   padding: 0;
@@ -50,4 +74,32 @@ body {
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
+}
+
+/* ============================================
+   VS Code-style File Tree
+   ============================================ */
+.vsc-icon-btn:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.vsc-section-header:hover {
+  background-color: var(--vsc-tree-hover) !important;
+}
+
+.vsc-tree-row {
+  transition: background-color 60ms ease;
+}
+
+.vsc-tree-row:focus-visible {
+  outline: 1px solid var(--editor-header-accent);
+  outline-offset: -1px;
+}
+
+/* Highlight indent guide on row hover */
+.vsc-tree-row:hover ~ .vsc-indent-guide,
+.vsc-tree-row:hover .vsc-indent-guide {
+  background-color: var(--vsc-indent-guide) !important;
+  opacity: 1.5;
 }

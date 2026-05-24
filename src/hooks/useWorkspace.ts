@@ -1,13 +1,14 @@
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useAppStore } from '../store/useAppStore';
+import { joinPath } from '../utils/pathUtils';
 
 export interface FileEntry {
   id: string;
   name: string;
   type: 'file' | 'folder';
   path: string;
+  modifiedAt?: number;
   children?: FileEntry[];
 }
 
@@ -50,6 +51,7 @@ export function useWorkspace() {
         name: entry.name,
         type: entry.type,
         path: entry.path,
+        modifiedAt: entry.modifiedAt,
         children: entry.children?.map(convertToFileNode),
       });
 
@@ -72,22 +74,8 @@ export function useWorkspace() {
     return false;
   };
 
-  const changeWorkspace = async (): Promise<boolean> => {
-    try {
-      resetWorkspace();
-      // Fire-and-forget: hide the main window (don't let failure block onboarding)
-      const win = getCurrentWindow();
-      if (win.label === 'main') {
-        win
-          .hide()
-          .catch((err) => console.warn('Could not hide main window:', err));
-      }
-      await invoke('open_onboarding_window');
-      return true;
-    } catch (e) {
-      console.error('Failed to open onboarding window:', e);
-      return false;
-    }
+  const changeWorkspace = () => {
+    resetWorkspace();
   };
 
   const openRecentWorkspace = async (path: string): Promise<boolean> => {
@@ -112,7 +100,7 @@ export function useWorkspace() {
       let attempt = 0;
 
       while (attempt < 50) {
-        const folderPath = `${parentDir}/${folderName}`;
+        const folderPath = joinPath(parentDir, folderName);
         try {
           await invoke('create_folder', { path: folderPath });
           return folderPath;

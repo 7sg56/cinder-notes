@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { useAppStore } from '../store/useAppStore';
 import { useWorkspace } from './useWorkspace';
+import { joinPath } from '../utils/pathUtils';
 
 export function useFileSystem() {
   const { workspacePath } = useAppStore();
@@ -86,7 +87,7 @@ export function useFileSystem() {
 
   const getFullPath = (filename: string): string => {
     if (!workspacePath) return filename;
-    return `${workspacePath}/${filename}`;
+    return joinPath(workspacePath, filename);
   };
 
   return {

@@ -74,7 +74,6 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
     <div
       className="h-screen w-screen flex flex-col overflow-hidden"
       style={{
-        backgroundColor: 'var(--bg-primary)',
         color: 'var(--text-primary)',
       }}
     >
@@ -89,6 +88,9 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
           style={{
             width: isExplorerCollapsed ? '0px' : `${sidebarWidth}%`,
             backgroundColor: 'var(--bg-primary)',
+            borderRight: isExplorerCollapsed
+              ? 'none'
+              : '1px solid var(--separator)',
             transition: isResizing ? 'none' : 'width 200ms ease-in-out',
           }}
         >
@@ -97,23 +99,23 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
           </div>
         </div>
 
-        {/* Resize Handle */}
+        {/* Resize Handle - overlays the border, no gap */}
         <div
-          className={`w-[6px] h-full cursor-col-resize z-50 shrink-0 transition-colors ${isResizing ? 'bg-blue-500 opacity-100' : 'hover:bg-blue-400 hover:opacity-60'}`}
+          className="absolute h-full cursor-col-resize z-50"
           style={{
-            backgroundColor: isResizing
-              ? 'var(--accent-primary, #3b82f6)'
-              : 'var(--border-primary)',
+            left: isExplorerCollapsed ? '0px' : `${sidebarWidth}%`,
+            width: '8px',
+            transform: 'translateX(-50%)',
+            borderLeft: isResizing
+              ? '2px solid var(--editor-header-accent)'
+              : 'none',
           }}
           onMouseDown={startResizing}
           onDoubleClick={toggleSidebar}
         />
 
         {/* Editor Area */}
-        <div
-          className="flex-1 min-w-0 h-full flex flex-col"
-          style={{ backgroundColor: 'var(--bg-secondary)' }}
-        >
+        <div className="flex-1 min-w-0 h-full flex flex-col">
           {editorContent}
         </div>
       </div>

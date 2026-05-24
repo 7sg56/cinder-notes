@@ -20,6 +20,12 @@ use tauri::menu::{MenuBuilder, MenuItem, SubmenuBuilder};
 use tauri::Emitter;
 use tauri::Manager;
 
+#[cfg(target_os = "macos")]
+use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
+
+#[cfg(target_os = "windows")]
+use window_vibrancy::apply_acrylic;
+
 /// Main entry point for the Tauri application
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -39,7 +45,6 @@ pub fn run() {
             commands::search_workspace,
             commands::watch_workspace,
             commands::unwatch_workspace,
-            commands::open_onboarding_window,
             commands::list_trash,
             commands::restore_trash_item,
             commands::delete_trash_item,
@@ -47,6 +52,20 @@ pub fn run() {
             commands::workspace_stats,
         ])
         .setup(|app| {
+            // Apply native window vibrancy for the Aero UI effect
+            if let Some(window) = app.get_webview_window("main") {
+                #[cfg(target_os = "macos")]
+                let _ = apply_vibrancy(
+                    &window,
+                    NSVisualEffectMaterial::UnderWindowBackground,
+                    Some(NSVisualEffectState::Active),
+                    None,
+                );
+
+                #[cfg(target_os = "windows")]
+                let _ = apply_acrylic(&window, Some((18, 18, 18, 125)));
+            }
+
             // Build a custom app menu without Cmd+W (Close Window)
             // macOS default menus include Window > Close bound to Cmd+W,
             // which kills the entire app. We override with a safe menu.
@@ -78,18 +97,9 @@ pub fn run() {
                 Some("CmdOrCtrl+Shift+W"),
             )?;
 
-            let change_workspace_item = MenuItem::with_id(
-                app,
-                "change-workspace",
-                "Change Workspace...",
-                true,
-                Some("CmdOrCtrl+Shift+O"),
-            )?;
-
             let file_submenu = SubmenuBuilder::new(app, "File")
                 .item(&open_folder_item)
                 .item(&close_workspace_item)
-                .item(&change_workspace_item)
                 .build()?;
 
             let edit_submenu = SubmenuBuilder::new(app, "Edit")
@@ -112,9 +122,6 @@ pub fn run() {
             app.set_menu(menu)?;
 
             app.on_menu_event(|app_handle, event| match event.id().as_ref() {
-                "change-workspace" => {
-                    let _ = app_handle.emit("menu-change-workspace", ());
-                }
                 "open-folder" => {
                     let _ = app_handle.emit("menu-open-folder", ());
                 }
@@ -132,18 +139,6 @@ pub fn run() {
                 )?;
             }
             Ok(())
-        })
-        .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { .. } = event {
-                if window.label() == "onboarding" {
-                    let app_handle = window.app_handle();
-                    if let Some(main_win) = app_handle.get_webview_window("main") {
-                        if !main_win.is_visible().unwrap_or(false) {
-                            app_handle.exit(0);
-                        }
-                    }
-                }
-            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

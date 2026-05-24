@@ -4,5 +4,6 @@ export interface FileNode {
   type: 'file' | 'folder';
   path?: string;
   content?: string;
+  modifiedAt?: number;
   children?: FileNode[];
 }

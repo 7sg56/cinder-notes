@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { invoke } from '@tauri-apps/api/core';
 import type { FileNode } from '../types/fileSystem';
 import type { RecentWorkspace } from '../types/recentWorkspace';
+import { joinPath, basename, dirname } from '../utils/pathUtils';
 
 export interface SearchResult {
   file_path: string;
@@ -119,7 +120,7 @@ export const useAppStore = create<AppState>()(
 
       addRecentWorkspace: (path: string) => {
         const MAX_RECENT = 3;
-        const name = path.split('/').pop() || path.split('\\').pop() || path;
+        const name = basename(path);
         set((state) => {
           const filtered = state.recentWorkspaces.filter(
             (w) => w.path !== path
@@ -452,7 +453,7 @@ export const useAppStore = create<AppState>()(
             newName = `${baseName}-${nameCounter}${extension}`;
           }
 
-          const filePath = `${workspacePath}/${newName}`;
+          const filePath = joinPath(workspacePath, newName);
           const newFileId = filePath;
 
           const newFile: FileNode = {
@@ -614,7 +615,7 @@ export const useAppStore = create<AppState>()(
           newName = `${baseName} ${nameCounter}${extension}`;
         }
 
-        const filePath = `${workspacePath}/${newName}`;
+        const filePath = joinPath(workspacePath, newName);
         const newFileId = filePath; // Use path as ID for consistency
 
         const newFile: FileNode = {
@@ -750,7 +751,7 @@ export const useAppStore = create<AppState>()(
             finalName = `${baseName}-${nameCounter}.md`;
           }
 
-          const filePath = `${workspacePath}/${finalName}`;
+          const filePath = joinPath(workspacePath, finalName);
           const newFileId = filePath;
 
           const newFile: FileNode = {
@@ -810,10 +811,10 @@ export const useAppStore = create<AppState>()(
         }
 
         // Calculate new path
-        const dir = oldPath.substring(0, oldPath.lastIndexOf('/'));
+        const dir = dirname(oldPath);
         let finalName = newName;
         if (!finalName.endsWith('.md')) finalName += '.md';
-        const newPath = `${dir}/${finalName}`;
+        const newPath = joinPath(dir, finalName);
 
         // Rename on disk
         invoke('rename_note', { oldPath, newPath })
@@ -1114,7 +1115,7 @@ export const useAppStore = create<AppState>()(
         const file = state.findFile(fileId);
         if (!file || !file.path) return;
 
-        const dir = file.path.substring(0, file.path.lastIndexOf('/'));
+        const dir = dirname(file.path);
         const baseName = file.name.replace(/\.md$/, '');
         const extension = '.md';
 
@@ -1136,7 +1137,7 @@ export const useAppStore = create<AppState>()(
           copyName = `${baseName} (copy ${counter})${extension}`;
         }
 
-        const copyPath = `${dir}/${copyName}`;
+        const copyPath = joinPath(dir, copyName);
         const copyId = copyPath;
 
         // Read original content then write the copy
@@ -1205,7 +1206,7 @@ export const useAppStore = create<AppState>()(
           newName = `${baseName} ${nameCounter}${extension}`;
         }
 
-        const filePath = `${folder.path}/${newName}`;
+        const filePath = joinPath(folder.path, newName);
         const newFileId = filePath;
 
         const newFile: FileNode = {
@@ -1287,7 +1288,7 @@ export const useAppStore = create<AppState>()(
           newName = `${baseName} ${nameCounter}`;
         }
 
-        const folderPath = `${parentPath}/${newName}`;
+        const folderPath = joinPath(parentPath, newName);
         const folderId = folderPath;
 
         const newFolder: FileNode = {

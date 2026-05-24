@@ -14,6 +14,9 @@ pub struct FileEntry {
     pub entry_type: String,
     /// Full absolute path
     pub path: String,
+    /// Last modified timestamp (epoch seconds)
+    #[serde(rename = "modifiedAt")]
+    pub modified_at: Option<u64>,
     /// Child entries (for folders)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub children: Option<Vec<FileEntry>>,
@@ -21,23 +24,30 @@ pub struct FileEntry {
 
 impl FileEntry {
     /// Create a new file entry
-    pub fn new_file(path: String, name: String) -> Self {
+    pub fn new_file(path: String, name: String, modified_at: Option<u64>) -> Self {
         Self {
             id: path.clone(),
             name,
             entry_type: "file".to_string(),
             path,
+            modified_at,
             children: None,
         }
     }
 
     /// Create a new folder entry
-    pub fn new_folder(path: String, name: String, children: Vec<FileEntry>) -> Self {
+    pub fn new_folder(
+        path: String,
+        name: String,
+        children: Vec<FileEntry>,
+        modified_at: Option<u64>,
+    ) -> Self {
         Self {
             id: path.clone(),
             name,
             entry_type: "folder".to_string(),
             path,
+            modified_at,
             children: Some(children),
         }
     }
