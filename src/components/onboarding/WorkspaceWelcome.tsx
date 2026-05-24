@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { emit } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { splitPath, SEP } from '../../utils/pathUtils';
 import './WorkspaceWelcome.css';
 
 function timeAgo(timestamp: number): string {
@@ -28,9 +29,9 @@ function timeAgo(timestamp: number): string {
 
 function truncatePath(path: string, maxLen = 35): string {
   if (path.length <= maxLen) return path;
-  const parts = path.split('/');
+  const parts = splitPath(path);
   if (parts.length <= 3) return '...' + path.slice(-maxLen);
-  return parts[0] + '/.../' + parts.slice(-2).join('/');
+  return parts[0] + SEP + '...' + SEP + parts.slice(-2).join(SEP);
 }
 
 interface WorkspaceWelcomeProps {

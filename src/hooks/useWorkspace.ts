@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useAppStore } from '../store/useAppStore';
+import { joinPath } from '../utils/pathUtils';
 
 export interface FileEntry {
   id: string;
@@ -114,7 +115,7 @@ export function useWorkspace() {
       let attempt = 0;
 
       while (attempt < 50) {
-        const folderPath = `${parentDir}/${folderName}`;
+        const folderPath = joinPath(parentDir, folderName);
         try {
           await invoke('create_folder', { path: folderPath });
           return folderPath;
