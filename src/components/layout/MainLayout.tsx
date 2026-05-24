@@ -73,6 +73,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
   return (
     <div
       className="h-screen w-screen flex flex-col overflow-hidden"
+      data-testid="main-layout"
       style={{
         color: 'var(--text-primary)',
       }}
@@ -84,6 +85,7 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
         {/* Sidebar Area */}
         <div
           ref={sidebarRef}
+          data-testid="sidebar"
           className="flex flex-col h-full overflow-hidden relative transition-all duration-75 ease-out"
           style={{
             width: isExplorerCollapsed ? '0px' : `${sidebarWidth}%`,
@@ -115,7 +117,10 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
         />
 
         {/* Editor Area */}
-        <div className="flex-1 min-w-0 h-full flex flex-col">
+        <div
+          className="flex-1 min-w-0 h-full flex flex-col"
+          data-testid="editor-area"
+        >
           {editorContent}
         </div>
       </div>

@@ -43,6 +43,7 @@ export function EditorHeader({
   return (
     <div
       className="flex items-center justify-between px-6 py-2 shrink-0 border-b"
+      data-testid="editor-header"
       style={{
         backgroundColor: 'var(--editor-bg)',
         borderColor: 'var(--border-primary)',
@@ -212,6 +213,7 @@ export function EditorHeader({
               }
             }}
             title="Undo (Cmd+Z)"
+            data-testid="undo-button"
           >
             <Undo2 size={15} strokeWidth={2} />
           </button>
@@ -225,6 +227,7 @@ export function EditorHeader({
               }
             }}
             title="Redo (Cmd+Shift+Z)"
+            data-testid="redo-button"
           >
             <Redo2 size={15} strokeWidth={2} />
           </button>
@@ -239,6 +242,7 @@ export function EditorHeader({
           onClick={onPreviewToggle}
           className="flex items-center justify-center p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-90"
           title={isPreview ? 'Edit' : 'Preview'}
+          data-testid="preview-toggle"
           style={{
             color: isPreview
               ? 'var(--editor-header-accent)'
