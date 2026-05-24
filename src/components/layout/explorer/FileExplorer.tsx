@@ -1,13 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import type { FileNode } from '../../../types/fileSystem';
 import { FileTreeItem } from './FileTreeItem';
 import { showExplorerContextMenu } from '../../../util/contextMenu';
 
-import { SidebarFooter } from './SidebarFooter';
-
-import { VscSearch, VscTypeHierarchy } from 'react-icons/vsc';
-import { SquarePen } from 'lucide-react';
+import { VscSearch } from 'react-icons/vsc';
+import { Plus, FileText, FolderPlus, Settings, Trash2 } from 'lucide-react';
 
 // Helper to filter nodes recursively
 const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
@@ -23,7 +21,6 @@ const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
         ? filterNodes(node.children, query)
         : [];
 
-      // If folder matches OR has matching children, keep it
       const matchesName = node.name.toLowerCase().includes(query.toLowerCase());
 
       if (matchesName || filteredChildren.length > 0) {
@@ -39,7 +36,6 @@ export function FileExplorer() {
     files,
     createFile,
     moveNode,
-    workspacePath,
     openFileInNewTab,
     selectFile,
     setRenamingFileId,
@@ -54,20 +50,31 @@ export function FileExplorer() {
     findFile,
     togglePin,
     pinnedFiles,
+    openSystemTab,
   } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Extract folder name from workspace path
-  const workspaceName = workspacePath
-    ? workspacePath.split('/').pop() ||
-      workspacePath.split('\\').pop() ||
-      'Workspace'
-    : 'Explorer';
+  const [showNewMenu, setShowNewMenu] = useState(false);
+  const newMenuRef = useRef<HTMLDivElement>(null);
 
   const filteredFiles = useMemo(() => {
     if (!searchQuery.trim()) return files;
     return filterNodes(files, searchQuery.trim());
   }, [files, searchQuery]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!showNewMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      if (
+        newMenuRef.current &&
+        !newMenuRef.current.contains(e.target as Node)
+      ) {
+        setShowNewMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showNewMenu]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -85,34 +92,20 @@ export function FileExplorer() {
   };
 
   return (
-    <div
-      className="h-full flex flex-col"
-      style={{ backgroundColor: 'var(--bg-primary)' }}
-    >
-      {/* Header: Workspace Folder Name (Matches Tab Height) */}
-      <div
-        className="h-[40px] shrink-0 flex items-center justify-between px-4 border-b select-none"
-        style={{
-          color: 'var(--text-secondary)',
-          borderColor: 'var(--border-primary)',
-        }}
-      >
-        <span className="text-[11px] font-bold tracking-wider opacity-60 uppercase pl-1">
-          {workspaceName}
-        </span>
-        <VscTypeHierarchy size={15} className="opacity-60" />
-      </div>
+    <div className="h-full flex flex-col">
+      {/* Drag region spacer for macOS traffic lights */}
+      <div data-tauri-drag-region className="h-[46px] shrink-0 select-none" />
 
-      {/* Search Bar Row */}
-      <div className="shrink-0 px-3 py-3 flex items-center gap-1.5">
+      {/* Search bar + New button */}
+      <div className="shrink-0 px-3 pb-3 flex items-center gap-1.5">
         <div
-          className="flex-1 min-w-0 flex items-center h-[28px] rounded-md px-2 gap-1.5 transition-colors focus-within:bg-[var(--bg-secondary)]"
+          className="flex-1 min-w-0 flex items-center h-[30px] rounded-full px-3 gap-2 transition-colors focus-within:bg-[var(--bg-secondary)]"
           style={{
             backgroundColor: 'var(--bg-tertiary)',
             border: '1px solid transparent',
           }}
         >
-          <VscSearch size={14} style={{ color: 'var(--text-tertiary)' }} />
+          <VscSearch size={13} style={{ color: 'var(--text-tertiary)' }} />
           <input
             type="text"
             value={searchQuery}
@@ -123,24 +116,58 @@ export function FileExplorer() {
           />
         </div>
 
-        <button
-          onClick={() => createFile()}
-          className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
-          style={{ color: 'var(--text-secondary)' }}
-          title="New Note"
-        >
-          <SquarePen size={15} strokeWidth={2.5} />
-        </button>
+        {/* + button with dropdown */}
+        <div className="relative" ref={newMenuRef}>
+          <button
+            onClick={() => setShowNewMenu(!showNewMenu)}
+            className="h-[30px] w-[30px] flex items-center justify-center rounded-full transition-colors hover:bg-[var(--bg-hover)]"
+            style={{ color: 'var(--text-secondary)' }}
+            title="New..."
+          >
+            <Plus size={16} strokeWidth={2.5} />
+          </button>
+
+          {showNewMenu && (
+            <div
+              className="absolute right-0 top-[34px] z-50 min-w-[150px] py-1 rounded-lg shadow-lg"
+              style={{
+                backgroundColor: 'var(--editor-bg)',
+                border: '1px solid var(--separator)',
+              }}
+            >
+              <button
+                onClick={() => {
+                  createFile();
+                  setShowNewMenu(false);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] transition-colors hover:bg-[var(--bg-hover)]"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                <FileText size={14} />
+                New Note
+              </button>
+              <button
+                onClick={() => {
+                  createFolder();
+                  setShowNewMenu(false);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] transition-colors hover:bg-[var(--bg-hover)]"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                <FolderPlus size={14} />
+                New Folder
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Main File List */}
+      {/* File tree */}
       <div
         className="flex-1 overflow-y-auto no-scrollbar pt-0 px-2 pb-2"
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onContextMenu={(e) => {
-          // Only show the explorer menu if right-clicking the empty area
-          // (not on a file/folder item, which handles its own context menu)
           if (
             e.target === e.currentTarget ||
             (e.target as HTMLElement).closest('[data-filetree-item]') === null
@@ -181,7 +208,6 @@ export function FileExplorer() {
                 </div>
                 {pinnedFiles.map((fileId) => {
                   const node = findFile(fileId, files);
-                  // Ignore nodes that no longer exist
                   if (!node) return null;
                   return (
                     <FileTreeItem
@@ -208,7 +234,26 @@ export function FileExplorer() {
           </div>
         )}
       </div>
-      <SidebarFooter />
+
+      {/* Bottom: Settings & Trash */}
+      <div className="shrink-0 flex items-center justify-between px-3 py-2 select-none">
+        <button
+          onClick={() => openSystemTab('cinder-settings')}
+          className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
+          style={{ color: 'var(--text-tertiary)' }}
+          title="Settings"
+        >
+          <Settings size={15} strokeWidth={2} />
+        </button>
+        <button
+          onClick={() => openSystemTab('cinder-trash')}
+          className="h-[28px] w-[28px] flex items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)]"
+          style={{ color: 'var(--text-tertiary)' }}
+          title="Trash"
+        >
+          <Trash2 size={15} strokeWidth={2} />
+        </button>
+      </div>
     </div>
   );
 }
