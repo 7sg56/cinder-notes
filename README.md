@@ -155,7 +155,6 @@ We're currently in **active development**. Here's what's been completed and what
 
 - [ ] Confirmation dialogs for destructive actions
 - [ ] Unsaved changes indicator on tabs
-- [ ] Export to HTML/Markdown via save dialog
 - [ ] Workspace persistence (remember last workspace on relaunch)
 - [ ] Wire up general settings panel
 - [ ] Command palette
