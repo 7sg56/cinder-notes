@@ -90,3 +90,19 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  # ── Gate job ──
+
+  verify-tests:
+    name: Verify Tests
+    needs: [test-rust, test-react, test-e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check test results
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "One or more test jobs failed or were cancelled."
+            exit 1
+          fi
+          echo "All test jobs passed!"
