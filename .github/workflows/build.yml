@@ -5,98 +5,62 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  setup:
-    name: Setup
-    uses: ./.github/workflows/node-setup.yml
-
-  # ── Frontend checks (run when src/ or config files change) ──
+  # ── Frontend checks ──
 
   lint:
     name: Lint
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
+      - name: Node Setup
+        uses: ./.github/actions/node-setup
 
       - name: Lint
         run: npm run lint
 
   typecheck:
     name: Typecheck
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
+      - name: Node Setup
+        uses: ./.github/actions/node-setup
 
       - name: Typecheck
         run: npm run typecheck
 
   prettier:
     name: Prettier
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
+      - name: Node Setup
+        uses: ./.github/actions/node-setup
 
       - name: Check formatting
         run: npm run format:check
 
   build:
     name: Build (Vite)
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
+      - name: Node Setup
+        uses: ./.github/actions/node-setup
 
       - name: Build
         run: npm run build
@@ -129,16 +93,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
+      - name: Node Setup
+        uses: ./.github/actions/node-setup
 
       - name: Install system dependencies
         run: |
@@ -160,17 +116,3 @@ jobs:
 
       - name: Build Tauri app
         run: npm run tauri:build
-
-  verify:
-    name: Verify PR
-    needs: [lint, typecheck, prettier, build, tauri-build]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check pipeline status
-        run: |
-          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
-            echo "❌ One or more pipeline jobs failed or were cancelled."
-            exit 1
-          fi
-          echo "✅ All jobs completed successfully or were intentionally skipped!"

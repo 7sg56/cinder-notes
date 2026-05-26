@@ -5,12 +5,12 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  setup:
-    name: Setup
-    uses: ./.github/workflows/node-setup.yml
-
   # ── Rust backend tests ──
 
   test-rust:
@@ -45,22 +45,13 @@ jobs:
 
   test-react:
     name: React Component Tests
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
+      - name: Node Setup
+        uses: ./.github/actions/node-setup
 
       - name: Run component tests
         run: npm run test:ui
@@ -69,22 +60,22 @@ jobs:
 
   test-e2e:
     name: Playwright E2E Tests
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      - name: Node Setup
+        uses: ./.github/actions/node-setup
 
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-browsers-${{ runner.os }}-chromium-
+            playwright-browsers-${{ runner.os }}-
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -99,19 +90,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
-
-  # ── Gate job ──
-
-  verify-tests:
-    name: Verify Tests
-    needs: [test-rust, test-react, test-e2e]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check test results
-        run: |
-          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
-            echo "One or more test jobs failed or were cancelled."
-            exit 1
-          fi
-          echo "All test jobs passed!"
