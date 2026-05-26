@@ -235,3 +235,185 @@ pub fn empty_all(workspace: &Path) -> Result<(), String> {
     write_manifest(workspace, &[])?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::{self, File};
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_trash_dir_path() {
+        let workspace = Path::new("/workspace");
+        assert_eq!(trash_dir(workspace), PathBuf::from("/workspace/.trash"));
+    }
+
+    #[test]
+    fn test_manifest_path_location() {
+        let workspace = Path::new("/workspace");
+        assert_eq!(
+            manifest_path(workspace),
+            PathBuf::from("/workspace/.trash/.manifest.json")
+        );
+    }
+
+    #[test]
+    fn test_read_manifest_empty_when_no_file() {
+        let dir = tempdir().unwrap();
+        let entries = read_manifest(dir.path()).unwrap();
+        assert!(entries.is_empty());
+    }
+
+    #[test]
+    fn test_write_and_read_manifest_roundtrip() {
+        let dir = tempdir().unwrap();
+        let trash = trash_dir(dir.path());
+        fs::create_dir_all(&trash).unwrap();
+
+        let entries = vec![TrashEntry {
+            id: "123".to_string(),
+            original_name: "test.md".to_string(),
+            original_path: "/workspace/test.md".to_string(),
+            relative_path: "test.md".to_string(),
+            trashed_name: "test.md".to_string(),
+            trashed_at: "2024-01-01T00:00:00Z".to_string(),
+            entry_type: "file".to_string(),
+        }];
+
+        write_manifest(dir.path(), &entries).unwrap();
+        let loaded = read_manifest(dir.path()).unwrap();
+
+        assert_eq!(loaded.len(), 1);
+        assert_eq!(loaded[0].id, "123");
+        assert_eq!(loaded[0].original_name, "test.md");
+    }
+
+    #[test]
+    fn test_move_file_to_trash() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("note.md");
+        let mut f = File::create(&file_path).unwrap();
+        write!(f, "content").unwrap();
+
+        let entry = move_to_trash(dir.path(), &file_path, "file").unwrap();
+
+        // Original file should be gone
+        assert!(!file_path.exists());
+        // File should now exist in .trash/
+        assert!(trash_dir(dir.path()).join(&entry.trashed_name).exists());
+        // Manifest should have one entry
+        let manifest = read_manifest(dir.path()).unwrap();
+        assert_eq!(manifest.len(), 1);
+        assert_eq!(manifest[0].original_name, "note.md");
+        assert_eq!(manifest[0].entry_type, "file");
+    }
+
+    #[test]
+    fn test_move_folder_to_trash() {
+        let dir = tempdir().unwrap();
+        let folder_path = dir.path().join("my_folder");
+        fs::create_dir(&folder_path).unwrap();
+        File::create(folder_path.join("child.md")).unwrap();
+
+        let entry = move_to_trash(dir.path(), &folder_path, "folder").unwrap();
+
+        assert!(!folder_path.exists());
+        assert!(trash_dir(dir.path()).join(&entry.trashed_name).is_dir());
+        assert_eq!(entry.entry_type, "folder");
+    }
+
+    #[test]
+    fn test_restore_item_success() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("restore_me.md");
+        let mut f = File::create(&file_path).unwrap();
+        write!(f, "important data").unwrap();
+
+        let entry = move_to_trash(dir.path(), &file_path, "file").unwrap();
+        assert!(!file_path.exists());
+
+        let restored_path = restore_item(dir.path(), &entry.id).unwrap();
+        assert_eq!(restored_path, file_path.to_string_lossy().to_string());
+        assert!(file_path.exists());
+        assert_eq!(fs::read_to_string(&file_path).unwrap(), "important data");
+
+        // Manifest should now be empty
+        let manifest = read_manifest(dir.path()).unwrap();
+        assert!(manifest.is_empty());
+    }
+
+    #[test]
+    fn test_restore_item_not_found() {
+        let dir = tempdir().unwrap();
+        let result = restore_item(dir.path(), "nonexistent-id");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("not found"));
+    }
+
+    #[test]
+    fn test_delete_item_permanently() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("delete_permanently.md");
+        let mut f = File::create(&file_path).unwrap();
+        write!(f, "gone forever").unwrap();
+
+        let entry = move_to_trash(dir.path(), &file_path, "file").unwrap();
+        let trashed_file = trash_dir(dir.path()).join(&entry.trashed_name);
+        assert!(trashed_file.exists());
+
+        delete_item(dir.path(), &entry.id).unwrap();
+        assert!(!trashed_file.exists());
+
+        let manifest = read_manifest(dir.path()).unwrap();
+        assert!(manifest.is_empty());
+    }
+
+    #[test]
+    fn test_delete_item_not_found() {
+        let dir = tempdir().unwrap();
+        let result = delete_item(dir.path(), "nonexistent-id");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_empty_all() {
+        let dir = tempdir().unwrap();
+
+        // Create and trash two files
+        let file1 = dir.path().join("file1.md");
+        let file2 = dir.path().join("file2.md");
+        File::create(&file1).unwrap();
+        File::create(&file2).unwrap();
+
+        move_to_trash(dir.path(), &file1, "file").unwrap();
+        move_to_trash(dir.path(), &file2, "file").unwrap();
+
+        let manifest = read_manifest(dir.path()).unwrap();
+        assert_eq!(manifest.len(), 2);
+
+        empty_all(dir.path()).unwrap();
+
+        let manifest = read_manifest(dir.path()).unwrap();
+        assert!(manifest.is_empty());
+
+        // Only .manifest.json should remain in .trash/
+        let trash_contents: Vec<_> = fs::read_dir(trash_dir(dir.path()))
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .collect();
+        assert_eq!(trash_contents.len(), 1);
+        assert_eq!(
+            trash_contents[0].file_name().to_string_lossy(),
+            ".manifest.json"
+        );
+    }
+
+    #[test]
+    fn test_empty_all_noop_when_no_trash() {
+        let dir = tempdir().unwrap();
+        // Should not error when .trash/ doesn't exist
+        let result = empty_all(dir.path());
+        assert!(result.is_ok());
+    }
+}

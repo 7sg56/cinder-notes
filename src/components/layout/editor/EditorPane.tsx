@@ -12,7 +12,7 @@ export function EditorPane() {
   const editorViewRef = useRef<EditorView | null>(null);
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full" data-testid="editor-pane">
       <EditorTabs />
       {activeFileId === 'welcome' ? (
         <WelcomePage />

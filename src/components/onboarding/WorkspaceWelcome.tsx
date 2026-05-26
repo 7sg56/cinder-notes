@@ -27,7 +27,7 @@ export function WorkspaceWelcome() {
   };
 
   return (
-    <div className="welcome-view">
+    <div className="welcome-view" data-testid="welcome-page">
       <div className="welcome-drag-region" data-tauri-drag-region />
 
       <div className="welcome-content">
@@ -48,6 +48,7 @@ export function WorkspaceWelcome() {
             className="welcome-action"
             onClick={() => createAndLoadWorkspace()}
             id="welcome-create-new"
+            data-testid="welcome-create-new"
           >
             <div className="welcome-action-icon">
               <FolderPlus size={15} strokeWidth={1.5} />
@@ -64,6 +65,7 @@ export function WorkspaceWelcome() {
             className="welcome-action"
             onClick={() => selectAndLoadWorkspace()}
             id="welcome-open-existing"
+            data-testid="welcome-open-folder"
           >
             <div className="welcome-action-icon">
               <FolderOpen size={15} strokeWidth={1.5} />
@@ -88,6 +90,7 @@ export function WorkspaceWelcome() {
                   key={ws.path}
                   className="welcome-recent"
                   onClick={() => handleOpenRecent(ws.path)}
+                  data-testid="recent-workspace"
                 >
                   <div className="welcome-recent-icon">
                     <FolderOpen size={14} strokeWidth={1.5} />
@@ -103,6 +106,7 @@ export function WorkspaceWelcome() {
                     onClick={(e) => handleRemoveRecent(e, ws.path)}
                     title="Remove from recent"
                     aria-label="Remove from recent workspaces"
+                    data-testid="recent-workspace-remove"
                   >
                     <X size={11} />
                   </button>
@@ -112,7 +116,7 @@ export function WorkspaceWelcome() {
           </>
         )}
 
-        <p className="welcome-hint">
+        <p className="welcome-hint" data-testid="welcome-hint">
           <kbd>{cmdKey}+O</kbd> to open a folder anytime
         </p>
       </div>

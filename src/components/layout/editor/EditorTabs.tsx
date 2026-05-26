@@ -40,6 +40,7 @@ export function EditorTabs() {
     <>
       <div
         data-tauri-drag-region
+        data-testid="editor-tabs"
         className="flex items-center shrink-0 relative"
         style={{
           backgroundColor: 'var(--bg-primary)',
@@ -66,6 +67,7 @@ export function EditorTabs() {
               <div
                 key={fileId}
                 data-no-drag
+                data-testid="editor-tab"
                 onClick={() => selectFile(fileId)}
                 onContextMenu={(e) => {
                   e.preventDefault();
@@ -151,6 +153,7 @@ export function EditorTabs() {
                   style={{
                     color: 'var(--text-tertiary)',
                   }}
+                  data-testid="tab-close-button"
                 >
                   <X size={14} />
                 </button>
@@ -172,6 +175,7 @@ export function EditorTabs() {
             className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
             style={{ color: 'var(--text-tertiary)' }}
             title="New Tab"
+            data-testid="new-tab-button"
           >
             <Plus size={18} />
           </button>
@@ -182,6 +186,7 @@ export function EditorTabs() {
             className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
             style={{ color: 'var(--text-tertiary)' }}
             title="Toggle Sidebar"
+            data-testid="toggle-sidebar-button"
           >
             <PanelLeft size={16} />
           </button>
@@ -198,6 +203,7 @@ export function EditorTabs() {
             title={
               isExplorerCollapsed ? 'Exit Fullscreen' : 'Fullscreen Editor'
             }
+            data-testid="fullscreen-button"
           >
             {isExplorerCollapsed ? (
               <Minimize2 size={16} />

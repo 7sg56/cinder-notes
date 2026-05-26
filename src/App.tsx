@@ -10,6 +10,7 @@ import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import { useWorkspace } from './hooks/useWorkspace';
+import { isTauri } from './util/tauri';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
@@ -47,6 +48,10 @@ function App() {
 
   // Determine once whether we should attempt auto-load
   const shouldAutoLoad = useMemo(() => {
+    // In non-Tauri environments (like E2E tests), skip auto-load to ensure tests work reliably
+    if (!isTauri()) {
+      return false;
+    }
     return !workspacePath && !!lastWorkspacePath;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastWorkspacePath]);
@@ -63,6 +68,7 @@ function App() {
   // Global window drag handler - uses Tauri JS API since CSS app-region
   // doesn't work reliably with transparent overlay windows on macOS
   useEffect(() => {
+    if (!isTauri()) return;
     const handleMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       // Check if click is on a drag region element itself
@@ -82,6 +88,7 @@ function App() {
 
   // Show the main window once the app is ready
   useEffect(() => {
+    if (!isTauri()) return;
     // Show immediately if no auto-load, or after auto-load completes
     if (!isAutoLoading) {
       getCurrentWindow().show().catch(console.error);
@@ -90,7 +97,7 @@ function App() {
 
   // Also show once workspace loads (covers the auto-load success case)
   useEffect(() => {
-    if (workspacePath) {
+    if (workspacePath && isTauri()) {
       getCurrentWindow().show().catch(console.error);
     }
   }, [workspacePath]);
@@ -99,6 +106,11 @@ function App() {
   useEffect(() => {
     if (attemptedRef.current) return;
     attemptedRef.current = true;
+
+    if (!isTauri()) {
+      setIsAutoLoading(false);
+      return;
+    }
 
     if (shouldAutoLoad && lastWorkspacePath) {
       loadWorkspace(lastWorkspacePath)
@@ -115,6 +127,7 @@ function App() {
 
   // Listen for native menu bar events
   useEffect(() => {
+    if (!isTauri()) return;
     const unlistens: Promise<() => void>[] = [];
 
     unlistens.push(

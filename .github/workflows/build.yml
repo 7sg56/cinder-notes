@@ -1,4 +1,4 @@
-name: CI
+name: Build
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 jobs:
   setup:
     name: Setup
-    uses: ./.github/workflows/setup.yml
+    uses: ./.github/workflows/node-setup.yml
 
   # ── Frontend checks (run when src/ or config files change) ──
 

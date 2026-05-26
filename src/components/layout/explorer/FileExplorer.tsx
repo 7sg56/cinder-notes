@@ -126,6 +126,7 @@ export function FileExplorer() {
     <div
       className="h-full flex flex-col"
       style={{ backgroundColor: 'var(--bg-primary)' }}
+      data-testid="file-explorer"
     >
       {/* Drag region spacer for macOS traffic lights */}
       <div data-tauri-drag-region className="h-[46px] shrink-0 select-none" />
@@ -147,6 +148,7 @@ export function FileExplorer() {
             placeholder="Search..."
             className="flex-1 bg-transparent border-none outline-none text-[12px] placeholder:text-[var(--text-tertiary)] min-w-0"
             style={{ color: 'var(--text-primary)' }}
+            data-testid="explorer-search"
           />
         </div>
 
@@ -157,6 +159,7 @@ export function FileExplorer() {
             className="h-[30px] w-[30px] flex items-center justify-center rounded-full transition-colors hover:bg-[var(--bg-hover)]"
             style={{ color: 'var(--text-secondary)' }}
             title="New..."
+            data-testid="explorer-add-button"
           >
             <Plus size={16} strokeWidth={2.5} />
           </button>
@@ -176,6 +179,7 @@ export function FileExplorer() {
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] transition-colors hover:bg-[var(--bg-hover)]"
                 style={{ color: 'var(--text-secondary)' }}
+                data-testid="explorer-new-note"
               >
                 <FileText size={14} />
                 New Note
@@ -187,6 +191,7 @@ export function FileExplorer() {
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] transition-colors hover:bg-[var(--bg-hover)]"
                 style={{ color: 'var(--text-secondary)' }}
+                data-testid="explorer-new-folder"
               >
                 <FolderPlus size={14} />
                 New Folder
@@ -223,6 +228,7 @@ export function FileExplorer() {
         style={{ paddingTop: '2px', paddingBottom: '2px' }}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
+        data-testid="file-tree"
         onContextMenu={(e) => {
           if (
             e.target === e.currentTarget ||
@@ -258,6 +264,7 @@ export function FileExplorer() {
               userSelect: 'none',
               color: 'var(--text-tertiary)',
             }}
+            data-testid="file-tree-empty"
           >
             {searchQuery.trim() ? 'No matches found' : 'No files yet'}
           </div>
@@ -287,6 +294,7 @@ export function FileExplorer() {
             onClick={() => openSystemTab('cinder-settings')}
             className="vsc-icon-btn"
             title="Settings"
+            data-testid="sidebar-settings-button"
             style={{
               width: '26px',
               height: '26px',
@@ -306,6 +314,7 @@ export function FileExplorer() {
             onClick={() => openSystemTab('cinder-trash')}
             className="vsc-icon-btn"
             title="Trash"
+            data-testid="sidebar-trash-button"
             style={{
               width: '26px',
               height: '26px',
