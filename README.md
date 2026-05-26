@@ -153,19 +153,19 @@ We're currently in **active development**. Here's what's been completed and what
 
 ### Planned (v0.2)
 
-- [ ] Confirmation dialogs for destructive actions
-- [ ] Unsaved changes indicator on tabs
-- [ ] Workspace persistence (remember last workspace on relaunch)
-- [ ] Wire up general settings panel
-- [ ] Command palette
-- [ ] Note linking and backlinks
-- [ ] End-to-end encryption
-- [ ] Plugin system
+- Obsolete Feature - Confirmation dialogs for destructive actions
+- Obsolete Feature - Unsaved changes indicator on tabs
+- TBDL - Export to HTML/Markdown via save dialog
+- [x] Workspace persistence (remember last workspace on relaunch)
+- [x] Wire up general settings panel
+- [x] Note linking and backlinks
+- Obsolete Feature - End-to-end encryption
+- Obsolete Feature - Plugin system
 
 ### Timeline
 
 - **v0.1 Alpha** -- February 2026 (released)
-- **v0.2** -- In progress
+- **v0.2** -- Reaching Launch
 - **v1.0 Stable** -- Q2 2026
 
 ---
@@ -201,3 +201,5 @@ MIT License -- see [LICENSE](LICENSE) for details.
 <p align="center">
   <sub>If you find Cinder useful, consider giving it a <a href="https://github.com/7sg56/cinder-notes">star on GitHub</a>.</sub>
 </p>
+
+
