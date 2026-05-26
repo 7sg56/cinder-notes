@@ -48,6 +48,10 @@ function App() {
 
   // Determine once whether we should attempt auto-load
   const shouldAutoLoad = useMemo(() => {
+    // In non-Tauri environments (like E2E tests), skip auto-load to ensure tests work reliably
+    if (!isTauri()) {
+      return false;
+    }
     return !workspacePath && !!lastWorkspacePath;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastWorkspacePath]);
