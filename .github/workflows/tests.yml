@@ -1,90 +1,81 @@
+# Tests include playwright, vitest & rust-toolchain
+
 name: Tests
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
+  workflow_call:
 
 jobs:
-  # ── Rust backend tests ──
-
+  # Rust backend tests
   test-rust:
     name: Rust Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      # id exposed so the cache key can include the resolved toolchain version.
+      - uses: dtolnay/rust-toolchain@stable
+        id: rust-toolchain
 
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: rust-test-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
-          restore-keys: rust-test-${{ runner.os }}-
+          key: rust-test-${{ runner.os }}-${{ steps.rust-toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-test-${{ runner.os }}-${{ steps.rust-toolchain.outputs.cachekey }}-
 
-      - name: Run Rust tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+      - run: cargo test --manifest-path src-tauri/Cargo.toml
 
-  # ── React component tests (Vitest + RTL) ──
-
+  # React component tests (Vitest + RTL)
   test-react:
     name: React Component Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/node-setup
+      - run: npm run test:ui
 
-      - name: Node Setup
-        uses: ./.github/actions/node-setup
-
-      - name: Run component tests
-        run: npm run test:ui
-
-  # ── Playwright E2E tests ──
-
+  # Playwright E2E tests
   test-e2e:
     name: Playwright E2E Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/node-setup
 
-      - name: Node Setup
-        uses: ./.github/actions/node-setup
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
+        id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ runner.os }}-chromium-${{ hashFiles('package-lock.json') }}
+          key: playwright-${{ runner.os }}-chromium-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            playwright-browsers-${{ runner.os }}-chromium-
-            playwright-browsers-${{ runner.os }}-
+            playwright-${{ runner.os }}-chromium-
+            playwright-${{ runner.os }}-
 
-      - name: Install Playwright browsers
+      # Cache miss: download browser + install OS-level dependencies in one shot.
+      - name: Install Playwright browsers (cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Run E2E tests
-        run: npm run test:e2e
+      # Cache hit: browsers are already on disk; only OS deps need installing.
+      # This skips the browser download (~150 MB) while keeping system libs current.
+      - name: Install Playwright system dependencies (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
 
-      - name: Upload test report
-        uses: actions/upload-artifact@v4
+      - run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
