@@ -1,0 +1,34 @@
+name: Final Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yml
+
+  tests:
+    name: Tests
+    uses: ./.github/workflows/tests.yml
+
+  final-check:
+    name: Final Check
+    needs: [build, tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "One or more build or test jobs failed or were cancelled."
+            exit 1
+          fi
+          echo "All build and test jobs passed!"
