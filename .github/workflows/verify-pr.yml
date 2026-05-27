@@ -29,32 +29,44 @@ jobs:
           # Wait for Tests and Build workflows to complete
           echo "Waiting for all required workflows to complete..."
 
-          required_workflows=("Tests" "Build")
+          required_workflows=("tests.yml" "build.yml")
           all_passed=true
 
           for workflow in "${required_workflows[@]}"; do
-            echo "Waiting for $workflow workflow..."
+            echo "Waiting for $workflow..."
             timeout=3600  # 60 minutes
             elapsed=0
             interval=15
 
             while [ $elapsed -lt $timeout ]; do
-              status=$(gh api \
+              # Use workflow runs API, filtered by event sha
+              run_data=$(gh api \
                 --method GET \
                 -H "Accept: application/vnd.github+json" \
-                "repos/$REPO/commits/$PR_SHA/check-runs?check_name=$workflow" \
-                --jq '.check_runs[0].conclusion // "running"' 2>/dev/null || echo "running")
+                "repos/$REPO/actions/runs?event=pull_request&head_sha=$PR_SHA&per_page=20" \
+                --jq ".workflow_runs[] | select(.name == \"$(basename "$workflow" .yml)\")" 2>/dev/null || echo "")
 
-              if [ "$status" = "success" ]; then
-                echo "✓ $workflow passed"
-                break
-              elif [ "$status" = "failure" ]; then
-                echo "✗ $workflow failed"
-                all_passed=false
-                break
-              elif [ "$status" = "skipped" ]; then
-                echo "⊘ $workflow was skipped"
-                break
+              if [ -n "$run_data" ]; then
+                status=$(echo "$run_data" | jq -r '.status // "queued"')
+                conclusion=$(echo "$run_data" | jq -r '.conclusion // ""')
+
+                if [ "$status" = "completed" ]; then
+                  if [ "$conclusion" = "success" ]; then
+                    echo "✓ $workflow passed"
+                    break
+                  elif [ "$conclusion" = "failure" ] || [ "$conclusion" = "timed_out" ]; then
+                    echo "✗ $workflow failed ($conclusion)"
+                    all_passed=false
+                    break
+                  elif [ "$conclusion" = "cancelled" ]; then
+                    echo "⊘ $workflow was cancelled"
+                    all_passed=false
+                    break
+                  elif [ "$conclusion" = "skipped" ]; then
+                    echo "⊘ $workflow was skipped"
+                    break
+                  fi
+                fi
               fi
 
               sleep $interval
