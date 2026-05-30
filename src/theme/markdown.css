@@ -255,20 +255,27 @@
 /* =====================================================
    MATH — KaTeX
    ===================================================== */
-.markdown-preview .katex {
-  font-size: 1.05em;
-  line-height: 1.5;
-  vertical-align: -0.05em;
+.markdown-preview .katex.katex {
+  font:
+    normal 1.4em KaTeX_Main,
+    Times New Roman,
+    serif;
+  line-height: 2;
+  vertical-align: -0.2em;
 }
 
 .markdown-preview .katex-display {
-  margin: 1.4em 0;
+  margin: 2em 0;
   overflow-x: auto;
-  padding: 0.5em 0;
+  padding: 1.2em 0;
 }
 
-.markdown-preview .katex-display > .katex {
-  font-size: 1.08em;
+.markdown-preview .katex-display > .katex.katex {
+  font:
+    normal 1.6em KaTeX_Main,
+    Times New Roman,
+    serif;
+  line-height: 2.2;
 }
 
 /* =====================================================

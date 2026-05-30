@@ -493,11 +493,16 @@ export function FileTreeItem({
       </div>
 
       {/* Children */}
-      {node.type === 'folder' && isOpen && node.children && (
-        <div>
-          {node.children.map((child) => (
-            <FileTreeItem key={child.id} node={child} depth={depth + 1} />
-          ))}
+      {node.type === 'folder' && node.children && (
+        <div
+          className="grid transition-[grid-template-rows] duration-200 ease-in-out"
+          style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
+        >
+          <div className="overflow-hidden">
+            {node.children.map((child) => (
+              <FileTreeItem key={child.id} node={child} depth={depth + 1} />
+            ))}
+          </div>
         </div>
       )}
     </div>
