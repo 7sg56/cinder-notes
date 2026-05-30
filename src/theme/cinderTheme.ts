@@ -1,8 +1,13 @@
 /**
- * CodeMirror 6 theme that reads from Cinder's CSS variables.
+ * CodeMirror 6 theme for Cinder Notes.
  *
- * This automatically syncs with all 12 theme variants since the CSS
- * variables are swapped when the user changes themes.
+ * Plain source-mode editing (Obsidian-style):
+ * - Monospace font throughout
+ * - Tight, compact spacing
+ * - Muted syntax colors -- just enough to parse structure at a glance
+ * - No size/weight/style changes on any token
+ *
+ * Automatically syncs with all theme variants via CSS variables.
  */
 
 import { EditorView } from '@codemirror/view';
@@ -10,7 +15,7 @@ import type { Extension } from '@codemirror/state';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 
-// ── Editor chrome (backgrounds, gutters, cursors, selections) ────────────────
+// -- Editor chrome ------------------------------------------------------------
 
 const cinderEditorTheme = EditorView.theme(
   {
@@ -21,28 +26,28 @@ const cinderEditorTheme = EditorView.theme(
     },
     '.cm-scroller': {
       fontFamily:
-        "'Space Grotesk', system-ui, Avenir, Helvetica, Arial, sans-serif !important",
-      WebkitFontSmoothing: 'antialiased',
+        "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace",
+      fontSize: '14px',
     },
     '&.cm-focused': {
       outline: 'none',
     },
     '.cm-content': {
-      padding: '2.5rem 3rem',
-      paddingBottom: '6rem',
-      lineHeight: '1.85',
-      caretColor: 'var(--editor-header-accent)',
+      padding: '1.5rem 2rem',
+      paddingBottom: '40vh',
+      lineHeight: '1.6',
+      caretColor: 'var(--editor-text)',
     },
     '.cm-cursor, .cm-dropCursor': {
-      borderLeftColor: 'var(--editor-header-accent)',
-      borderLeftWidth: '2px',
+      borderLeftColor: 'var(--editor-text)',
+      borderLeftWidth: '1.5px',
     },
     '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection':
       {
         backgroundColor: 'var(--editor-selection-bg) !important',
       },
     '.cm-activeLine': {
-      backgroundColor: 'var(--bg-active)',
+      backgroundColor: 'rgba(255, 255, 255, 0.02)',
     },
     '.cm-gutters': {
       backgroundColor: 'var(--editor-bg)',
@@ -56,79 +61,15 @@ const cinderEditorTheme = EditorView.theme(
     },
     '.cm-lineNumbers .cm-gutterElement': {
       fontSize: '12px',
-      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+      fontFamily: 'inherit',
       minWidth: '2.5em',
       padding: '0 8px 0 0',
     },
     '.cm-foldGutter': {
       width: '16px',
     },
-    /* AST STYLING */
-    '.cm-paragraph-line': {
-      paddingTop: '0.6em',
-      paddingBottom: '0.6em',
-    },
-    '.cm-md-mark': {
-      opacity: '0.35',
-      transition: 'opacity 0.2s ease',
-    },
-    '&.cm-focused .cm-activeLine .cm-md-mark': {
-      opacity: '0.75',
-    },
-    '.cm-md-inline-code': {
-      backgroundColor: 'var(--bg-tertiary)',
-      padding: '0.25em 0.5em',
-      borderRadius: '6px',
-      fontSize: '0.85em',
-      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-      border: '1px solid var(--border-secondary)',
-      color: 'var(--text-primary)',
-    },
-    '.cm-codeblock-line': {
-      backgroundColor: 'var(--bg-secondary)',
-      paddingLeft: '1.3em',
-      paddingRight: '1.3em',
-      borderLeft: '1px solid var(--border-secondary)',
-      borderRight: '1px solid var(--border-secondary)',
-    },
-    '.cm-codeblock-line *': {
-      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-      fontSize: '0.9em',
-      lineHeight: '1.65',
-    },
-    '.cm-heading-line': {
-      fontWeight: '650',
-      lineHeight: '1.3',
-      letterSpacing: '-0.02em',
-      color: 'var(--markdown-heading)',
-      paddingTop: '1.4em',
-      paddingBottom: '0.5em',
-    },
-    '.cm-heading-line.cm-h1, .cm-heading-line.cm-h1 *': {
-      fontSize: '1.9rem !important',
-    },
-    '.cm-heading-line.cm-h2, .cm-heading-line.cm-h2 *': {
-      fontSize: '1.45rem !important',
-    },
-    '.cm-heading-line.cm-h3, .cm-heading-line.cm-h3 *': {
-      fontSize: '1.25rem !important',
-    },
-    '.cm-heading-line.cm-h4, .cm-heading-line.cm-h4 *': {
-      fontSize: '1.1rem !important',
-    },
-    '.cm-blockquote-line': {
-      backgroundColor: 'var(--bg-active)',
-      boxShadow: 'inset 4px 0 0 var(--editor-header-accent)',
-      color: 'var(--text-secondary)',
-      paddingLeft: '1.6em',
-      paddingTop: '0.2em',
-      paddingBottom: '0.2em',
-      fontStyle: 'italic',
-      border: '1px solid var(--border-secondary)',
-      borderLeft: 'none',
-    },
 
-    /* ── Search / Find Panel (VS Code-style floating widget) ── */
+    /* -- Search / Find Panel -- */
     '.cm-panels': {
       backgroundColor: 'transparent !important',
       border: 'none !important',
@@ -152,10 +93,8 @@ const cinderEditorTheme = EditorView.theme(
       alignItems: 'center',
       gap: '8px',
       width: '320px',
-      fontFamily:
-        "'Space Grotesk', system-ui, Avenir, Helvetica, Arial, sans-serif",
+      fontFamily: 'inherit',
     },
-    /* Hide everything except the find input and close button */
     '.cm-search br': { display: 'none' },
     '.cm-search input[name=replace]': { display: 'none' },
     '.cm-search button[name=replace]': { display: 'none' },
@@ -164,13 +103,12 @@ const cinderEditorTheme = EditorView.theme(
     '.cm-search button[name=prev]': { display: 'none' },
     '.cm-search button[name=select]': { display: 'none' },
     '.cm-search label': { display: 'none' },
-    /* Find input */
     '.cm-search input.cm-textfield': {
       backgroundColor: 'var(--bg-primary)',
       color: 'var(--text-primary)',
       border: '1px solid var(--border-secondary)',
-      borderRadius: '6px',
-      padding: '5px 10px',
+      borderRadius: '4px',
+      padding: '4px 8px',
       fontSize: '13px',
       fontFamily: 'inherit',
       outline: 'none',
@@ -178,10 +116,8 @@ const cinderEditorTheme = EditorView.theme(
       minWidth: '0',
     },
     '.cm-search input.cm-textfield:focus': {
-      borderColor: 'var(--editor-header-accent)',
-      boxShadow: '0 0 0 2px var(--accent-glow, rgba(244, 140, 37, 0.15))',
+      borderColor: 'var(--text-secondary)',
     },
-    /* Close button */
     '.cm-search [name=close]': {
       position: 'static !important',
       color: 'var(--text-tertiary)',
@@ -195,7 +131,6 @@ const cinderEditorTheme = EditorView.theme(
       color: 'var(--text-primary)',
       backgroundColor: 'var(--bg-hover)',
     },
-    /* Search match highlight */
     '.cm-searchMatch': {
       backgroundColor: 'var(--editor-selection-bg)',
       borderRadius: '2px',
@@ -208,113 +143,43 @@ const cinderEditorTheme = EditorView.theme(
   { dark: true }
 );
 
-// ── Syntax highlighting (markdown tokens) ────────────────────────────────────
+// -- Syntax highlighting (muted colors, no formatting changes) ----------------
 
 const cinderHighlightStyle = HighlightStyle.define([
-  // Headings (Matching preview sizes and weight)
-  {
-    tag: tags.heading1,
-    color: 'var(--markdown-heading)',
-    fontWeight: '650',
-    fontSize: '1.9rem',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.3',
-  },
-  {
-    tag: tags.heading2,
-    color: 'var(--markdown-heading)',
-    fontWeight: '650',
-    fontSize: '1.45rem',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.3',
-  },
-  {
-    tag: tags.heading3,
-    color: 'var(--markdown-heading)',
-    fontWeight: '650',
-    fontSize: '1.25rem',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.3',
-  },
-  {
-    tag: tags.heading4,
-    color: 'var(--markdown-heading)',
-    fontWeight: '650',
-    fontSize: '1.1em',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.3',
-  },
-  {
-    tag: tags.heading5,
-    color: 'var(--markdown-heading)',
-    fontWeight: '650',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.3',
-  },
-  {
-    tag: tags.heading6,
-    color: 'var(--markdown-heading)',
-    fontWeight: '650',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.3',
-  },
+  // Headings -- same as body text but tinted with heading color
+  { tag: tags.heading1, color: 'var(--markdown-heading)' },
+  { tag: tags.heading2, color: 'var(--markdown-heading)' },
+  { tag: tags.heading3, color: 'var(--markdown-heading)' },
+  { tag: tags.heading4, color: 'var(--markdown-heading)' },
+  { tag: tags.heading5, color: 'var(--markdown-heading)' },
+  { tag: tags.heading6, color: 'var(--markdown-heading)' },
 
-  // Emphasis
-  {
-    tag: tags.strong,
-    color: 'var(--markdown-strong, var(--text-primary))',
-    fontWeight: '600',
-  },
-  {
-    tag: tags.emphasis,
-    color: 'var(--text-primary)',
-    opacity: '0.9',
-    fontStyle: 'italic',
-  },
-  {
-    tag: tags.strikethrough,
-    textDecoration: 'line-through',
-    color: 'var(--text-secondary)',
-    opacity: '0.6',
-  },
+  // Emphasis -- same color as body, no style changes
+  { tag: tags.strong, color: 'var(--editor-text)' },
+  { tag: tags.emphasis, color: 'var(--editor-text)' },
+  { tag: tags.strikethrough, color: 'var(--text-tertiary)' },
 
   // Links
-  {
-    tag: tags.link,
-    color: 'var(--markdown-link)',
-    textDecoration: 'underline',
-  },
-  { tag: tags.url, color: 'var(--markdown-link)', textDecoration: 'underline' },
+  { tag: tags.link, color: 'var(--markdown-link)' },
+  { tag: tags.url, color: 'var(--text-tertiary)' },
 
-  // Code
-  {
-    tag: tags.monospace,
-    color: 'var(--markdown-code)',
-    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-    fontSize: '0.85em',
-    backgroundColor: 'var(--markdown-code-bg)',
-    padding: '0.2em 0.45em',
-    borderRadius: '6px',
-    border: '1px solid var(--border-primary)',
-  },
+  // Code -- already monospace, just tint
+  { tag: tags.monospace, color: 'var(--markdown-code)' },
 
   // Lists
-  {
-    tag: tags.list,
-    color: 'var(--markdown-list, var(--editor-header-accent))',
-  },
+  { tag: tags.list, color: 'var(--editor-text)' },
 
   // Quotes
-  { tag: tags.quote, color: 'var(--text-secondary)', fontStyle: 'italic' },
+  { tag: tags.quote, color: 'var(--text-secondary)' },
 
-  // Meta / markup characters (# , ``` , ** , etc.)
+  // Markup characters (#, ```, **, etc.)
   { tag: tags.processingInstruction, color: 'var(--text-tertiary)' },
   { tag: tags.meta, color: 'var(--text-tertiary)' },
 
   // Comments
-  { tag: tags.comment, color: 'var(--text-tertiary)', fontStyle: 'italic' },
+  { tag: tags.comment, color: 'var(--text-tertiary)' },
 
-  // Keyword, operator, etc. for code blocks
+  // Code block internals
   { tag: tags.keyword, color: 'var(--markdown-code)' },
   { tag: tags.string, color: 'var(--markdown-link)' },
   { tag: tags.number, color: 'var(--editor-header-accent)' },
@@ -328,7 +193,7 @@ const cinderHighlightStyle = HighlightStyle.define([
   { tag: tags.definition(tags.variableName), color: 'var(--markdown-heading)' },
 ]);
 
-// ── Combined extension ───────────────────────────────────────────────────────
+// -- Combined extension -------------------------------------------------------
 
 export const cinderTheme: Extension = [
   cinderEditorTheme,
