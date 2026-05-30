@@ -16,14 +16,14 @@ const THEME_PRESETS: ThemePreset[] = [
     name: 'Cinder Dark',
     value: '',
     gradient: 'linear-gradient(135deg, #1f1f23 0%, #141417 100%)',
-    accent: '#f48c25',
+    accent: '#a1a1aa',
   },
   {
     id: 'cinder-light',
     name: 'Cinder Light',
     value: 'theme-cinder-light',
     gradient: 'linear-gradient(135deg, #fdfaf0 0%, #f2efe7 100%)',
-    accent: '#d97706',
+    accent: '#52525b',
   },
   {
     id: 'zen-black',

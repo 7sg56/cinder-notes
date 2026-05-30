@@ -52,10 +52,10 @@ export function EditorStatusBar({
             <div
               className="w-1.5 h-1.5 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: isAutoSave ? '#22c55e' : '#f59e0b',
+                backgroundColor: isAutoSave ? '#22c55e' : '#a1a1aa',
                 boxShadow: isAutoSave
                   ? '0 0 4px rgba(34, 197, 94, 0.3)'
-                  : '0 0 4px rgba(245, 158, 11, 0.3)',
+                  : '0 0 4px rgba(161, 161, 170, 0.3)',
               }}
             />
           </div>

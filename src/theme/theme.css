@@ -15,7 +15,7 @@
   --bg-tertiary: rgba(26, 26, 28, 0.82);
   /* Tabs/Popups */
   --bg-hover: rgba(255, 255, 255, 0.05);
-  --bg-active: rgba(244, 140, 37, 0.1);
+  --bg-active: rgba(161, 161, 170, 0.1);
 
   /* Text hierarchy */
   --text-primary: #ffffff;
@@ -27,9 +27,9 @@
   --text-white: #ffffff;
   --text-light-gray: #27272a;
 
-  /* The Signature "Cinder" Accent */
-  --editor-header-accent: #f48c25;
-  --accent-glow: rgba(244, 140, 37, 0.4);
+  /* Neutral Accent */
+  --editor-header-accent: #a1a1aa;
+  --accent-glow: rgba(161, 161, 170, 0.35);
 
   /* Separators & Borders */
   --separator: rgba(255, 255, 255, 0.12);
@@ -48,7 +48,7 @@
   /* Interactive Components */
   --editor-bg: #141417;
   --editor-text: #e4e4e7;
-  --editor-selection-bg: rgba(244, 140, 37, 0.25);
+  --editor-selection-bg: rgba(161, 161, 170, 0.2);
   --activity-bar-bg: var(--bg-secondary);
   --activity-item-border-active: var(--editor-header-accent);
 
@@ -59,7 +59,7 @@
   --vsc-indent-guide: rgba(255, 255, 255, 0.06);
   --vsc-tree-hover: rgba(255, 255, 255, 0.05);
   --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #c09553;
+  --filetree-icon-folder: #a1a1aa;
   --filetree-icon-file: #a1a1aa;
 }
 
@@ -78,7 +78,7 @@
   --bg-tertiary: rgba(232, 229, 221, 0.82);
   /* Tabs/Popups */
   --bg-hover: rgba(0, 0, 0, 0.05);
-  --bg-active: rgba(244, 140, 37, 0.1);
+  --bg-active: rgba(161, 161, 170, 0.1);
 
   /* Text hierarchy */
   --text-primary: #18181b;
@@ -104,17 +104,17 @@
   /* Interactive */
   --editor-bg: #fdfaf0;
   --editor-text: var(--text-primary);
-  --editor-selection-bg: rgba(244, 140, 37, 0.2);
+  --editor-selection-bg: rgba(161, 161, 170, 0.15);
   --activity-bar-bg: var(--bg-secondary);
 
-  --filetree-text-active: #d97706;
-  /* Slightly darker orange for visibility on light */
+  --filetree-text-active: #52525b;
+  /* Darker zinc for visibility on light */
   --filetree-bg-active: rgba(0, 0, 0, 0.04);
 
   --vsc-indent-guide: rgba(0, 0, 0, 0.08);
   --vsc-tree-hover: rgba(0, 0, 0, 0.04);
   --vsc-section-header-bg: rgba(0, 0, 0, 0.03);
-  --filetree-icon-folder: #b8860b;
+  --filetree-icon-folder: #71717a;
   --filetree-icon-file: #71717a;
 }
 
