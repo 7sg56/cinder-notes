@@ -259,9 +259,6 @@ export function normalizeLatex(text: string): string {
 
   result = out.join(lineBreak);
 
-  // 3. Remove \displaystyle keyword (common ChatGPT rendering hint that breaks some renders)
-  result = result.replace(/\\displaystyle\s*/g, '');
-
   // 4. SAFETY NET: Balance check
   // If we have an odd number of $$, assume the last one is unclosed and close it.
   // This prevents "red text of death" (mode leakage) for the rest of the document.
