@@ -1,16 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Sun,
-  Moon,
-  Monitor,
-  Lock,
-  Settings as SettingsIcon,
-  Palette,
-  Bell,
-  FolderOpen,
-  Globe,
-  ChevronDown,
-} from 'lucide-react';
+import { ChevronDown, Lock } from 'lucide-react';
 
 interface ThemePreset {
   id: string;
@@ -131,13 +120,11 @@ const THEME_VARIABLES = [
   '--activity-bar-bg',
 ];
 
+const MAIN_THEMES = ['cinder-dark', 'cinder-light', 'zen-black'];
+
 export function Settings() {
-  const [activeTab, setActiveTab] = useState<'general' | 'theme'>('general');
   const [currentTheme, setCurrentTheme] = useState(
     () => localStorage.getItem('cinder-theme') || ''
-  );
-  const [colorMode, setColorMode] = useState<'light' | 'dark' | 'system'>(
-    'dark'
   );
   const [showAllThemes, setShowAllThemes] = useState(false);
 
@@ -156,301 +143,74 @@ export function Settings() {
     localStorage.setItem('cinder-theme', currentTheme);
   }, [currentTheme]);
 
+  const renderThemeButton = (theme: ThemePreset) => {
+    const isActive = currentTheme === theme.value && !theme.disabled;
+    return (
+      <button
+        key={theme.id}
+        onClick={() => !theme.disabled && setCurrentTheme(theme.value || '')}
+        disabled={theme.disabled}
+        className={`relative flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${isActive ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)]' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'} ${!theme.disabled ? 'hover:bg-[var(--bg-hover)] cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
+      >
+        <div
+          className="w-8 h-8 rounded-full shrink-0"
+          style={{ background: theme.gradient }}
+        />
+        <span
+          className={`text-sm truncate ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+        >
+          {theme.name}
+        </span>
+        {theme.disabled && (
+          <Lock
+            size={12}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]"
+          />
+        )}
+      </button>
+    );
+  };
+
   return (
-    <div className="flex-1 flex justify-center h-full bg-[var(--bg-primary)] overflow-hidden">
-      <div className="w-full max-w-5xl flex h-full border-x border-[var(--border-primary)] shadow-sm">
-        {/* Sidebar-style Tabs */}
-        <div className="w-64 border-r border-[var(--border-primary)] bg-[var(--bg-secondary)] flex flex-col p-4 gap-2">
-          <h2 className="px-3 py-2 text-[10px] uppercase tracking-widest font-bold opacity-30">
-            Settings
-          </h2>
-          <button
-            onClick={() => setActiveTab('general')}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTab === 'general' ? 'bg-[var(--bg-active)] text-[var(--editor-header-accent)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
-          >
-            <SettingsIcon size={16} />
-            General
-          </button>
-          <button
-            onClick={() => setActiveTab('theme')}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTab === 'theme' ? 'bg-[var(--bg-active)] text-[var(--editor-header-accent)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
-          >
-            <Palette size={16} />
-            Appearance
-          </button>
-        </div>
+    <div className="flex-1 h-full bg-[var(--bg-primary)] overflow-y-auto no-scrollbar">
+      <div className="max-w-xl mx-auto px-8 py-10">
+        <h1 className="text-lg font-semibold text-[var(--text-primary)]">
+          Settings
+        </h1>
+        <p className="mt-1 text-xs text-[var(--text-tertiary)]">Appearance</p>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8 no-scrollbar">
-          <div className="max-w-2xl mx-auto">
-            {activeTab === 'general' ? (
-              <div className="space-y-10">
-                <div className="pb-6 border-b border-[var(--border-primary)]">
-                  <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                    General Settings
-                  </h1>
-                  <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                    Customize your editor experience
-                  </p>
-                </div>
-
-                <div className="space-y-6">
-                  <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Editor
-                  </h2>
-                  <div className="space-y-3">
-                    {[
-                      {
-                        icon: Monitor,
-                        title: 'Default View',
-                        desc: 'Choose default view for new files',
-                        options: ['Split View', 'Editor Only', 'Preview Only'],
-                      },
-                      {
-                        icon: FolderOpen,
-                        title: 'Sidebar Position',
-                        desc: 'Change the location of the sidebar',
-                        options: ['Left', 'Right'],
-                      },
-                    ].map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
-                            <item.icon size={20} />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-[var(--text-primary)]">
-                              {item.title}
-                            </h3>
-                            <p className="text-xs text-[var(--text-secondary)]">
-                              {item.desc}
-                            </p>
-                          </div>
-                        </div>
-                        <select className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded hover:bg-[var(--bg-hover)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none transition-all">
-                          {item.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    ))}
-                  </div>
-
-                  <h2 className="text-lg font-semibold text-[var(--text-primary)] mt-8">
-                    System
-                  </h2>
-                  <div className="space-y-3">
-                    {[
-                      {
-                        icon: Globe,
-                        title: 'Language',
-                        desc: 'Change interface language',
-                        options: [
-                          'English',
-                          'Spanish',
-                          'French',
-                          'German',
-                          'Japanese',
-                        ],
-                      },
-                      {
-                        icon: Bell,
-                        title: 'Notifications',
-                        desc: 'Configure desktop notifications',
-                        options: ['All', 'Important Only', 'None'],
-                      },
-                    ].map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-primary)]"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="p-2 bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)]">
-                            <item.icon size={20} />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-[var(--text-primary)]">
-                              {item.title}
-                            </h3>
-                            <p className="text-xs text-[var(--text-secondary)]">
-                              {item.desc}
-                            </p>
-                          </div>
-                        </div>
-                        <select className="px-3 py-1.5 text-xs font-medium border border-[var(--border-secondary)] rounded hover:bg-[var(--bg-hover)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] outline-none transition-all">
-                          {item.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-10">
-                <div className="pb-6 border-b border-[var(--border-primary)]">
-                  <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                    Themes
-                  </h1>
-                  <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                    Manage app appearance and customization
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Color Mode
-                  </h2>
-                  <div className="flex gap-4">
-                    {[
-                      { id: 'light', label: 'Light mode', icon: Sun },
-                      { id: 'dark', label: 'Dark mode', icon: Moon },
-                      { id: 'system', label: 'System', icon: Monitor },
-                    ].map((mode) => (
-                      <button
-                        key={mode.id}
-                        onClick={() =>
-                          setColorMode(mode.id as 'light' | 'dark' | 'system')
-                        }
-                        className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-lg border transition-all ${colorMode === mode.id ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] ring-1 ring-[var(--editor-header-accent)]' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'}`}
-                      >
-                        <mode.icon
-                          size={18}
-                          className={
-                            colorMode === mode.id
-                              ? 'text-[var(--editor-header-accent)]'
-                              : 'text-[var(--text-secondary)]'
-                          }
-                        />
-                        <span
-                          className={
-                            colorMode === mode.id
-                              ? 'font-medium text-[var(--text-primary)]'
-                              : 'text-[var(--text-secondary)]'
-                          }
-                        >
-                          {mode.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-4">
-                  <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                    Main Themes
-                  </h2>
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    {THEME_PRESETS.filter((t) =>
-                      ['cinder-dark', 'cinder-light', 'zen-black'].includes(
-                        t.id
-                      )
-                    ).map((theme) => {
-                      const isActive =
-                        currentTheme === theme.value && !theme.disabled;
-                      return (
-                        <button
-                          key={theme.id}
-                          onClick={() =>
-                            !theme.disabled &&
-                            setCurrentTheme(theme.value || '')
-                          }
-                          disabled={theme.disabled}
-                          className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isActive ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] shadow-sm' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'} ${!theme.disabled ? 'hover:bg-[var(--bg-hover)] cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
-                        >
-                          <div
-                            className="w-10 h-10 rounded-full shrink-0 shadow-inner"
-                            style={{ background: theme.gradient }}
-                          />
-                          <div className="min-w-0">
-                            <div
-                              className={`text-sm font-medium truncate ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
-                            >
-                              {theme.name}
-                            </div>
-                          </div>
-                          {theme.disabled && (
-                            <Lock
-                              size={14}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] opacity-30"
-                            />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="pt-4">
-                    <button
-                      onClick={() => setShowAllThemes(!showAllThemes)}
-                      className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-4 focus:outline-none"
-                    >
-                      <ChevronDown
-                        size={16}
-                        className={`transition-transform duration-200 ${showAllThemes ? 'rotate-180' : ''}`}
-                      />
-                      {showAllThemes
-                        ? 'Hide other themes'
-                        : 'Show other themes'}
-                    </button>
-
-                    {showAllThemes && (
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                        {THEME_PRESETS.filter(
-                          (t) =>
-                            ![
-                              'cinder-dark',
-                              'cinder-light',
-                              'zen-black',
-                            ].includes(t.id)
-                        ).map((theme) => {
-                          const isActive =
-                            currentTheme === theme.value && !theme.disabled;
-                          return (
-                            <button
-                              key={theme.id}
-                              onClick={() =>
-                                !theme.disabled &&
-                                setCurrentTheme(theme.value || '')
-                              }
-                              disabled={theme.disabled}
-                              className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${isActive ? 'bg-[var(--bg-tertiary)] border-[var(--editor-header-accent)] shadow-sm' : 'bg-[var(--bg-secondary)] border-[var(--border-primary)]'} ${!theme.disabled ? 'hover:bg-[var(--bg-hover)] cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
-                            >
-                              <div
-                                className="w-10 h-10 rounded-full shrink-0 shadow-inner"
-                                style={{ background: theme.gradient }}
-                              />
-                              <div className="min-w-0">
-                                <div
-                                  className={`text-sm font-medium truncate ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
-                                >
-                                  {theme.name}
-                                </div>
-                              </div>
-                              {theme.disabled && (
-                                <Lock
-                                  size={14}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] opacity-30"
-                                />
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+        {/* Theme grid */}
+        <div className="mt-8">
+          <span className="text-[11px] uppercase tracking-wider text-[var(--text-tertiary)] font-medium">
+            Themes
+          </span>
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            {THEME_PRESETS.filter((t) => MAIN_THEMES.includes(t.id)).map(
+              renderThemeButton
             )}
           </div>
+        </div>
+
+        {/* Other themes */}
+        <div className="mt-6">
+          <button
+            onClick={() => setShowAllThemes(!showAllThemes)}
+            className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+          >
+            <ChevronDown
+              size={14}
+              className={`transition-transform duration-200 ${showAllThemes ? 'rotate-180' : ''}`}
+            />
+            {showAllThemes ? 'Hide other themes' : 'More themes'}
+          </button>
+
+          {showAllThemes && (
+            <div className="grid grid-cols-2 gap-3 mt-3">
+              {THEME_PRESETS.filter((t) => !MAIN_THEMES.includes(t.id)).map(
+                renderThemeButton
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
