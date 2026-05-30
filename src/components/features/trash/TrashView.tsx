@@ -41,7 +41,6 @@ export function TrashView() {
       const entries = await invoke<TrashEntry[]>('list_trash', {
         workspacePath,
       });
-      // Sort by most recently trashed first
       entries.sort(
         (a, b) =>
           new Date(b.trashed_at).getTime() - new Date(a.trashed_at).getTime()
@@ -91,113 +90,95 @@ export function TrashView() {
   };
 
   return (
-    <div className="flex-1 flex justify-center h-full bg-[var(--bg-primary)] overflow-hidden">
-      <div className="w-full max-w-3xl flex flex-col h-full border-x border-[var(--border-primary)] shadow-sm">
+    <div className="flex-1 h-full bg-[var(--bg-primary)] overflow-y-auto no-scrollbar">
+      <div className="max-w-xl mx-auto px-8 py-10">
         {/* Header */}
-        <div className="shrink-0 p-8 pb-6 border-b border-[var(--border-primary)]">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                Trash
-              </h1>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                {items.length === 0
-                  ? 'No items in trash'
-                  : `${items.length} item${items.length !== 1 ? 's' : ''} in trash`}
-              </p>
-            </div>
-            {items.length > 0 && (
-              <button
-                onClick={handleEmptyTrash}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--bg-hover)] border border-[var(--border-primary)]"
-                style={{ color: 'var(--text-secondary)' }}
-                title="Permanently delete all items"
-              >
-                <Trash2 size={13} />
-                Empty Trash
-              </button>
-            )}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-semibold text-[var(--text-primary)]">
+              Trash
+            </h1>
+            <p className="mt-1 text-xs text-[var(--text-tertiary)]">
+              {items.length === 0
+                ? 'No items'
+                : `${items.length} item${items.length !== 1 ? 's' : ''}`}
+            </p>
           </div>
+          {items.length > 0 && (
+            <button
+              onClick={handleEmptyTrash}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors"
+              title="Permanently delete all items"
+            >
+              <Trash2 size={12} />
+              Empty
+            </button>
+          )}
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="mt-6">
           {loading ? (
-            <div className="flex items-center justify-center h-40">
-              <p className="text-sm text-[var(--text-tertiary)]">Loading...</p>
-            </div>
+            <p className="text-xs text-[var(--text-tertiary)] py-8 text-center">
+              Loading...
+            </p>
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4 opacity-40">
+            <div className="flex flex-col items-center py-16 opacity-30">
               <Trash2
-                size={48}
+                size={32}
                 strokeWidth={1}
-                style={{ color: 'var(--text-tertiary)' }}
+                className="text-[var(--text-tertiary)]"
               />
-              <p
-                className="text-sm font-medium"
-                style={{ color: 'var(--text-tertiary)' }}
-              >
+              <p className="text-xs text-[var(--text-tertiary)] mt-3">
                 Trash is empty
               </p>
             </div>
           ) : (
-            <div>
+            <div className="space-y-0.5">
               {items.map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex items-center gap-4 px-8 py-3.5 border-b transition-colors hover:bg-[var(--bg-hover)] group"
-                  style={{ borderColor: 'var(--border-primary)' }}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[var(--bg-hover)] transition-colors group"
                 >
-                  {/* Icon */}
-                  <div
-                    className="p-2 rounded-lg shrink-0"
-                    style={{ backgroundColor: 'var(--bg-tertiary)' }}
-                  >
-                    {entry.entry_type === 'folder' ? (
-                      <Folder
-                        size={18}
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    ) : (
-                      <FileText
-                        size={18}
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    )}
-                  </div>
+                  {entry.entry_type === 'folder' ? (
+                    <Folder
+                      size={15}
+                      className="shrink-0 text-[var(--text-tertiary)]"
+                    />
+                  ) : (
+                    <FileText
+                      size={15}
+                      className="shrink-0 text-[var(--text-tertiary)]"
+                    />
+                  )}
 
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate text-[var(--text-primary)]">
+                    <div className="text-sm truncate text-[var(--text-primary)]">
                       {entry.original_name}
                     </div>
-                    <div className="text-xs text-[var(--text-tertiary)] truncate mt-0.5">
+                    <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                       {entry.relative_path}
                     </div>
                   </div>
 
-                  {/* Time */}
-                  <span className="text-[11px] text-[var(--text-tertiary)] shrink-0 tabular-nums">
+                  <span className="text-[10px] text-[var(--text-tertiary)] shrink-0 tabular-nums">
                     {timeAgo(entry.trashed_at)}
                   </span>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleRestore(entry)}
-                      className="p-1.5 rounded-md transition-colors hover:bg-[var(--bg-active)]"
-                      style={{ color: 'var(--text-secondary)' }}
-                      title="Restore to original location"
+                      className="p-1 rounded hover:bg-[var(--bg-active)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+                      title="Restore"
                     >
-                      <RotateCcw size={14} />
+                      <RotateCcw size={13} />
                     </button>
                     <button
                       onClick={() => handleDelete(entry)}
-                      className="p-1.5 rounded-md transition-colors hover:bg-[var(--bg-active)]"
-                      style={{ color: 'var(--text-tertiary)' }}
+                      className="p-1 rounded hover:bg-[var(--bg-active)] text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
                       title="Delete permanently"
                     >
-                      <X size={14} />
+                      <X size={13} />
                     </button>
                   </div>
                 </div>
