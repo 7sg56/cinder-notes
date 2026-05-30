@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
 import { showTabContextMenu } from '../../../util/contextMenu';
+import { isMac } from '../../../util/tauri';
 
 export function EditorTabs() {
   const {
@@ -47,6 +48,15 @@ export function EditorTabs() {
           height: '40px',
         }}
       >
+        {/* macOS traffic lights spacer when sidebar is collapsed */}
+        {isMac() && (
+          <div
+            data-tauri-drag-region
+            className="shrink-0 h-full transition-[width] duration-200 ease-in-out"
+            style={{ width: isExplorerCollapsed ? '84px' : '0px' }}
+          />
+        )}
+
         {/* Tabs List - Takes available space */}
         <div className="flex-1 flex overflow-x-auto no-scrollbar h-full">
           {openFiles.map((fileId) => {
@@ -88,7 +98,7 @@ export function EditorTabs() {
                     togglePin,
                   });
                 }}
-                className={`group flex items-center min-w-[140px] max-w-[220px] h-full px-4 border-r cursor-pointer text-[12px] font-medium select-none transition-all relative shrink-0`}
+                className={`animate-tab-enter group flex items-center min-w-[140px] max-w-[220px] h-full px-4 border-r cursor-pointer text-[12px] font-medium select-none transition-all relative shrink-0`}
                 style={{
                   borderColor: 'var(--border-primary)',
                   backgroundColor: isActive

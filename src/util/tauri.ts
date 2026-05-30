@@ -5,3 +5,12 @@
 export function isTauri(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 }
+
+/**
+ * Check if the app is running on macOS.
+ */
+export function isMac(): boolean {
+  return (
+    typeof navigator !== 'undefined' && navigator.userAgent.includes('Mac')
+  );
+}
