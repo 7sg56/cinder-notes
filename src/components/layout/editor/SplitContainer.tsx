@@ -1,4 +1,4 @@
-import type { SplitNode } from '../../../store/useSplitStore';
+import { useSplitStore, type SplitNode } from '../../../store/useSplitStore';
 import { EditorPane } from './EditorPane';
 import { SplitResizeHandle } from './SplitResizeHandle';
 
@@ -61,6 +61,7 @@ function SplitChild({
 }: SplitChildProps) {
   const isHorizontal = axis === 'horizontal';
   const childPath = [...parentPath, index];
+  const isResizing = useSplitStore((state) => state.isResizing);
 
   return (
     <>
@@ -72,6 +73,9 @@ function SplitChild({
           minHeight: !isHorizontal ? '150px' : undefined,
           overflow: 'hidden',
           position: 'relative',
+          transition: isResizing
+            ? 'none'
+            : 'flex 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         <SplitContainer node={child} path={childPath} />

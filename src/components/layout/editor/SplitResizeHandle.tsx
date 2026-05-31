@@ -20,6 +20,7 @@ export function SplitResizeHandle({
     (e: React.MouseEvent) => {
       e.preventDefault();
       setIsDragging(true);
+      useSplitStore.getState().setIsResizing(true);
 
       // Track last position for incremental deltas (not absolute from start)
       let lastPos = axis === 'horizontal' ? e.clientX : e.clientY;
@@ -52,6 +53,7 @@ export function SplitResizeHandle({
 
       const handleMouseUp = () => {
         setIsDragging(false);
+        useSplitStore.getState().setIsResizing(false);
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
         window.removeEventListener('mousemove', handleMouseMove);

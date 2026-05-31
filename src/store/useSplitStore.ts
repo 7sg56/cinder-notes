@@ -184,19 +184,26 @@ interface SplitStoreState {
   activePaneId: string;
   maximizedPaneId: string | null;
   newTabCounter: number;
+  isResizing: boolean;
 
   // Tree actions
-  splitPane: (paneId: string, direction: 'horizontal' | 'vertical') => void;
+  splitPane: (
+    paneId: string,
+    direction: 'horizontal' | 'vertical',
+    insertBefore?: boolean
+  ) => void;
   splitPaneWithFile: (
     paneId: string,
     direction: 'horizontal' | 'vertical',
     fileId: string,
-    sourcePaneId: string,
+    sourcePaneId?: string,
     insertBefore?: boolean
   ) => void;
   closePane: (paneId: string) => void;
   setActivePaneId: (paneId: string) => void;
   toggleMaximizePane: (paneId: string) => void;
+  setMaximizedPane: (paneId: string | null) => void;
+  setIsResizing: (isResizing: boolean) => void;
   setSplitRatio: (
     branchPath: number[],
     childIndex: number,
@@ -230,10 +237,11 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
   activePaneId: initialPaneId,
   maximizedPaneId: null,
   newTabCounter: 0,
+  isResizing: false,
 
   // ─── Tree Actions ───────────────────────────────────────────────────────
 
-  splitPane: (paneId, direction) => {
+  splitPane: (paneId, direction, insertBefore = false) => {
     const state = get();
     const pane = state.panes[paneId];
     if (!pane) return;
@@ -253,7 +261,8 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       state.rootNode,
       paneId,
       newPaneId,
-      direction
+      direction,
+      insertBefore
     );
     if (!newRoot) return;
 
@@ -406,6 +415,21 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
 
   setActivePaneId: (paneId) => {
     set({ activePaneId: paneId });
+  },
+
+  toggleMaximizePane: (paneId) => {
+    const state = get();
+    set({
+      maximizedPaneId: state.maximizedPaneId === paneId ? null : paneId,
+    });
+  },
+
+  setMaximizedPane: (paneId) => {
+    set({ maximizedPaneId: paneId });
+  },
+
+  setIsResizing: (isResizing) => {
+    set({ isResizing });
   },
 
   setSplitRatio: (branchPath, childIndex, delta) => {
@@ -878,11 +902,6 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
         }
       }, 50);
     }
-  },
-
-  toggleMaximizePane: (paneId) => {
-    const { maximizedPaneId } = get();
-    set({ maximizedPaneId: maximizedPaneId === paneId ? null : paneId });
   },
 
   // ─── Init/Reset ─────────────────────────────────────────────────────────
