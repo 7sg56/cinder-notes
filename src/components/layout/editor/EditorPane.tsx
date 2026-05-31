@@ -51,8 +51,9 @@ export function EditorPane({ paneId }: EditorPaneProps) {
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    const dragData = e.dataTransfer.types.includes('application/cinder-tab');
-    if (!dragData) return;
+    const hasTab = e.dataTransfer.types.includes('application/cinder-tab');
+    const hasFile = e.dataTransfer.types.includes('text/plain');
+    if (!hasTab && !hasFile) return;
 
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
@@ -68,25 +69,39 @@ export function EditorPane({ paneId }: EditorPaneProps) {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const raw = e.dataTransfer.getData('application/cinder-tab');
-    if (!raw) {
-      setDropZone(null);
-      return;
-    }
-
-    const { fileId, sourcePaneId } = JSON.parse(raw) as {
-      fileId: string;
-      sourcePaneId: string;
-    };
     const zone = getDropZone(e);
     setDropZone(null);
+
+    let fileId: string;
+    let sourcePaneId: string | null = null;
+
+    const rawTab = e.dataTransfer.getData('application/cinder-tab');
+    if (rawTab) {
+      const data = JSON.parse(rawTab) as {
+        fileId: string;
+        sourcePaneId: string;
+      };
+      fileId = data.fileId;
+      sourcePaneId = data.sourcePaneId;
+    } else {
+      const rawFile = e.dataTransfer.getData('text/plain');
+      if (rawFile) {
+        fileId = rawFile; // Dragged from sidebar
+      } else {
+        return;
+      }
+    }
 
     const splitStore = useSplitStore.getState();
 
     if (!zone) {
-      // Drop into center = move tab to this pane
-      if (sourcePaneId !== paneId) {
+      // Drop into center
+      if (sourcePaneId && sourcePaneId !== paneId) {
+        // Move tab from another pane
         splitStore.paneCloseFile(sourcePaneId, fileId);
+        splitStore.paneSelectFile(paneId, fileId);
+      } else if (!sourcePaneId) {
+        // Dropped from sidebar into center, just open it in this pane
         splitStore.paneSelectFile(paneId, fileId);
       }
       return;
@@ -101,7 +116,7 @@ export function EditorPane({ paneId }: EditorPaneProps) {
       paneId,
       axis,
       fileId,
-      sourcePaneId,
+      sourcePaneId || paneId, // If from sidebar, source is null, so just use current paneId as dummy
       insertBefore
     );
   };
