@@ -282,16 +282,16 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       (targetPane.openFiles.length === 1 &&
         targetPane.openFiles[0] === 'welcome')
     ) {
-      if (sourcePaneId && sourcePaneId !== paneId) {
+      if (sourcePaneId) {
         get().paneCloseFile(sourcePaneId, fileId);
       }
       get().paneSelectFile(paneId, fileId);
       return;
     }
 
-    // First, close the file from the source pane (if different pane)
+    // First, close the file from the source pane (if it exists)
     const updatedPanes = { ...state.panes };
-    if (sourcePaneId && sourcePaneId !== paneId && updatedPanes[sourcePaneId]) {
+    if (sourcePaneId && updatedPanes[sourcePaneId]) {
       const srcPane = updatedPanes[sourcePaneId];
       const newOpenFiles = srcPane.openFiles.filter(
         (id: string) => id !== fileId
@@ -305,6 +305,10 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
           : srcPane.activeFileId,
         activeFileContent: wasActive ? '' : srcPane.activeFileContent,
       };
+
+      // If the source pane became empty and it's not the target pane,
+      // we might want to auto-close it. But since we are about to update the tree,
+      // let's do it after the state update to avoid conflicts.
     }
 
     // Create the new pane with the dropped file
@@ -337,7 +341,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     // Limit splitting to depth 2
     if (getPaneDepth(state.rootNode, paneId) >= 2) {
       // If we can't split, just move/open the file in the target pane
-      if (sourcePaneId && sourcePaneId !== paneId) {
+      if (sourcePaneId) {
         get().paneCloseFile(sourcePaneId, fileId);
       }
       get().paneSelectFile(paneId, fileId);
@@ -360,6 +364,14 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       activePaneId: newPaneId,
       maximizedPaneId: null, // Clear maximize on split
     });
+
+    // Cleanup empty source pane if needed
+    if (sourcePaneId && sourcePaneId !== newPaneId) {
+      const currentSourcePane = get().panes[sourcePaneId];
+      if (currentSourcePane && currentSourcePane.openFiles.length === 0) {
+        get().closePane(sourcePaneId);
+      }
+    }
   },
 
   closePane: (paneId) => {
@@ -685,6 +697,30 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     if (!pane) return;
 
     const newOpenFiles = pane.openFiles.filter((id) => id !== fileId);
+
+    // Auto-close pane if it becomes empty
+    if (newOpenFiles.length === 0) {
+      const allPanes = collectPaneIds(state.rootNode);
+      if (allPanes.length > 1) {
+        get().closePane(paneId);
+        return;
+      } else {
+        // If it's the last pane, just show welcome
+        set({
+          panes: {
+            ...state.panes,
+            [paneId]: {
+              ...pane,
+              activeFileId: 'welcome',
+              activeFileContent: '',
+              openFiles: ['welcome'],
+            },
+          },
+        });
+        return;
+      }
+    }
+
     const newPanes = { ...state.panes };
 
     if (pane.activeFileId === fileId) {
