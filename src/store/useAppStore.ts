@@ -4,7 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { FileNode } from '../types/fileSystem';
 import type { RecentWorkspace } from '../types/recentWorkspace';
 import { joinPath, basename, dirname } from '../utils/pathUtils';
-import { getSplitStore } from './storeBridge';
+import { getSplitStore, tryGetSplitStore } from './storeBridge';
 
 export interface SearchResult {
   file_path: string;
@@ -1221,7 +1221,9 @@ export const useAppStore = create<AppState>()(
 // Components like FileTreeItem read activeFileId from useAppStore to highlight
 // the active file in the sidebar. This subscription keeps it in sync.
 setTimeout(() => {
-  getSplitStore().subscribe(
+  const store = tryGetSplitStore();
+  if (!store) return;
+  store.subscribe(
     (state: {
       activePaneId: string;
       panes: Record<string, { activeFileId: string | null }>;

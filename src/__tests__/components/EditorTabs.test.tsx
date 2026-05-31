@@ -11,6 +11,9 @@ vi.mock('../../store/useSplitStore');
 vi.mock('../../util/contextMenu', () => ({
   showTabContextMenu: vi.fn(),
 }));
+vi.mock('../../util/dragContext', () => ({
+  setCurrentDrag: vi.fn(),
+}));
 
 const mockUseAppStore = vi.mocked(useAppStore);
 const mockUseSplitStore = vi.mocked(useSplitStore);
@@ -44,6 +47,7 @@ function createMockSplitStoreReturn(overrides: Record<string, unknown> = {}) {
       },
     },
     rootNode: { type: 'leaf' as const, paneId: TEST_PANE_ID },
+    maximizedPaneId: null as string | null,
     ...overrides,
   };
 
@@ -63,24 +67,6 @@ describe('EditorTabs', () => {
     render(<EditorTabs paneId={TEST_PANE_ID} />);
     expect(screen.getByTitle('New Tab')).toBeInTheDocument();
     expect(screen.getByTitle('Toggle Sidebar')).toBeInTheDocument();
-  });
-
-  it('renders a welcome tab correctly', () => {
-    mockUseAppStore.mockReturnValue(createMockAppStoreReturn());
-    mockUseSplitStore.mockImplementation(
-      createMockSplitStoreReturn({
-        panes: {
-          [TEST_PANE_ID]: {
-            openFiles: ['welcome'],
-            activeFileId: 'welcome',
-            activeFileContent: '',
-          },
-        },
-      }) as any
-    );
-
-    render(<EditorTabs paneId={TEST_PANE_ID} />);
-    expect(screen.getByText('Welcome')).toBeInTheDocument();
   });
 
   it('renders a blank "Untitled" tab', () => {
@@ -155,23 +141,74 @@ describe('EditorTabs', () => {
     expect(screen.getByTitle('Toggle Sidebar')).toBeInTheDocument();
   });
 
-  it('shows "Exit Fullscreen" title when explorer is collapsed', () => {
-    mockUseAppStore.mockReturnValue(
-      createMockAppStoreReturn({ isExplorerCollapsed: true })
+  it('shows "Close Pane" and "Maximize Pane" buttons when multiple panes exist', () => {
+    mockUseAppStore.mockReturnValue(createMockAppStoreReturn());
+    mockUseSplitStore.mockImplementation(
+      createMockSplitStoreReturn({
+        rootNode: {
+          type: 'branch' as const,
+          axis: 'horizontal',
+          children: [
+            { type: 'leaf' as const, paneId: TEST_PANE_ID },
+            { type: 'leaf' as const, paneId: 'pane-other' },
+          ],
+          flexes: [0.5, 0.5],
+        },
+      }) as any
     );
-    mockUseSplitStore.mockImplementation(createMockSplitStoreReturn() as any);
 
     render(<EditorTabs paneId={TEST_PANE_ID} />);
-    expect(screen.getByTitle('Exit Fullscreen')).toBeInTheDocument();
+    expect(screen.getByTitle('Close Pane')).toBeInTheDocument();
+    expect(screen.getByTitle('Maximize Pane')).toBeInTheDocument();
   });
 
-  it('shows "Fullscreen Editor" title when explorer is not collapsed', () => {
-    mockUseAppStore.mockReturnValue(
-      createMockAppStoreReturn({ isExplorerCollapsed: false })
+  it('shows "Restore Split" title when pane is maximized', () => {
+    mockUseAppStore.mockReturnValue(createMockAppStoreReturn());
+    mockUseSplitStore.mockImplementation(
+      createMockSplitStoreReturn({
+        rootNode: {
+          type: 'branch' as const,
+          axis: 'horizontal',
+          children: [
+            { type: 'leaf' as const, paneId: TEST_PANE_ID },
+            { type: 'leaf' as const, paneId: 'pane-other' },
+          ],
+          flexes: [0.5, 0.5],
+        },
+        maximizedPaneId: TEST_PANE_ID,
+      }) as any
     );
+
+    render(<EditorTabs paneId={TEST_PANE_ID} />);
+    expect(screen.getByTitle('Restore Split')).toBeInTheDocument();
+  });
+
+  it('does not show "Close Pane" when there is a single pane', () => {
+    mockUseAppStore.mockReturnValue(createMockAppStoreReturn());
     mockUseSplitStore.mockImplementation(createMockSplitStoreReturn() as any);
 
     render(<EditorTabs paneId={TEST_PANE_ID} />);
-    expect(screen.getByTitle('Fullscreen Editor')).toBeInTheDocument();
+    expect(screen.queryByTitle('Close Pane')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Maximize Pane')).not.toBeInTheDocument();
+  });
+
+  it('renders an unknown file as "Unknown" when findFile returns null', () => {
+    mockUseAppStore.mockReturnValue(
+      createMockAppStoreReturn({ findFile: vi.fn(() => null) })
+    );
+    mockUseSplitStore.mockImplementation(
+      createMockSplitStoreReturn({
+        panes: {
+          [TEST_PANE_ID]: {
+            openFiles: ['nonexistent-file'],
+            activeFileId: 'nonexistent-file',
+            activeFileContent: '',
+          },
+        },
+      }) as any
+    );
+
+    render(<EditorTabs paneId={TEST_PANE_ID} />);
+    expect(screen.getByText('Unknown')).toBeInTheDocument();
   });
 });

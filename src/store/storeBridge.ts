@@ -25,3 +25,12 @@ export function getSplitStore(): StoreApi<any> {
   }
   return splitStoreRef;
 }
+
+/**
+ * Non-throwing variant for use in deferred subscriptions / test environments.
+ * Returns null if the split store hasn't been registered yet.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function tryGetSplitStore(): StoreApi<any> | null {
+  return splitStoreRef;
+}
