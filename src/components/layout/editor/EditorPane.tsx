@@ -10,7 +10,7 @@ interface EditorPaneProps {
   paneId: string;
 }
 
-type DropZone = 'left' | 'right' | 'top' | 'bottom' | null;
+type DropZone = 'left' | 'right' | 'top' | 'bottom' | 'center' | null;
 
 export function EditorPane({ paneId }: EditorPaneProps) {
   const [isPreview, setIsPreview] = useState(false);
@@ -47,7 +47,7 @@ export function EditorPane({ paneId }: EditorPaneProps) {
     if (x > w - edgeX) return 'right';
     if (y < edgeY) return 'top';
     if (y > h - edgeY) return 'bottom';
-    return null; // center = drop into this pane's tabs
+    return 'center';
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -94,7 +94,7 @@ export function EditorPane({ paneId }: EditorPaneProps) {
 
     const splitStore = useSplitStore.getState();
 
-    if (!zone) {
+    if (zone === 'center') {
       // Drop into center
       if (sourcePaneId && sourcePaneId !== paneId) {
         // Move tab from another pane
@@ -168,6 +168,7 @@ export function EditorPane({ paneId }: EditorPaneProps) {
           right: '4px',
           height: '48%',
         };
+      case 'center':
       default:
         return undefined;
     }
@@ -193,6 +194,20 @@ export function EditorPane({ paneId }: EditorPaneProps) {
         outlineOffset: '-1px',
       }}
     >
+      {/* Invisible full-pane cover to intercept drops before CodeMirror */}
+      {dropZone && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 40,
+          }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onDragLeave={handleDragLeave}
+        />
+      )}
+      {/* Visual highlight overlay */}
       {overlayStyle && <div style={overlayStyle} />}
       <EditorTabs paneId={paneId} />
       {activeFileId === 'welcome' ? (
