@@ -1,18 +1,24 @@
 import { EditorStatusBarItem } from './EditorStatusBarItem';
 import { useAppStore } from '../../../store/useAppStore';
+import { useSplitStore } from '../../../store/useSplitStore';
 
 interface EditorStatusBarProps {
+  paneId: string;
   isPreview: boolean;
   cursorLine?: number;
   cursorCol?: number;
 }
 
 export function EditorStatusBar({
+  paneId,
   isPreview,
   cursorLine,
   cursorCol,
 }: EditorStatusBarProps) {
-  const { activeFileContent, isAutoSave } = useAppStore();
+  const activeFileContent = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileContent ?? ''
+  );
+  const { isAutoSave } = useAppStore();
 
   // Calculate lines and words
   const lines = activeFileContent ? activeFileContent.split('\n').length : 0;

@@ -2,11 +2,12 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import './App.css';
 import { MainLayout } from './components/layout/MainLayout';
 import { FileExplorer } from './components/layout/explorer/FileExplorer';
-import { EditorPane } from './components/layout/editor/EditorPane';
+import { SplitContainer } from './components/layout/editor/SplitContainer';
 
 import { SearchPanel } from './components/features/SearchPanel';
 import { WorkspaceWelcome } from './components/onboarding/WorkspaceWelcome';
 import { useAppStore } from './store/useAppStore';
+import { useSplitStore } from './store/useSplitStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import { useWorkspace } from './hooks/useWorkspace';
@@ -64,6 +65,14 @@ function App() {
 
   // Watch workspace directory for external file changes
   useFileWatcher();
+
+  // Reset split panes when workspace changes
+  useEffect(() => {
+    useSplitStore.getState().resetToSinglePane();
+  }, [workspacePath]);
+
+  // Get the split tree root (must be before early returns)
+  const rootNode = useSplitStore((state) => state.rootNode);
 
   // Global window drag handler - uses Tauri JS API since CSS app-region
   // doesn't work reliably with transparent overlay windows on macOS
@@ -179,7 +188,7 @@ function App() {
     <>
       <MainLayout
         sidebarContent={<FileExplorer />}
-        editorContent={<EditorPane />}
+        editorContent={<SplitContainer node={rootNode} />}
       />
 
       <SearchPanel />

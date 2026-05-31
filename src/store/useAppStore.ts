@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { FileNode } from '../types/fileSystem';
 import type { RecentWorkspace } from '../types/recentWorkspace';
 import { joinPath, basename, dirname } from '../utils/pathUtils';
+import { getSplitStore } from './storeBridge';
 
 export interface SearchResult {
   file_path: string;
@@ -199,142 +200,15 @@ export const useAppStore = create<AppState>()(
       },
 
       selectFile: (fileId: string) => {
-        // Handle blank tabs
-        if (fileId.startsWith('new-tab-')) {
-          set((state) => {
-            // If currently on welcome page, replace it
-            if (state.activeFileId === 'welcome') {
-              return {
-                activeFileId: fileId,
-                activeFileContent: '',
-                openFiles: [fileId], // Replace welcome entirely
-              };
-            }
-            return {
-              activeFileId: fileId,
-              activeFileContent: '',
-            };
-          });
-          return;
-        }
-
-        // Handle System Tabs
-        if (fileId.startsWith('cinder-')) {
-          set({ activeFileId: fileId, activeFileContent: '' });
-          return;
-        }
-
-        const file = get().findFile(fileId);
-        if (file && file.type === 'file') {
-          const { openFiles, activeFileId } = get();
-          const filePath = file.path;
-
-          // Helper to update state with content
-          const updateWithContent = (content: string) => {
-            const currentState = get();
-            const currentActiveId = currentState.activeFileId;
-
-            // If currently on a blank tab OR welcome tab, replace it
-            if (
-              currentActiveId &&
-              (currentActiveId.startsWith('new-tab-') ||
-                currentActiveId === 'welcome')
-            ) {
-              const newOpenFiles = currentState.openFiles.map((id) =>
-                id === currentActiveId ? fileId : id
-              );
-              set({
-                activeFileId: fileId,
-                activeFileContent: content,
-                openFiles: newOpenFiles,
-              });
-            } else {
-              // Otherwise, open in new tab if not already open
-              const needsToOpen = !currentState.openFiles.includes(fileId);
-              set({
-                activeFileId: fileId,
-                activeFileContent: content,
-                openFiles: needsToOpen
-                  ? [...currentState.openFiles, fileId]
-                  : currentState.openFiles,
-              });
-            }
-          };
-
-          // If file has a path, read from disk
-          if (filePath) {
-            // Set as active immediately with loading state
-            if (
-              activeFileId &&
-              (activeFileId.startsWith('new-tab-') ||
-                activeFileId === 'welcome')
-            ) {
-              const newOpenFiles = openFiles.map((id) =>
-                id === activeFileId ? fileId : id
-              );
-              set({
-                activeFileId: fileId,
-                openFiles: newOpenFiles,
-                activeFileContent: '',
-              });
-            } else {
-              const needsToOpen = !openFiles.includes(fileId);
-              set({
-                activeFileId: fileId,
-                openFiles: needsToOpen ? [...openFiles, fileId] : openFiles,
-                activeFileContent: '',
-              });
-            }
-
-            // Read content from disk
-            invoke<string>('read_note', { path: filePath })
-              .then((content) => {
-                // Only update if this file is still active
-                if (get().activeFileId === fileId) {
-                  set({ activeFileContent: content });
-                }
-              })
-              .catch((err) => {
-                console.error('Failed to read file:', err);
-                set({ activeFileContent: `Error loading file: ${err}` });
-              });
-          } else {
-            // Fallback to in-memory content
-            updateWithContent(file.content || '');
-          }
-        }
+        // Delegate to split store - opens file in the active pane
+        const splitState = getSplitStore().getState();
+        splitState.paneSelectFile(splitState.activePaneId, fileId);
       },
 
       openSystemTab: (tabId: string) => {
-        const { openFiles, activeFileId } = get();
-
-        // If already open, just select it
-        if (openFiles.includes(tabId)) {
-          set({ activeFileId: tabId, activeFileContent: '' });
-          return;
-        }
-
-        // If currently on welcome/blank, replace it
-        if (
-          activeFileId &&
-          (activeFileId === 'welcome' || activeFileId.startsWith('new-tab-'))
-        ) {
-          const newOpenFiles = openFiles.map((id) =>
-            id === activeFileId ? tabId : id
-          );
-          set({
-            activeFileId: tabId,
-            openFiles: newOpenFiles,
-            activeFileContent: '',
-          });
-        } else {
-          // Append
-          set({
-            activeFileId: tabId,
-            openFiles: [...openFiles, tabId],
-            activeFileContent: '',
-          });
-        }
+        // Delegate to split store
+        const splitState = getSplitStore().getState();
+        splitState.paneOpenSystemTab(splitState.activePaneId, tabId);
       },
 
       toggleAutoSave: () => set((state) => ({ isAutoSave: !state.isAutoSave })),
@@ -350,71 +224,15 @@ export const useAppStore = create<AppState>()(
         }),
 
       openFileInNewTab: (fileId: string) => {
-        const file = get().findFile(fileId);
-        if (file && file.type === 'file') {
-          const { openFiles, activeFileId } = get();
-          const filePath = file.path;
-
-          // Set as active immediately
-          if (
-            activeFileId &&
-            (activeFileId.startsWith('new-tab-') || activeFileId === 'welcome')
-          ) {
-            const newOpenFiles = openFiles.map((id) =>
-              id === activeFileId ? fileId : id
-            );
-            set({
-              activeFileId: fileId,
-              openFiles: newOpenFiles,
-              activeFileContent: '',
-            });
-          } else {
-            const needsToOpen = !openFiles.includes(fileId);
-            set({
-              activeFileId: fileId,
-              openFiles: needsToOpen ? [...openFiles, fileId] : openFiles,
-              activeFileContent: '',
-            });
-          }
-
-          // If file has a path, read from disk
-          if (filePath) {
-            invoke<string>('read_note', { path: filePath })
-              .then((content) => {
-                if (get().activeFileId === fileId) {
-                  set({ activeFileContent: content });
-                }
-              })
-              .catch((err) => {
-                console.error('Failed to read file:', err);
-                set({ activeFileContent: `Error loading file: ${err}` });
-              });
-          } else {
-            // Fallback to in-memory content
-            set({ activeFileContent: file.content || '' });
-          }
-        }
+        // Delegate to split store
+        const splitState = getSplitStore().getState();
+        splitState.paneOpenFileInNewTab(splitState.activePaneId, fileId);
       },
 
       closeFile: (fileId: string) => {
-        const { openFiles, activeFileId } = get();
-        const newOpenFiles = openFiles.filter((id) => id !== fileId);
-
-        if (activeFileId === fileId) {
-          const nextActive =
-            newOpenFiles.length > 0
-              ? newOpenFiles[newOpenFiles.length - 1]
-              : null;
-          if (nextActive) {
-            get().selectFile(nextActive);
-          } else {
-            set({ activeFileId: null, activeFileContent: '' });
-            // If we closed the last tab, we might want to show empty state or Welcome?
-            // For now, empty state is fine.
-          }
-        }
-
-        set({ openFiles: newOpenFiles });
+        // Delegate to split store
+        const splitState = getSplitStore().getState();
+        splitState.paneCloseFile(splitState.activePaneId, fileId);
       },
 
       updateFileContent: (fileId: string, content: string) => {
@@ -559,38 +377,16 @@ export const useAppStore = create<AppState>()(
       },
 
       createNewTab: () => {
-        set((state) => {
-          const newCounter = state.newTabCounter + 1;
-          const newTabId = `new-tab-${newCounter}`;
-
-          // If currently on welcome, replace it
-          if (state.activeFileId === 'welcome') {
-            return {
-              newTabCounter: newCounter,
-              activeFileId: newTabId,
-              openFiles: [newTabId],
-              activeFileContent: '',
-              renamingFileId: null, // Don't rename yet
-              renameSource: null,
-            };
-          }
-
-          return {
-            newTabCounter: newCounter,
-            activeFileId: newTabId,
-            openFiles: [...state.openFiles, newTabId],
-            activeFileContent: '',
-            renamingFileId: newTabId,
-            renameSource: 'editor',
-          };
-        });
+        // Delegate to split store
+        const splitState = getSplitStore().getState();
+        splitState.paneCreateNewTab(splitState.activePaneId);
       },
 
       createFile: () => {
         // Creates file in tree immediately with rename mode active
         // Also creates it on disk immediately
         const state = get();
-        const { files, openFiles, workspacePath } = state;
+        const { files, workspacePath } = state;
 
         if (!workspacePath) {
           console.error('No workspace path set');
@@ -637,17 +433,17 @@ export const useAppStore = create<AppState>()(
 
         // Add to file tree at root level
         const newFiles = [...files, newFile];
-        const newOpenFiles = [...openFiles, newFileId];
 
         set({
           files: newFiles,
-          activeFileId: newFileId,
-          openFiles: newOpenFiles,
-          activeFileContent: '',
           renamingFileId: newFileId,
           pendingFileId: newFileId, // If cancelled, remove it
           renameSource: 'explorer',
         });
+
+        // Open in the active pane via split store
+        const splitState = getSplitStore().getState();
+        splitState.paneSelectFile(splitState.activePaneId, newFileId);
       },
 
       setRenamingFileId: (id, source) =>
@@ -780,6 +576,22 @@ export const useAppStore = create<AppState>()(
             renameSource: null,
             pendingFileId: null,
           });
+
+          // Sync the new file ID to the active pane in split store
+          const splitState = getSplitStore().getState();
+          const activePaneId = splitState.activePaneId;
+          const pane = splitState.panes[activePaneId];
+          if (pane && pane.activeFileId === id) {
+            const updatedPanes = { ...splitState.panes };
+            updatedPanes[activePaneId] = {
+              ...pane,
+              activeFileId: newFileId,
+              openFiles: pane.openFiles.map((fid: string) =>
+                fid === id ? newFileId : fid
+              ),
+            };
+            getSplitStore().setState({ panes: updatedPanes });
+          }
           return;
         }
 
@@ -1035,9 +847,50 @@ export const useAppStore = create<AppState>()(
             nextActiveId === state.activeFileId ? state.activeFileContent : '',
         });
 
-        // If there's a next active file, select it to load content
-        if (nextActiveId && nextActiveId !== state.activeFileId) {
-          get().selectFile(nextActiveId);
+        // Close the deleted file from all panes in the split store
+        const splitState = getSplitStore().getState();
+        const updatedPanes = { ...splitState.panes };
+        let needsUpdate = false;
+        for (const [paneId, pane] of Object.entries(splitState.panes)) {
+          const paneState = pane as {
+            activeFileId: string | null;
+            openFiles: string[];
+            activeFileContent: string;
+          };
+          if (paneState.openFiles.includes(fileId)) {
+            needsUpdate = true;
+            const newPaneOpenFiles = paneState.openFiles.filter(
+              (id: string) => id !== fileId
+            );
+            if (paneState.activeFileId === fileId) {
+              const nextPaneActive =
+                newPaneOpenFiles.length > 0
+                  ? newPaneOpenFiles[newPaneOpenFiles.length - 1]
+                  : null;
+              updatedPanes[paneId] = {
+                ...paneState,
+                openFiles: newPaneOpenFiles,
+                activeFileId: nextPaneActive,
+                activeFileContent: '',
+              };
+              // Load content for next file
+              if (nextPaneActive) {
+                setTimeout(() => {
+                  getSplitStore()
+                    .getState()
+                    .paneSelectFile(paneId, nextPaneActive);
+                }, 0);
+              }
+            } else {
+              updatedPanes[paneId] = {
+                ...paneState,
+                openFiles: newPaneOpenFiles,
+              };
+            }
+          }
+        }
+        if (needsUpdate) {
+          getSplitStore().setState({ panes: updatedPanes });
         }
       },
 
@@ -1182,7 +1035,7 @@ export const useAppStore = create<AppState>()(
 
       createFileInFolder: (folderId: string) => {
         const state = get();
-        const { files, openFiles, workspacePath } = state;
+        const { files, workspacePath } = state;
         const folder = state.findFile(folderId);
 
         if (!workspacePath || !folder || !folder.path) {
@@ -1244,14 +1097,15 @@ export const useAppStore = create<AppState>()(
 
         set({
           files: addToFolder(files),
-          activeFileId: newFileId,
-          openFiles: [...openFiles, newFileId],
-          activeFileContent: '',
           renamingFileId: newFileId,
           pendingFileId: newFileId,
           renameSource: 'explorer',
           expandedFolderIds: newExpandedFolderIds,
         });
+
+        // Open in the active pane via split store
+        const splitState = getSplitStore().getState();
+        splitState.paneSelectFile(splitState.activePaneId, newFileId);
       },
 
       createFolder: (parentFolderId?: string | null) => {
@@ -1341,24 +1195,15 @@ export const useAppStore = create<AppState>()(
       },
 
       closeOtherFiles: (fileId: string) => {
-        const state = get();
-        set({
-          openFiles: state.openFiles.includes(fileId) ? [fileId] : [],
-          activeFileId: state.openFiles.includes(fileId) ? fileId : null,
-          activeFileContent:
-            state.activeFileId === fileId ? state.activeFileContent : '',
-        });
-        if (state.activeFileId !== fileId && state.openFiles.includes(fileId)) {
-          get().selectFile(fileId);
-        }
+        // Delegate to split store
+        const splitState = getSplitStore().getState();
+        splitState.paneCloseOtherFiles(splitState.activePaneId, fileId);
       },
 
       closeAllFiles: () => {
-        set({
-          openFiles: [],
-          activeFileId: null,
-          activeFileContent: '',
-        });
+        // Delegate to split store
+        const splitState = getSplitStore().getState();
+        splitState.paneCloseAllFiles(splitState.activePaneId);
       },
     }),
     {
@@ -1371,3 +1216,22 @@ export const useAppStore = create<AppState>()(
     }
   )
 );
+
+// ─── Sync activeFileId from useSplitStore for backward compatibility ────────
+// Components like FileTreeItem read activeFileId from useAppStore to highlight
+// the active file in the sidebar. This subscription keeps it in sync.
+setTimeout(() => {
+  getSplitStore().subscribe(
+    (state: {
+      activePaneId: string;
+      panes: Record<string, { activeFileId: string | null }>;
+    }) => {
+      const pane = state.panes[state.activePaneId];
+      const splitActiveFileId = pane?.activeFileId ?? null;
+      const appActiveFileId = useAppStore.getState().activeFileId;
+      if (splitActiveFileId !== appActiveFileId) {
+        useAppStore.setState({ activeFileId: splitActiveFileId });
+      }
+    }
+  );
+}, 0);

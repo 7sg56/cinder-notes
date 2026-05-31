@@ -11,20 +11,31 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
+import { useSplitStore } from '../../../store/useSplitStore';
 import { showTabContextMenu } from '../../../util/contextMenu';
 import { isMac } from '../../../util/tauri';
 
-export function EditorTabs() {
+interface EditorTabsProps {
+  paneId: string;
+}
+
+export function EditorTabs({ paneId }: EditorTabsProps) {
+  // Pane-scoped state from split store
+  const openFiles = useSplitStore(
+    (state) => state.panes[paneId]?.openFiles ?? []
+  );
+  const activeFileId = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileId ?? null
+  );
+  const hasMultiplePanes = useSplitStore(
+    (state) => state.rootNode.type === 'branch'
+  );
+
+  // Global state from app store
   const {
-    openFiles,
-    activeFileId,
-    selectFile,
-    closeFile,
     findFile,
-    createNewTab,
     toggleExplorerCollapsed,
     isExplorerCollapsed,
-    openFileInNewTab,
     setRenamingFileId,
     deleteFile,
     deleteFolder,
@@ -32,10 +43,28 @@ export function EditorTabs() {
     createFile,
     createFileInFolder,
     createFolder,
-    closeOtherFiles,
-    closeAllFiles,
     togglePin,
   } = useAppStore();
+
+  // Pane-scoped action wrappers
+  const selectFile = (fileId: string) => {
+    useSplitStore.getState().paneSelectFile(paneId, fileId);
+  };
+  const closeFile = (fileId: string) => {
+    useSplitStore.getState().paneCloseFile(paneId, fileId);
+  };
+  const createNewTab = () => {
+    useSplitStore.getState().paneCreateNewTab(paneId);
+  };
+  const openFileInNewTab = (fileId: string) => {
+    useSplitStore.getState().paneOpenFileInNewTab(paneId, fileId);
+  };
+  const closeOtherFiles = (fileId: string) => {
+    useSplitStore.getState().paneCloseOtherFiles(paneId, fileId);
+  };
+  const closeAllFiles = () => {
+    useSplitStore.getState().paneCloseAllFiles(paneId);
+  };
 
   return (
     <>
@@ -173,12 +202,7 @@ export function EditorTabs() {
         </div>
 
         {/* Right Side Controls - Fixed */}
-        <div
-          className="flex items-center h-full px-2 gap-1 border-l shrink-0 z-10"
-          style={{
-            borderColor: 'var(--border-primary)',
-          }}
-        >
+        <div className="flex items-center h-full px-2 gap-1 shrink-0 z-10">
           {/* New Tab Button */}
           <button
             onClick={createNewTab}
@@ -189,6 +213,19 @@ export function EditorTabs() {
           >
             <Plus size={18} />
           </button>
+
+          {/* Close Pane (only when multiple panes exist) */}
+          {hasMultiplePanes && (
+            <button
+              onClick={() => useSplitStore.getState().closePane(paneId)}
+              className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
+              style={{ color: 'var(--text-tertiary)' }}
+              title="Close Pane"
+              data-testid="close-pane-button"
+            >
+              <X size={16} />
+            </button>
+          )}
 
           {/* Sidebar Toggle */}
           <button
