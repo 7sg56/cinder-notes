@@ -3,6 +3,7 @@ import { Editor } from './Editor';
 import { EditorTabs } from './EditorTabs';
 import { EditorHeader } from './EditorHeader';
 import { WelcomePage } from '../WelcomePage';
+import { useAppStore } from '../../../store/useAppStore';
 import { useSplitStore } from '../../../store/useSplitStore';
 import type { EditorView } from '@codemirror/view';
 
@@ -95,7 +96,14 @@ export function EditorPane({ paneId }: EditorPaneProps) {
       }
     }
 
+    const appStore = useAppStore.getState();
     const splitStore = useSplitStore.getState();
+
+    // Prevent dragging folders
+    const fileNode = appStore.findFile(fileId);
+    if (fileNode?.type === 'folder') {
+      return;
+    }
 
     if (zone === 'center') {
       // Drop into center
