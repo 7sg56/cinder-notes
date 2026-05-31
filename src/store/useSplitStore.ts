@@ -36,7 +36,7 @@ function createEmptyPane(): PaneState {
 }
 
 /** Collect all pane IDs in the tree */
-function collectPaneIds(node: SplitNode): string[] {
+export function collectPaneIds(node: SplitNode): string[] {
   if (node.type === 'leaf') return [node.paneId];
   return node.children.flatMap(collectPaneIds);
 }
@@ -99,7 +99,7 @@ function removePaneFromTree(node: SplitNode, paneId: string): SplitNode | null {
   return { ...node, children: newChildren, flexes: normalizedFlexes };
 }
 
-function getPaneDepth(root: SplitNode, paneId: string): number {
+export function getPaneDepth(root: SplitNode, paneId: string): number {
   const path = findPanePath(root, paneId);
   return path ? path.length : 0;
 }
@@ -246,8 +246,8 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     const pane = state.panes[paneId];
     if (!pane) return;
 
-    // Limit splitting to depth 2 (e.g. one horizontal, one vertical max)
-    if (getPaneDepth(state.rootNode, paneId) >= 2) return;
+    // Limit to 4 panes max (four quadrants)
+    if (collectPaneIds(state.rootNode).length >= 4) return;
 
     const newPaneId = generatePaneId();
     const newPane: PaneState = {
@@ -347,8 +347,8 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
         .catch(console.error);
     }
 
-    // Limit splitting to depth 2
-    if (getPaneDepth(state.rootNode, paneId) >= 2) {
+    // Limit to 4 panes max (four quadrants)
+    if (collectPaneIds(state.rootNode).length >= 4) {
       // If we can't split, just move/open the file in the target pane
       if (sourcePaneId) {
         get().paneCloseFile(sourcePaneId, fileId);

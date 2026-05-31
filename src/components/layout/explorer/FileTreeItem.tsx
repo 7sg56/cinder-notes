@@ -6,6 +6,7 @@ import {
   showFileContextMenu,
   showFolderContextMenu,
 } from '../../../util/contextMenu';
+import { setCurrentDrag } from '../../../util/dragContext';
 
 function formatDate(epochSeconds: number): string {
   const date = new Date(epochSeconds * 1000);
@@ -141,6 +142,11 @@ export function FileTreeItem({
     e.stopPropagation();
     e.dataTransfer.setData('text/plain', node.id);
     e.dataTransfer.effectAllowed = 'move';
+    setCurrentDrag({
+      fileId: node.id,
+      sourcePaneId: null,
+      isFolder: node.type === 'folder',
+    });
     // Visual feedback
     if (e.currentTarget instanceof HTMLElement) {
       e.currentTarget.style.opacity = '0.4';
@@ -152,6 +158,7 @@ export function FileTreeItem({
       e.currentTarget.style.opacity = '1';
     }
     setDragState((prev) => ({ ...prev, isOver: false }));
+    setCurrentDrag(null);
   };
 
   const handleDragOver = (e: React.DragEvent) => {

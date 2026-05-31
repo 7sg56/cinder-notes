@@ -4,7 +4,8 @@ import { EditorTabs } from './EditorTabs';
 import { EditorHeader } from './EditorHeader';
 import { WelcomePage } from '../WelcomePage';
 import { useAppStore } from '../../../store/useAppStore';
-import { useSplitStore } from '../../../store/useSplitStore';
+import { useSplitStore, collectPaneIds } from '../../../store/useSplitStore';
+import { getCurrentDrag } from '../../../util/dragContext';
 import type { EditorView } from '@codemirror/view';
 
 interface EditorPaneProps {
@@ -56,10 +57,32 @@ export function EditorPane({ paneId }: EditorPaneProps) {
     const hasFile = e.dataTransfer.types.includes('text/plain');
     if (!hasTab && !hasFile) return;
 
+    const drag = getCurrentDrag();
+
+    // Don't show any overlay for folders -- they can't be opened as tabs
+    if (drag?.isFolder) return;
+
+    // Don't show overlay when dragging a tab within the same pane
+    // (same file, same source pane)
+    if (drag && drag.sourcePaneId === paneId) return;
+
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
-    setDropZone(getDropZone(e));
+
+    const zone = getDropZone(e);
+
+    // If we already have 4 panes (max quadrants), only allow center drops
+    // (edge drops would create a split that the store will reject)
+    if (zone !== 'center') {
+      const { rootNode } = useSplitStore.getState();
+      if (collectPaneIds(rootNode).length >= 4) {
+        setDropZone('center');
+        return;
+      }
+    }
+
+    setDropZone(zone);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {

@@ -13,6 +13,7 @@ import { useAppStore } from '../../../store/useAppStore';
 import { useSplitStore } from '../../../store/useSplitStore';
 import { showTabContextMenu } from '../../../util/contextMenu';
 import { isMac } from '../../../util/tauri';
+import { setCurrentDrag } from '../../../util/dragContext';
 
 interface EditorTabsProps {
   paneId: string;
@@ -32,6 +33,15 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
   const hasMultiplePanes = useSplitStore(
     (state) => state.rootNode.type === 'branch'
   );
+
+  // Check if this is the leftmost pane (first in tree traversal order)
+  const isLeftmostPane = useSplitStore((state) => {
+    const getFirstPaneId = (node: typeof state.rootNode): string => {
+      if (node.type === 'leaf') return node.paneId;
+      return getFirstPaneId(node.children[0]);
+    };
+    return getFirstPaneId(state.rootNode) === paneId;
+  });
 
   // Global state from app store
   const {
@@ -80,7 +90,7 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
         }}
       >
         {/* macOS traffic lights spacer when sidebar is collapsed */}
-        {isMac() && (
+        {isMac() && isLeftmostPane && (
           <div
             data-tauri-drag-region
             className="shrink-0 h-full transition-[width] duration-200 ease-in-out"
@@ -114,7 +124,13 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
                     JSON.stringify({ fileId, sourcePaneId: paneId })
                   );
                   e.dataTransfer.effectAllowed = 'move';
+                  setCurrentDrag({
+                    fileId,
+                    sourcePaneId: paneId,
+                    isFolder: false,
+                  });
                 }}
+                onDragEnd={() => setCurrentDrag(null)}
                 onClick={() => selectFile(fileId)}
                 onContextMenu={(e) => {
                   e.preventDefault();
