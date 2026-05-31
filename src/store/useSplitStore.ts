@@ -99,6 +99,79 @@ function removePaneFromTree(node: SplitNode, paneId: string): SplitNode | null {
   return { ...node, children: newChildren, flexes: normalizedFlexes };
 }
 
+function getPaneDepth(root: SplitNode, paneId: string): number {
+  const path = findPanePath(root, paneId);
+  return path ? path.length : 0;
+}
+
+function insertPaneIntoTree(
+  root: SplitNode,
+  targetPaneId: string,
+  newPaneId: string,
+  direction: 'horizontal' | 'vertical',
+  insertBefore: boolean = false
+): SplitNode | null {
+  const panePath = findPanePath(root, targetPaneId);
+  if (panePath === null) return null;
+
+  // Navigate to the actual parent branch
+  let actualParent: SplitNode | null = root;
+  for (let i = 0; i < panePath.length - 1; i++) {
+    if (actualParent?.type !== 'branch') {
+      actualParent = null;
+      break;
+    }
+    actualParent = actualParent.children[panePath[i]];
+  }
+
+  if (
+    actualParent?.type === 'branch' &&
+    actualParent.axis === direction &&
+    panePath.length > 0
+  ) {
+    // Parent axis matches: insert new pane as a sibling
+    const childIdx = panePath[panePath.length - 1];
+    const newChildren = [...actualParent.children];
+    const newFlexes = [...actualParent.flexes];
+
+    const currentFlex = newFlexes[childIdx];
+    newFlexes[childIdx] = currentFlex / 2;
+
+    const insertIdx = insertBefore ? childIdx : childIdx + 1;
+    newChildren.splice(insertIdx, 0, { type: 'leaf', paneId: newPaneId });
+    newFlexes.splice(insertIdx, 0, currentFlex / 2);
+
+    const updatedParent: SplitNode = {
+      ...actualParent,
+      children: newChildren,
+      flexes: newFlexes,
+    };
+
+    if (panePath.length === 1) {
+      return updatedParent;
+    } else {
+      const pathToParent = panePath.slice(0, -1);
+      return replaceNodeAtPath(root, pathToParent, () => updatedParent);
+    }
+  } else {
+    // Different axis or root leaf: wrap in a new branch
+    const leafExisting: SplitNode = { type: 'leaf', paneId: targetPaneId };
+    const leafNew: SplitNode = { type: 'leaf', paneId: newPaneId };
+    const children = insertBefore
+      ? [leafNew, leafExisting]
+      : [leafExisting, leafNew];
+
+    const newBranch: SplitNode = {
+      type: 'branch',
+      axis: direction,
+      children,
+      flexes: [0.5, 0.5],
+    };
+
+    return replaceNodeAtPath(root, panePath, () => newBranch);
+  }
+}
+
 // ─── Initial State ──────────────────────────────────────────────────────────
 
 const initialPaneId = generatePaneId();
@@ -162,6 +235,9 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     const pane = state.panes[paneId];
     if (!pane) return;
 
+    // Limit splitting to depth 2 (e.g. one horizontal, one vertical max)
+    if (getPaneDepth(state.rootNode, paneId) >= 2) return;
+
     const newPaneId = generatePaneId();
     const newPane: PaneState = {
       // Inherit active file from the source pane (like Zed)
@@ -170,74 +246,13 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       activeFileContent: pane.activeFileContent,
     };
 
-    const panePath = findPanePath(state.rootNode, paneId);
-    if (panePath === null) return;
-
-    // Check if the parent branch has the same axis
-
-    // Navigate to the actual parent branch
-    let actualParent: SplitNode | null = state.rootNode;
-    for (let i = 0; i < panePath.length - 1; i++) {
-      if (actualParent?.type !== 'branch') {
-        actualParent = null;
-        break;
-      }
-      actualParent = actualParent.children[panePath[i]];
-    }
-
-    let newRoot: SplitNode;
-
-    if (
-      actualParent?.type === 'branch' &&
-      actualParent.axis === direction &&
-      panePath.length > 0
-    ) {
-      // Parent axis matches: insert new pane as a sibling
-      const childIdx = panePath[panePath.length - 1];
-      const newChildren = [...actualParent.children];
-      const newFlexes = [...actualParent.flexes];
-
-      // Split the current child's flex in half
-      const currentFlex = newFlexes[childIdx];
-      newFlexes[childIdx] = currentFlex / 2;
-      newChildren.splice(childIdx + 1, 0, {
-        type: 'leaf',
-        paneId: newPaneId,
-      });
-      newFlexes.splice(childIdx + 1, 0, currentFlex / 2);
-
-      const updatedParent: SplitNode = {
-        ...actualParent,
-        children: newChildren,
-        flexes: newFlexes,
-      };
-
-      // Replace the parent in the tree
-      if (panePath.length === 1) {
-        // Parent is root
-        newRoot = updatedParent;
-      } else {
-        const pathToParent = panePath.slice(0, -1);
-        newRoot = replaceNodeAtPath(
-          state.rootNode,
-          pathToParent,
-          () => updatedParent
-        );
-      }
-    } else {
-      // Different axis or root leaf: wrap in a new branch
-      const newBranch: SplitNode = {
-        type: 'branch',
-        axis: direction,
-        children: [
-          { type: 'leaf', paneId },
-          { type: 'leaf', paneId: newPaneId },
-        ],
-        flexes: [0.5, 0.5],
-      };
-
-      newRoot = replaceNodeAtPath(state.rootNode, panePath, () => newBranch);
-    }
+    const newRoot = insertPaneIntoTree(
+      state.rootNode,
+      paneId,
+      newPaneId,
+      direction
+    );
+    if (!newRoot) return;
 
     set({
       rootNode: newRoot,
@@ -254,13 +269,29 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     insertBefore = false
   ) => {
     const state = get();
-    if (!state.panes[paneId]) return;
+    const targetPane = state.panes[paneId];
+    if (!targetPane) return;
+
+    // Check if target pane is empty (or only has welcome tab). If so, just open the file there.
+    if (
+      targetPane.openFiles.length === 0 ||
+      (targetPane.openFiles.length === 1 &&
+        targetPane.openFiles[0] === 'welcome')
+    ) {
+      if (sourcePaneId && sourcePaneId !== paneId) {
+        get().paneCloseFile(sourcePaneId, fileId);
+      }
+      get().paneSelectFile(paneId, fileId);
+      return;
+    }
 
     // First, close the file from the source pane (if different pane)
     const updatedPanes = { ...state.panes };
-    if (sourcePaneId !== paneId && updatedPanes[sourcePaneId]) {
+    if (sourcePaneId && sourcePaneId !== paneId && updatedPanes[sourcePaneId]) {
       const srcPane = updatedPanes[sourcePaneId];
-      const newOpenFiles = srcPane.openFiles.filter((id) => id !== fileId);
+      const newOpenFiles = srcPane.openFiles.filter(
+        (id: string) => id !== fileId
+      );
       const wasActive = srcPane.activeFileId === fileId;
       updatedPanes[sourcePaneId] = {
         ...srcPane,
@@ -299,28 +330,25 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
         .catch(console.error);
     }
 
-    // Build tree: find the target pane and create a branch
-    const panePath = findPanePath(state.rootNode, paneId);
-    if (panePath === null) return;
+    // Limit splitting to depth 2
+    if (getPaneDepth(state.rootNode, paneId) >= 2) {
+      // If we can't split, just move/open the file in the target pane
+      if (sourcePaneId && sourcePaneId !== paneId) {
+        get().paneCloseFile(sourcePaneId, fileId);
+      }
+      get().paneSelectFile(paneId, fileId);
+      return;
+    }
 
-    const leafExisting: SplitNode = { type: 'leaf', paneId };
-    const leafNew: SplitNode = { type: 'leaf', paneId: newPaneId };
-    const children = insertBefore
-      ? [leafNew, leafExisting]
-      : [leafExisting, leafNew];
-
-    const newBranch: SplitNode = {
-      type: 'branch',
-      axis: direction,
-      children,
-      flexes: [0.5, 0.5],
-    };
-
-    const newRoot = replaceNodeAtPath(
+    // Build tree using helper
+    const newRoot = insertPaneIntoTree(
       state.rootNode,
-      panePath,
-      () => newBranch
+      paneId,
+      newPaneId,
+      direction,
+      insertBefore
     );
+    if (!newRoot) return;
 
     set({
       rootNode: newRoot,
