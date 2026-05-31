@@ -73,6 +73,7 @@ function App() {
 
   // Get the split tree root (must be before early returns)
   const rootNode = useSplitStore((state) => state.rootNode);
+  const maximizedPaneId = useSplitStore((state) => state.maximizedPaneId);
 
   // Global window drag handler - uses Tauri JS API since CSS app-region
   // doesn't work reliably with transparent overlay windows on macOS
@@ -188,7 +189,13 @@ function App() {
     <>
       <MainLayout
         sidebarContent={<FileExplorer />}
-        editorContent={<SplitContainer node={rootNode} />}
+        editorContent={
+          maximizedPaneId ? (
+            <SplitContainer node={{ type: 'leaf', paneId: maximizedPaneId }} />
+          ) : (
+            <SplitContainer node={rootNode} />
+          )
+        }
       />
 
       <SearchPanel />

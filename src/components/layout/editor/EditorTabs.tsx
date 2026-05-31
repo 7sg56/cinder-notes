@@ -24,6 +24,9 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
   const openFiles = useSplitStore(
     (state) => state.panes[paneId]?.openFiles ?? []
   );
+  const isMaximized = useSplitStore(
+    (state) => state.maximizedPaneId === paneId
+  );
   const activeFileId = useSplitStore(
     (state) => state.panes[paneId]?.activeFileId ?? null
   );
@@ -246,26 +249,24 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
             <PanelLeft size={16} />
           </button>
 
-          {/* Fullscreen Toggle */}
-          <button
-            onClick={toggleExplorerCollapsed}
-            className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
-            style={{
-              color: isExplorerCollapsed
-                ? 'var(--editor-header-accent)'
-                : 'var(--text-tertiary)',
-            }}
-            title={
-              isExplorerCollapsed ? 'Exit Fullscreen' : 'Fullscreen Editor'
-            }
-            data-testid="fullscreen-button"
-          >
-            {isExplorerCollapsed ? (
-              <Minimize2 size={16} />
-            ) : (
-              <Maximize2 size={16} />
-            )}
-          </button>
+          {/* Fullscreen Toggle (only when multiple panes exist) */}
+          {hasMultiplePanes && (
+            <button
+              onClick={() =>
+                useSplitStore.getState().toggleMaximizePane(paneId)
+              }
+              className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
+              style={{
+                color: isMaximized
+                  ? 'var(--editor-header-accent)'
+                  : 'var(--text-tertiary)',
+              }}
+              title={isMaximized ? 'Restore Split' : 'Maximize Pane'}
+              data-testid="fullscreen-button"
+            >
+              {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            </button>
+          )}
         </div>
       </div>
       <div

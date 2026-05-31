@@ -182,6 +182,7 @@ interface SplitStoreState {
   rootNode: SplitNode;
   panes: Record<string, PaneState>;
   activePaneId: string;
+  maximizedPaneId: string | null;
   newTabCounter: number;
 
   // Tree actions
@@ -195,6 +196,7 @@ interface SplitStoreState {
   ) => void;
   closePane: (paneId: string) => void;
   setActivePaneId: (paneId: string) => void;
+  toggleMaximizePane: (paneId: string) => void;
   setSplitRatio: (
     branchPath: number[],
     childIndex: number,
@@ -226,6 +228,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
   rootNode: { type: 'leaf', paneId: initialPaneId },
   panes: { [initialPaneId]: createEmptyPane() },
   activePaneId: initialPaneId,
+  maximizedPaneId: null,
   newTabCounter: 0,
 
   // ─── Tree Actions ───────────────────────────────────────────────────────
@@ -258,6 +261,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       rootNode: newRoot,
       panes: { ...state.panes, [newPaneId]: newPane },
       activePaneId: newPaneId,
+      maximizedPaneId: null, // Clear maximize on split
     });
   },
 
@@ -354,6 +358,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       rootNode: newRoot,
       panes: { ...updatedPanes, [newPaneId]: newPane },
       activePaneId: newPaneId,
+      maximizedPaneId: null, // Clear maximize on split
     });
   },
 
@@ -382,6 +387,8 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       rootNode: newRoot,
       panes: newPanes,
       activePaneId: newActivePaneId,
+      maximizedPaneId:
+        state.maximizedPaneId === paneId ? null : state.maximizedPaneId,
     });
   },
 
@@ -851,15 +858,23 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     }
   },
 
+  toggleMaximizePane: (paneId) => {
+    const { maximizedPaneId } = get();
+    set({ maximizedPaneId: maximizedPaneId === paneId ? null : paneId });
+  },
+
   // ─── Init/Reset ─────────────────────────────────────────────────────────
 
   resetToSinglePane: () => {
-    const newPaneId = generatePaneId();
+    const state = get();
+    // Find the currently active pane to preserve it
+    const activeId = state.activePaneId;
+    const activePane = state.panes[activeId];
+
     set({
-      rootNode: { type: 'leaf', paneId: newPaneId },
-      panes: { [newPaneId]: createEmptyPane() },
-      activePaneId: newPaneId,
-      newTabCounter: 0,
+      rootNode: { type: 'leaf', paneId: activeId },
+      panes: { [activeId]: activePane },
+      maximizedPaneId: null,
     });
   },
 }));
