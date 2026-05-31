@@ -56,11 +56,13 @@ export function EditorPane({ paneId }: EditorPaneProps) {
     if (!hasTab && !hasFile) return;
 
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
     setDropZone(getDropZone(e));
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
+    e.stopPropagation();
     // Only reset if we're actually leaving the pane (not entering a child)
     if (paneRef.current && !paneRef.current.contains(e.relatedTarget as Node)) {
       setDropZone(null);
@@ -69,6 +71,7 @@ export function EditorPane({ paneId }: EditorPaneProps) {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const zone = getDropZone(e);
     setDropZone(null);
 
