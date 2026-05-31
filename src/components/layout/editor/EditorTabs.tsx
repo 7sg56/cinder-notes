@@ -107,6 +107,14 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
                 key={fileId}
                 data-no-drag
                 data-testid="editor-tab"
+                draggable={true}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData(
+                    'application/cinder-tab',
+                    JSON.stringify({ fileId, sourcePaneId: paneId })
+                  );
+                  e.dataTransfer.effectAllowed = 'move';
+                }}
                 onClick={() => selectFile(fileId)}
                 onContextMenu={(e) => {
                   e.preventDefault();

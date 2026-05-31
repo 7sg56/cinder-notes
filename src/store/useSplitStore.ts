@@ -113,6 +113,13 @@ interface SplitStoreState {
 
   // Tree actions
   splitPane: (paneId: string, direction: 'horizontal' | 'vertical') => void;
+  splitPaneWithFile: (
+    paneId: string,
+    direction: 'horizontal' | 'vertical',
+    fileId: string,
+    sourcePaneId: string,
+    insertBefore?: boolean
+  ) => void;
   closePane: (paneId: string) => void;
   setActivePaneId: (paneId: string) => void;
   setSplitRatio: (
@@ -235,6 +242,89 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     set({
       rootNode: newRoot,
       panes: { ...state.panes, [newPaneId]: newPane },
+      activePaneId: newPaneId,
+    });
+  },
+
+  splitPaneWithFile: (
+    paneId,
+    direction,
+    fileId,
+    sourcePaneId,
+    insertBefore = false
+  ) => {
+    const state = get();
+    if (!state.panes[paneId]) return;
+
+    // First, close the file from the source pane (if different pane)
+    const updatedPanes = { ...state.panes };
+    if (sourcePaneId !== paneId && updatedPanes[sourcePaneId]) {
+      const srcPane = updatedPanes[sourcePaneId];
+      const newOpenFiles = srcPane.openFiles.filter((id) => id !== fileId);
+      const wasActive = srcPane.activeFileId === fileId;
+      updatedPanes[sourcePaneId] = {
+        ...srcPane,
+        openFiles: newOpenFiles,
+        activeFileId: wasActive
+          ? (newOpenFiles[newOpenFiles.length - 1] ?? null)
+          : srcPane.activeFileId,
+        activeFileContent: wasActive ? '' : srcPane.activeFileContent,
+      };
+    }
+
+    // Create the new pane with the dropped file
+    const newPaneId = generatePaneId();
+    const newPane: PaneState = {
+      activeFileId: fileId,
+      openFiles: [fileId],
+      activeFileContent: '',
+    };
+
+    // Load file content
+    const appState = useAppStore.getState();
+    const file = appState.findFile(fileId);
+    if (file?.path) {
+      invoke<string>('read_note', { path: file.path })
+        .then((content) => {
+          const current = get().panes[newPaneId];
+          if (current?.activeFileId === fileId) {
+            set({
+              panes: {
+                ...get().panes,
+                [newPaneId]: { ...current, activeFileContent: content },
+              },
+            });
+          }
+        })
+        .catch(console.error);
+    }
+
+    // Build tree: find the target pane and create a branch
+    const panePath = findPanePath(state.rootNode, paneId);
+    if (panePath === null) return;
+
+    const leafExisting: SplitNode = { type: 'leaf', paneId };
+    const leafNew: SplitNode = { type: 'leaf', paneId: newPaneId };
+    const children = insertBefore
+      ? [leafNew, leafExisting]
+      : [leafExisting, leafNew];
+
+    const newBranch: SplitNode = {
+      type: 'branch',
+      axis: direction,
+      children,
+      flexes: [0.5, 0.5],
+    };
+
+    const newRoot = replaceNodeAtPath(
+      state.rootNode,
+      panePath,
+      () => newBranch
+    );
+
+    set({
+      rootNode: newRoot,
+      panes: { ...updatedPanes, [newPaneId]: newPane },
       activePaneId: newPaneId,
     });
   },
