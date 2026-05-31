@@ -3,7 +3,6 @@ import {
   Plus,
   FileText,
   PanelLeft,
-  Gift,
   Maximize2,
   Minimize2,
   Info,
@@ -11,20 +10,44 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
+import { useSplitStore } from '../../../store/useSplitStore';
 import { showTabContextMenu } from '../../../util/contextMenu';
 import { isMac } from '../../../util/tauri';
+import { setCurrentDrag } from '../../../util/dragContext';
 
-export function EditorTabs() {
+interface EditorTabsProps {
+  paneId: string;
+}
+
+export function EditorTabs({ paneId }: EditorTabsProps) {
+  // Pane-scoped state from split store
+  const openFiles = useSplitStore(
+    (state) => state.panes[paneId]?.openFiles ?? []
+  );
+  const isMaximized = useSplitStore(
+    (state) => state.maximizedPaneId === paneId
+  );
+  const activeFileId = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileId ?? null
+  );
+  const hasMultiplePanes = useSplitStore(
+    (state) => state.rootNode.type === 'branch'
+  );
+
+  // Check if this is the leftmost pane (first in tree traversal order)
+  const isLeftmostPane = useSplitStore((state) => {
+    const getFirstPaneId = (node: typeof state.rootNode): string => {
+      if (node.type === 'leaf') return node.paneId;
+      return getFirstPaneId(node.children[0]);
+    };
+    return getFirstPaneId(state.rootNode) === paneId;
+  });
+
+  // Global state from app store
   const {
-    openFiles,
-    activeFileId,
-    selectFile,
-    closeFile,
     findFile,
-    createNewTab,
     toggleExplorerCollapsed,
     isExplorerCollapsed,
-    openFileInNewTab,
     setRenamingFileId,
     deleteFile,
     deleteFolder,
@@ -32,10 +55,28 @@ export function EditorTabs() {
     createFile,
     createFileInFolder,
     createFolder,
-    closeOtherFiles,
-    closeAllFiles,
     togglePin,
   } = useAppStore();
+
+  // Pane-scoped action wrappers
+  const selectFile = (fileId: string) => {
+    useSplitStore.getState().paneSelectFile(paneId, fileId);
+  };
+  const closeFile = (fileId: string) => {
+    useSplitStore.getState().paneCloseFile(paneId, fileId);
+  };
+  const createNewTab = () => {
+    useSplitStore.getState().paneCreateNewTab(paneId);
+  };
+  const openFileInNewTab = (fileId: string) => {
+    useSplitStore.getState().paneOpenFileInNewTab(paneId, fileId);
+  };
+  const closeOtherFiles = (fileId: string) => {
+    useSplitStore.getState().paneCloseOtherFiles(paneId, fileId);
+  };
+  const closeAllFiles = () => {
+    useSplitStore.getState().paneCloseAllFiles(paneId);
+  };
 
   return (
     <>
@@ -49,7 +90,7 @@ export function EditorTabs() {
         }}
       >
         {/* macOS traffic lights spacer when sidebar is collapsed */}
-        {isMac() && (
+        {isMac() && isLeftmostPane && (
           <div
             data-tauri-drag-region
             className="shrink-0 h-full transition-[width] duration-200 ease-in-out"
@@ -63,11 +104,9 @@ export function EditorTabs() {
             const file = findFile(fileId);
             const isActive = activeFileId === fileId;
             const isBlankTab = fileId.startsWith('new-tab-');
-            const isWelcomeTab = fileId === 'welcome';
 
             let tabName = '';
-            if (isWelcomeTab) tabName = 'Welcome';
-            else if (isBlankTab) tabName = 'Untitled';
+            if (isBlankTab) tabName = 'Untitled';
             else if (fileId === 'cinder-settings') tabName = 'Settings';
             else if (fileId === 'cinder-info') tabName = 'About';
             else if (fileId === 'cinder-trash') tabName = 'Trash';
@@ -78,6 +117,20 @@ export function EditorTabs() {
                 key={fileId}
                 data-no-drag
                 data-testid="editor-tab"
+                draggable={true}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData(
+                    'application/cinder-tab',
+                    JSON.stringify({ fileId, sourcePaneId: paneId })
+                  );
+                  e.dataTransfer.effectAllowed = 'move';
+                  setCurrentDrag({
+                    fileId,
+                    sourcePaneId: paneId,
+                    isFolder: false,
+                  });
+                }}
+                onDragEnd={() => setCurrentDrag(null)}
                 onClick={() => selectFile(fileId)}
                 onContextMenu={(e) => {
                   e.preventDefault();
@@ -109,20 +162,8 @@ export function EditorTabs() {
                     : 'var(--text-secondary)',
                 }}
               >
-                {!isWelcomeTab && !fileId.startsWith('cinder-') && (
+                {!fileId.startsWith('cinder-') && (
                   <FileText
-                    size={14}
-                    className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
-                    style={{
-                      color: isActive
-                        ? 'var(--editor-header-accent)'
-                        : 'inherit',
-                    }}
-                  />
-                )}
-
-                {isWelcomeTab && (
-                  <Gift
                     size={14}
                     className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
                     style={{
@@ -173,12 +214,7 @@ export function EditorTabs() {
         </div>
 
         {/* Right Side Controls - Fixed */}
-        <div
-          className="flex items-center h-full px-2 gap-1 border-l shrink-0 z-10"
-          style={{
-            borderColor: 'var(--border-primary)',
-          }}
-        >
+        <div className="flex items-center h-full px-2 gap-1 shrink-0 z-10">
           {/* New Tab Button */}
           <button
             onClick={createNewTab}
@@ -189,6 +225,19 @@ export function EditorTabs() {
           >
             <Plus size={18} />
           </button>
+
+          {/* Close Pane (only when multiple panes exist) */}
+          {hasMultiplePanes && (
+            <button
+              onClick={() => useSplitStore.getState().closePane(paneId)}
+              className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
+              style={{ color: 'var(--text-tertiary)' }}
+              title="Close Pane"
+              data-testid="close-pane-button"
+            >
+              <X size={16} />
+            </button>
+          )}
 
           {/* Sidebar Toggle */}
           <button
@@ -201,26 +250,24 @@ export function EditorTabs() {
             <PanelLeft size={16} />
           </button>
 
-          {/* Fullscreen Toggle */}
-          <button
-            onClick={toggleExplorerCollapsed}
-            className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
-            style={{
-              color: isExplorerCollapsed
-                ? 'var(--editor-header-accent)'
-                : 'var(--text-tertiary)',
-            }}
-            title={
-              isExplorerCollapsed ? 'Exit Fullscreen' : 'Fullscreen Editor'
-            }
-            data-testid="fullscreen-button"
-          >
-            {isExplorerCollapsed ? (
-              <Minimize2 size={16} />
-            ) : (
-              <Maximize2 size={16} />
-            )}
-          </button>
+          {/* Fullscreen Toggle (only when multiple panes exist) */}
+          {hasMultiplePanes && (
+            <button
+              onClick={() =>
+                useSplitStore.getState().toggleMaximizePane(paneId)
+              }
+              className="flex items-center justify-center w-[32px] h-[32px] rounded-md transition-colors hover:bg-[var(--bg-hover)]"
+              style={{
+                color: isMaximized
+                  ? 'var(--editor-header-accent)'
+                  : 'var(--text-tertiary)',
+              }}
+              title={isMaximized ? 'Restore Split' : 'Maximize Pane'}
+              data-testid="fullscreen-button"
+            >
+              {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            </button>
+          )}
         </div>
       </div>
       <div

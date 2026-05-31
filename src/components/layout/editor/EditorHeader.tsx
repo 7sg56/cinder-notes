@@ -1,22 +1,27 @@
 import { useRef, useEffect, type MutableRefObject } from 'react';
 import { Undo2, Redo2, Eye, Edit2 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
+import { useSplitStore } from '../../../store/useSplitStore';
 import { undo, redo } from '@codemirror/commands';
 import type { EditorView } from '@codemirror/view';
 
 interface EditorHeaderProps {
+  paneId: string;
   isPreview: boolean;
   onPreviewToggle: () => void;
   editorViewRef?: MutableRefObject<EditorView | null>;
 }
 
 export function EditorHeader({
+  paneId,
   isPreview,
   onPreviewToggle,
   editorViewRef,
 }: EditorHeaderProps) {
+  const activeFileId = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileId ?? null
+  );
   const {
-    activeFileId,
     getFileBreadcrumb,
     renamingFileId,
     pendingFileId,

@@ -1,5 +1,6 @@
 import type { MutableRefObject } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
+import { useSplitStore } from '../../../store/useSplitStore';
 import { MarkdownPreview } from './MarkdownPreview';
 
 import { Settings } from '../../features/settings/Settings';
@@ -9,6 +10,7 @@ import { CodeMirrorEditor } from './CodeMirrorEditor';
 import type { EditorView } from '@codemirror/view';
 
 interface EditorProps {
+  paneId: string;
   isPreview: boolean;
   onPreviewChange?: (isPreview: boolean) => void;
   editorViewRef?: MutableRefObject<EditorView | null>;
@@ -16,11 +18,17 @@ interface EditorProps {
 }
 
 export function Editor({
+  paneId,
   isPreview,
   editorViewRef,
   onCursorChange,
 }: EditorProps) {
-  const { activeFileId, activeFileContent, updateFileContent } = useAppStore();
+  const activeFileId = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileId ?? null
+  );
+  const activeFileContent = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileContent ?? ''
+  );
   const isMac = navigator.userAgent.includes('Mac');
 
   return (
@@ -145,7 +153,11 @@ export function Editor({
           ) : (
             <CodeMirrorEditor
               value={activeFileContent}
-              onChange={(val) => updateFileContent(activeFileId, val)}
+              onChange={(val) =>
+                useSplitStore
+                  .getState()
+                  .paneUpdateFileContent(paneId, activeFileId!, val)
+              }
               editorViewRef={editorViewRef}
               onCursorChange={onCursorChange}
             />
