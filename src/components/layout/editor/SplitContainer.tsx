@@ -17,6 +17,7 @@ export function SplitContainer({ node, path = [] }: SplitContainerProps) {
   return (
     <div
       className="split-container"
+      data-testid="split-container"
       style={{
         display: 'flex',
         flexDirection: isHorizontal ? 'row' : 'column',
@@ -67,6 +68,7 @@ function SplitChild({
     <>
       <div
         className="split-pane-wrapper"
+        data-testid="split-pane-wrapper"
         style={{
           flex: flex,
           minWidth: isHorizontal ? '200px' : undefined,

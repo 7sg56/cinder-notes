@@ -76,6 +76,7 @@ export function SplitResizeHandle({
     <div
       ref={containerRef}
       className="split-resize-handle"
+      data-testid="split-resize-handle"
       style={{
         position: 'relative',
         flexShrink: 0,

@@ -41,14 +41,17 @@ test.describe('Editor and Tabs', () => {
     }
   });
 
-  test('fullscreen button is present', async ({ page }) => {
+  test('fullscreen button is only visible with multiple panes', async ({
+    page,
+  }) => {
     const hasLayout = await page
       .getByTestId('main-layout')
       .isVisible()
       .catch(() => false);
     if (hasLayout) {
+      // In a single-pane layout, fullscreen button should NOT be visible
       const fullscreenBtn = page.getByTestId('fullscreen-button');
-      await expect(fullscreenBtn).toBeVisible();
+      await expect(fullscreenBtn).not.toBeVisible();
     }
   });
 
