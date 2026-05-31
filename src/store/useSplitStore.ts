@@ -276,11 +276,11 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     const targetPane = state.panes[paneId];
     if (!targetPane) return;
 
-    // Check if target pane is empty (or only has welcome tab). If so, just open the file there.
+    // Check if target pane is empty. If so, just open the file there.
     if (
       targetPane.openFiles.length === 0 ||
-      (targetPane.openFiles.length === 1 &&
-        targetPane.openFiles[0] === 'welcome')
+      targetPane.activeFileId === 'welcome' ||
+      targetPane.activeFileId === null
     ) {
       if (sourcePaneId) {
         get().paneCloseFile(sourcePaneId, fileId);
@@ -487,7 +487,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     // Handle blank tabs
     if (fileId.startsWith('new-tab-')) {
       const newPanes = { ...state.panes };
-      if (pane.activeFileId === 'welcome') {
+      if (!pane.activeFileId) {
         newPanes[paneId] = {
           ...pane,
           activeFileId: fileId,
@@ -510,9 +510,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
       const newPanes = { ...state.panes };
       const openFiles = pane.openFiles.includes(fileId)
         ? pane.openFiles
-        : pane.activeFileId &&
-            (pane.activeFileId === 'welcome' ||
-              pane.activeFileId.startsWith('new-tab-'))
+        : pane.activeFileId === null || fileId.startsWith('new-tab-')
           ? pane.openFiles.map((id) => (id === pane.activeFileId ? fileId : id))
           : [...pane.openFiles, fileId];
 
@@ -535,11 +533,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
 
     // Determine new openFiles
     let newOpenFiles: string[];
-    if (
-      pane.activeFileId &&
-      (pane.activeFileId.startsWith('new-tab-') ||
-        pane.activeFileId === 'welcome')
-    ) {
+    if (pane.activeFileId && pane.activeFileId.startsWith('new-tab-')) {
       // Replace the blank/welcome tab
       newOpenFiles = pane.openFiles.map((id) =>
         id === pane.activeFileId ? fileId : id
@@ -611,11 +605,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     const filePath = file.path;
 
     let newOpenFiles: string[];
-    if (
-      pane.activeFileId &&
-      (pane.activeFileId.startsWith('new-tab-') ||
-        pane.activeFileId === 'welcome')
-    ) {
+    if (pane.activeFileId && pane.activeFileId.startsWith('new-tab-')) {
       newOpenFiles = pane.openFiles.map((id) =>
         id === pane.activeFileId ? fileId : id
       );
@@ -669,11 +659,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
     let newOpenFiles: string[];
     if (pane.openFiles.includes(tabId)) {
       newOpenFiles = pane.openFiles;
-    } else if (
-      pane.activeFileId &&
-      (pane.activeFileId === 'welcome' ||
-        pane.activeFileId.startsWith('new-tab-'))
-    ) {
+    } else if (!pane.activeFileId || pane.activeFileId.startsWith('new-tab-')) {
       newOpenFiles = pane.openFiles.map((id) =>
         id === pane.activeFileId ? tabId : id
       );
@@ -705,15 +691,15 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
         get().closePane(paneId);
         return;
       } else {
-        // If it's the last pane, just show welcome
+        // If it's the last pane, just show welcome screen (empty state)
         set({
           panes: {
             ...state.panes,
             [paneId]: {
               ...pane,
-              activeFileId: 'welcome',
+              activeFileId: null,
               activeFileContent: '',
-              openFiles: ['welcome'],
+              openFiles: [],
             },
           },
         });
@@ -788,7 +774,7 @@ export const useSplitStore = create<SplitStoreState>()((set, get) => ({
 
     const newPanes = { ...state.panes };
 
-    if (pane.activeFileId === 'welcome') {
+    if (!pane.activeFileId || pane.activeFileId === 'welcome') {
       newPanes[paneId] = {
         activeFileId: newTabId,
         openFiles: [newTabId],

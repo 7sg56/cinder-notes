@@ -3,7 +3,6 @@ import {
   Plus,
   FileText,
   PanelLeft,
-  Gift,
   Maximize2,
   Minimize2,
   Info,
@@ -95,11 +94,9 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
             const file = findFile(fileId);
             const isActive = activeFileId === fileId;
             const isBlankTab = fileId.startsWith('new-tab-');
-            const isWelcomeTab = fileId === 'welcome';
 
             let tabName = '';
-            if (isWelcomeTab) tabName = 'Welcome';
-            else if (isBlankTab) tabName = 'Untitled';
+            if (isBlankTab) tabName = 'Untitled';
             else if (fileId === 'cinder-settings') tabName = 'Settings';
             else if (fileId === 'cinder-info') tabName = 'About';
             else if (fileId === 'cinder-trash') tabName = 'Trash';
@@ -149,20 +146,8 @@ export function EditorTabs({ paneId }: EditorTabsProps) {
                     : 'var(--text-secondary)',
                 }}
               >
-                {!isWelcomeTab && !fileId.startsWith('cinder-') && (
+                {!fileId.startsWith('cinder-') && (
                   <FileText
-                    size={14}
-                    className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
-                    style={{
-                      color: isActive
-                        ? 'var(--editor-header-accent)'
-                        : 'inherit',
-                    }}
-                  />
-                )}
-
-                {isWelcomeTab && (
-                  <Gift
                     size={14}
                     className={`mr-2 shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
                     style={{
