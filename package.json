@@ -1,7 +1,7 @@
 {
   "name": "cinder-notes",
   "private": true,
-  "version": "0.1.2",
+  "version": "0.2.0-pre.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,6 +16,8 @@
     "tauri:dev": "npx tauri dev",
     "tauri:build": "npx tauri build",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
+    "version:sync": "node scripts/sync-version.mjs",
+    "release:tag": "git tag v$(node -p \"require('./package.json').version\") && git push origin v$(node -p \"require('./package.json').version\")",
     "prepare": "husky"
   },
   "dependencies": {
@@ -26,6 +28,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tauri-apps/plugin-dialog": "^2.6.0",
     "@tauri-apps/plugin-fs": "^2.4.5",
+    "@tauri-apps/plugin-updater": "^2.10.1",
     "@uiw/react-codemirror": "^4.25.7",
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",

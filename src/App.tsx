@@ -11,6 +11,7 @@ import { useSplitStore } from './store/useSplitStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import { useWorkspace } from './hooks/useWorkspace';
+import { useUpdater } from './hooks/useUpdater';
 import { isTauri } from './util/tauri';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -59,6 +60,9 @@ function App() {
 
   const [isAutoLoading, setIsAutoLoading] = useState(shouldAutoLoad);
   const attemptedRef = useRef(false);
+
+  // Check for app updates on launch
+  useUpdater();
 
   // Register global keyboard shortcuts
   useKeyboardShortcuts();

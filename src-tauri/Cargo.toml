@@ -1,10 +1,10 @@
 [package]
-name = "app"
-version = "0.1.5"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+name = "cinder-notes"
+version = "0.2.0"
+description = "Minimal, local-first markdown note-taking app built with Tauri"
+authors = ["7sg56"]
+license = "MIT"
+repository = "https://github.com/7sg56/cinder-notes"
 edition = "2021"
 rust-version = "1.77.2"
 
@@ -26,6 +26,7 @@ tauri = { version = "2.9.5", features = ["macos-private-api"] }
 tauri-plugin-log = "2"
 tauri-plugin-dialog = "2.6.0"
 tauri-plugin-fs = "2.4.5"
+tauri-plugin-updater = "2"
 notify = "6"
 chrono = { version = "0.4", features = ["serde"] }
 

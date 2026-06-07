@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "cinder-notes",
-  "version": "0.1.2",
+  "productName": "Cinder Notes",
+  "version": "0.2.0-pre.1",
   "identifier": "com.cindernotes.main",
   "build": {
     "frontendDist": "../dist",
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "cinder",
+        "title": "Cinder Notes",
         "width": 1000,
         "height": 800,
         "resizable": true,
@@ -41,7 +41,20 @@
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
+      "icons/icon.ico",
       "icons/icon.png"
-    ]
+    ],
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENGMkEyMTlEQjJENDlBQjQKUldTMG10U3luU0Vxejl2N0FkT3VHclpiMW02R0lZLzB2K2QvVG1vVC8yMExXT1o2dTdEYXBtNnoK",
+      "endpoints": [
+        "https://github.com/7sg56/cinder-notes/releases/latest/download/latest.json"
+      ]
+    }
   }
 }
