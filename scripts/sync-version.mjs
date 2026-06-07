@@ -40,11 +40,16 @@ if (argVersion) {
 const version = pkg.version;
 
 // --- tauri.conf.json ---
+// Windows MSI bundler only supports numeric versions (no pre-release suffixes).
+// Strip any pre-release suffix so the build works on all platforms.
 const tauriConf = JSON.parse(readFileSync(TAURI_CONF, "utf-8"));
 const oldTauriVersion = tauriConf.version;
-tauriConf.version = version;
+const tauriVersion = version.replace(/-.*$/, "");
+tauriConf.version = tauriVersion;
 writeFileSync(TAURI_CONF, JSON.stringify(tauriConf, null, 2) + "\n");
-console.log(`tauri.conf.json     -> ${version} (was ${oldTauriVersion})`);
+console.log(
+  `tauri.conf.json     -> ${tauriVersion} (was ${oldTauriVersion})${version !== tauriVersion ? ` [stripped pre-release suffix from ${version}]` : ""}`,
+);
 
 // --- Cargo.toml ---
 // Cargo.toml only supports semver without pre-release metadata in the
