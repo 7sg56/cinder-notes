@@ -2,7 +2,7 @@
 # Release workflow for Cinder Notes (Tauri v2 desktop app)
 #
 # Triggered when a version tag (e.g. v0.2.0, v0.3.0-pre.1) is pushed.
-# Builds native bundles for macOS (aarch64 + x86_64) and Windows (x86_64),
+# Builds native bundles for macOS (aarch64) and Windows (x86_64),
 # creates a draft GitHub Release with all artifacts and an updater manifest
 # (latest.json) for the Tauri auto-updater.
 #
@@ -50,9 +50,6 @@ jobs:
           # macOS Apple Silicon (M-series)
           - platform: macos-latest
             target: aarch64-apple-darwin
-          # macOS Intel
-          - platform: macos-13
-            target: x86_64-apple-darwin
           # Windows 64-bit
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
