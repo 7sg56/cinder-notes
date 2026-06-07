@@ -54,6 +54,7 @@ pub fn run() {
         ])
         .setup(|app| {
             // Apply native window vibrancy for the Aero UI effect
+            #[allow(unused_variables)]
             if let Some(window) = app.get_webview_window("main") {
                 #[cfg(target_os = "macos")]
                 let _ = apply_vibrancy(
