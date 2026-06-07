@@ -27,6 +27,12 @@ concurrency:
   group: release-${{ github.ref_name }}
   cancel-in-progress: true
 
+# ── Environment ────────────────────────────────────────────────────────────
+# Opt into the Node.js 24 runtime for all JavaScript-based actions.
+# Node.js 20 is deprecated and will be removed September 2026.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # ── Permissions ─────────────────────────────────────────────────────────────
 # The GITHUB_TOKEN needs write access to create releases and upload assets.
 permissions:
