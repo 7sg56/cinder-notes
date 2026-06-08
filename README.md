@@ -23,9 +23,14 @@ Download the latest release for your platform.
 
 | Platform | Download | Notes |
 | --- | --- | --- |
-| macOS (Apple Silicon) | [Cinder-Notes.dmg](https://github.com/7sg56/cinder-notes/releases/latest) | macOS 12+, unsigned (right-click > Open) |
-| macOS (Intel) | [Cinder-Notes.dmg](https://github.com/7sg56/cinder-notes/releases/latest) | macOS 12+, unsigned |
-| Windows | [Cinder-Notes.msi](https://github.com/7sg56/cinder-notes/releases/latest) | Windows 10+ |
+| macOS (Apple Silicon) | [Cinder-Notes.dmg](https://github.com/7sg56/cinder-notes/releases/latest) | macOS 12+, unsigned |
+| Windows | [Cinder-Notes-setup.exe](https://github.com/7sg56/cinder-notes/releases/latest) | Windows 10+ |
+
+> **macOS Gatekeeper:** The app is currently unsigned. If macOS says the app is
+> "damaged", open Terminal and run:
+> ```bash
+> xattr -cr "/Applications/Cinder Notes.app"
+> ```
 
 Or build from source -- see [Development](#development) below.
 

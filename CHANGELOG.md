@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - In-app auto-updater via `tauri-plugin-updater` with GitHub Releases endpoint
-- GitHub Actions release workflow for macOS (ARM + Intel) and Windows builds
+- GitHub Actions release workflow for macOS (Apple Silicon) and Windows builds
 - Proper semantic versioning synced across `package.json`, `tauri.conf.json`, and `Cargo.toml`
 - Version sync script (`npm run version:sync`)
 - Release tag script (`npm run release:tag`)
