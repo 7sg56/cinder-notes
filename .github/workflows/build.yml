@@ -5,6 +5,9 @@ name: Build
 on:
   workflow_call:
  
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # Lint, format, typecheck bundled
   lint-and-check:
