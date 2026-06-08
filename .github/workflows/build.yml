@@ -1,0 +1,89 @@
+# All Build in one
+
+name: Build
+ 
+on:
+  workflow_call:
+ 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # Lint, format, typecheck bundled
+  lint-and-check:
+    name: Lint, Format & Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/node-setup
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+ 
+  # Vite build
+  build:
+    name: Build (Vite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/node-setup
+      - run: npm run build
+ 
+  # Tauri build (only when src-tauri/ changes)
+  check-tauri-changes:
+    name: Check Tauri Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tauri_changed: ${{ steps.filter.outputs.tauri }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # fetch-depth: 2 is required for push events so paths-filter can diff
+          # against the previous commit. PRs already have the base ref available.
+          # Without this, the first-ever push to main treats all files as changed.
+          fetch-depth: 2
+ 
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            tauri:
+              - 'src-tauri/**'
+ 
+  tauri-build:
+    name: Build (Tauri)
+    needs: [build, check-tauri-changes]
+    if: needs.check-tauri-changes.outputs.tauri_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/node-setup
+ 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+ 
+      # Give the toolchain step an id so its cachekey output is available below.
+      # This ensures the cache invalidates when the resolved toolchain version
+      # changes (e.g. a new stable release), not just when Cargo.lock changes.
+      - uses: dtolnay/rust-toolchain@stable
+        id: rust-toolchain
+ 
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: rust-${{ runner.os }}-${{ steps.rust-toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-${{ runner.os }}-${{ steps.rust-toolchain.outputs.cachekey }}-
+ 
+      # Only compile-check on Linux; actual bundles are built in release.yml
+      # on the correct platform (macOS for dmg, Windows for nsis).
+      - run: cargo build --manifest-path src-tauri/Cargo.toml
+ 

@@ -15,7 +15,6 @@ import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { EditorView, type ViewUpdate } from '@codemirror/view';
 import { cinderTheme } from '../../../theme/cinderTheme';
-import { markdownStylingPlugin } from './markdownStylingPlugin';
 
 import { search } from '@codemirror/search';
 
@@ -38,7 +37,6 @@ const extensions = [
     codeLanguages: languages,
   }),
   EditorView.lineWrapping,
-  markdownStylingPlugin,
   search({ top: true, caseSensitive: true }),
 ];
 

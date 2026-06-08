@@ -1,0 +1,134 @@
+# ---------------------------------------------------------------------------
+# Release workflow for Cinder Notes (Tauri v2 desktop app)
+#
+# Triggered when a version tag (e.g. v0.2.0, v0.3.0-pre.1) is pushed.
+# Builds native bundles for macOS (aarch64) and Windows (x86_64),
+# creates a draft GitHub Release with all artifacts and an updater manifest
+# (latest.json) for the Tauri auto-updater.
+#
+# Apple code signing / notarization is NOT configured yet -- builds are
+# unsigned. The Tauri updater signing key IS applied so update signatures
+# are generated alongside each bundle.
+# ---------------------------------------------------------------------------
+
+name: Release
+
+# ── Trigger ─────────────────────────────────────────────────────────────────
+# Run only when a tag matching the v* pattern is pushed (e.g. v0.2.0-pre.1).
+on:
+  push:
+    tags:
+      - 'v*'
+
+# ── Concurrency ─────────────────────────────────────────────────────────────
+# Cancel any in-progress release run for the same tag. This prevents wasted
+# runner minutes if a tag is force-pushed while a build is still running.
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: true
+
+# ── Environment ────────────────────────────────────────────────────────────
+# Opt into the Node.js 24 runtime for all JavaScript-based actions.
+# Node.js 20 is deprecated and will be removed September 2026.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# ── Permissions ─────────────────────────────────────────────────────────────
+# The GITHUB_TOKEN needs write access to create releases and upload assets.
+permissions:
+  contents: write
+
+jobs:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Build matrix -- one runner per target platform / architecture
+  # ════════════════════════════════════════════════════════════════════════════
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 60
+
+    strategy:
+      # Do not cancel sibling jobs when one platform fails; we still want
+      # artifacts from the platforms that succeeded.
+      fail-fast: false
+      matrix:
+        include:
+          # macOS Apple Silicon (M-series)
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+          # Windows 64-bit
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js ────────────────────────────────────────────────────────
+      # Set up Node manually (the composite action at .github/actions/node-setup
+      # is only validated on ubuntu). Uses .nvmrc for the version and caches
+      # the npm store to speed up repeated runs.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      # ── 3. Rust toolchain ─────────────────────────────────────────────────
+      # Install the latest stable Rust compiler with the target triple
+      # required for cross compilation (relevant on macOS when building
+      # the opposite architecture).
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        id: rust-toolchain
+        with:
+          targets: ${{ matrix.target }}
+
+      # ── 4. Cargo cache ───────────────────────────────────────────────────
+      # Cache the cargo registry and per-target build artifacts. The key
+      # incorporates the toolchain version and Cargo.lock hash so the cache
+      # is automatically invalidated on toolchain upgrades or dependency
+      # changes.
+      - name: Cache Cargo registry and target directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: cargo-${{ runner.os }}-${{ matrix.target }}-${{ steps.rust-toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-${{ matrix.target }}-${{ steps.rust-toolchain.outputs.cachekey }}-
+            cargo-${{ runner.os }}-${{ matrix.target }}-
+
+      # ── 5. Install frontend dependencies ──────────────────────────────────
+      - name: Install npm dependencies
+        run: npm install
+
+      # ── 6. Build and release with tauri-action ────────────────────────────
+      # tauri-apps/tauri-action handles:
+      #   - Running `npx tauri build` with the correct target
+      #   - Uploading all bundle artifacts (dmg, app.tar.gz, msi, nsis, exe)
+      #     and their .sig counterparts to the GitHub Release
+      #   - Generating and uploading latest.json for the Tauri updater
+      #
+      # The release is created as a draft so the maintainer can review the
+      # assets and release notes before making it public.
+      #
+      # Prerelease is set automatically when the tag contains a pre-release
+      # identifier (-pre, -alpha, -beta, -rc).
+      - name: Build Tauri app and upload release assets
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Cinder Notes ${{ github.ref_name }}'
+          releaseBody: 'See the assets below to download and install.'
+          releaseDraft: true
+          prerelease: ${{ contains(github.ref_name, '-pre') || contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+          args: --target ${{ matrix.target }}
+          updaterJsonPreferNsis: true

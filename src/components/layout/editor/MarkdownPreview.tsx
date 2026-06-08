@@ -4,7 +4,7 @@ import remarkMath from 'remark-math';
 import remarkBreaks from 'remark-breaks';
 import rehypeKatex from 'rehype-katex';
 import rehypeHighlight from 'rehype-highlight';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import { processMarkdown } from '../../../util/markdownpipeline';
 import { isValidElement } from 'react';
 
@@ -12,6 +12,28 @@ import { isValidElement } from 'react';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark.css';
 import '../../../theme/markdown.css';
+
+/**
+ * Custom sanitization schema that preserves math-related classes through
+ * the sanitizer so rehype-katex (which runs AFTER sanitize) can find and
+ * render them.
+ *
+ * Per the official rehype-katex docs, the correct order is:
+ *   rehypeSanitize -> rehypeKatex
+ * NOT:
+ *   rehypeKatex -> rehypeSanitize (which strips KaTeX's HTML output)
+ *
+ * @see https://github.com/remarkjs/remark-math/blob/main/packages/rehype-katex/readme.md
+ */
+const mathSanitizeSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    // Allow math-related classes on code elements so rehype-katex can process them.
+    // The `language-*` regex is allowed by default for syntax highlighting.
+    code: [['className', /^language-./, 'math-inline', 'math-display']],
+  },
+};
 
 interface MarkdownPreviewProps {
   content: string;
@@ -25,7 +47,11 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
       <div className="markdown-preview px-8 sm:px-12 py-10">
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
-          rehypePlugins={[rehypeKatex, rehypeHighlight, rehypeSanitize]}
+          rehypePlugins={[
+            rehypeHighlight,
+            [rehypeSanitize, mathSanitizeSchema],
+            rehypeKatex,
+          ]}
           components={{
             pre({ children }) {
               const childArray = Array.isArray(children)

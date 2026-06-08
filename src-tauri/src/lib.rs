@@ -32,6 +32,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(watcher::FileWatcherState::new())
         .invoke_handler(tauri::generate_handler![
             commands::scan_workspace,
@@ -53,6 +54,7 @@ pub fn run() {
         ])
         .setup(|app| {
             // Apply native window vibrancy for the Aero UI effect
+            #[allow(unused_variables)]
             if let Some(window) = app.get_webview_window("main") {
                 #[cfg(target_os = "macos")]
                 let _ = apply_vibrancy(

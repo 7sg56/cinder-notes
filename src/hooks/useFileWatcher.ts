@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { useWorkspace } from './useWorkspace';
+import { isTauri } from '../util/tauri';
 
 /**
  * Hook that watches the workspace directory for external file changes
@@ -29,7 +30,7 @@ export function useFileWatcher() {
   }, []);
 
   useEffect(() => {
-    if (!workspacePath) return;
+    if (!workspacePath || !isTauri()) return;
 
     // Start watching the workspace directory
     invoke('watch_workspace', { path: workspacePath }).catch((err) =>

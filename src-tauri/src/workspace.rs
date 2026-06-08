@@ -118,4 +118,100 @@ mod tests {
         let result = scan_directory_recursive(dir.path()).unwrap();
         assert!(result.is_empty());
     }
+
+    #[test]
+    fn test_validate_workspace_path_valid() {
+        let dir = tempdir().unwrap();
+        assert!(validate_workspace_path(dir.path()).is_ok());
+    }
+
+    #[test]
+    fn test_validate_workspace_path_nonexistent() {
+        let result = validate_workspace_path(Path::new("/tmp/nonexistent_cinder_workspace"));
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("does not exist"));
+    }
+
+    #[test]
+    fn test_validate_workspace_path_is_file() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("not_a_dir.txt");
+        File::create(&file_path).unwrap();
+
+        let result = validate_workspace_path(&file_path);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("not a directory"));
+    }
+
+    #[test]
+    fn test_scan_nested_directories() {
+        let dir = tempdir().unwrap();
+        let sub = dir.path().join("subfolder");
+        fs::create_dir(&sub).unwrap();
+
+        let mut f = File::create(sub.join("nested.md")).unwrap();
+        writeln!(f, "# Nested").unwrap();
+
+        let result = scan_directory_recursive(dir.path()).unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].entry_type, "folder");
+        assert_eq!(result[0].name, "subfolder");
+
+        let children = result[0].children.as_ref().unwrap();
+        assert_eq!(children.len(), 1);
+        assert_eq!(children[0].name, "nested.md");
+    }
+
+    #[test]
+    fn test_scan_sorts_folders_before_files() {
+        let dir = tempdir().unwrap();
+
+        // Create a file that would sort before a folder alphabetically
+        File::create(dir.path().join("aaa.md")).unwrap();
+        let folder = dir.path().join("zzz_folder");
+        fs::create_dir(&folder).unwrap();
+        File::create(folder.join("child.md")).unwrap();
+
+        let result = scan_directory_recursive(dir.path()).unwrap();
+        assert_eq!(result.len(), 2);
+        // Folder should come first regardless of name
+        assert_eq!(result[0].entry_type, "folder");
+        assert_eq!(result[1].entry_type, "file");
+    }
+
+    #[test]
+    fn test_scan_sorts_alphabetically_within_type() {
+        let dir = tempdir().unwrap();
+        File::create(dir.path().join("zebra.md")).unwrap();
+        File::create(dir.path().join("alpha.md")).unwrap();
+        File::create(dir.path().join("middle.md")).unwrap();
+
+        let result = scan_directory_recursive(dir.path()).unwrap();
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0].name, "alpha.md");
+        assert_eq!(result[1].name, "middle.md");
+        assert_eq!(result[2].name, "zebra.md");
+    }
+
+    #[test]
+    fn test_scan_hidden_directories_ignored() {
+        let dir = tempdir().unwrap();
+        let hidden = dir.path().join(".hidden_dir");
+        fs::create_dir(&hidden).unwrap();
+        File::create(hidden.join("secret.md")).unwrap();
+
+        let result = scan_directory_recursive(dir.path()).unwrap();
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_scan_non_md_files_ignored() {
+        let dir = tempdir().unwrap();
+        File::create(dir.path().join("readme.txt")).unwrap();
+        File::create(dir.path().join("image.png")).unwrap();
+        File::create(dir.path().join("data.json")).unwrap();
+
+        let result = scan_directory_recursive(dir.path()).unwrap();
+        assert!(result.is_empty());
+    }
 }

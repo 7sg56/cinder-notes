@@ -76,6 +76,7 @@ export function SearchPanel() {
         backdropFilter: 'blur(4px)',
       }}
       onClick={() => setSearchOpen(false)}
+      data-testid="search-backdrop"
     >
       <div
         style={{
@@ -91,6 +92,7 @@ export function SearchPanel() {
           fontFamily: "'Space Grotesk', system-ui, sans-serif",
         }}
         onClick={(e) => e.stopPropagation()}
+        data-testid="search-modal"
       >
         {/* Search input row */}
         <div
@@ -131,6 +133,7 @@ export function SearchPanel() {
               fontSize: '15px',
               fontFamily: 'inherit',
             }}
+            data-testid="search-input"
           />
           {isLoading && (
             <div
@@ -143,10 +146,12 @@ export function SearchPanel() {
                 animation: 'spin 0.6s linear infinite',
                 flexShrink: 0,
               }}
+              data-testid="search-loading"
             />
           )}
           <button
             onClick={() => setSearchOpen(false)}
+            data-testid="search-close-button"
             style={{
               background: 'none',
               border: 'none',
@@ -174,12 +179,13 @@ export function SearchPanel() {
         {/* Results */}
         <div style={{ maxHeight: '50vh', overflowY: 'auto' }}>
           {searchResults.length > 0 ? (
-            <div style={{ padding: '6px' }}>
+            <div style={{ padding: '6px' }} data-testid="search-results">
               {searchResults.map((result, i) => {
                 const isHovered = hoveredIndex === i;
                 return (
                   <button
                     key={`${result.file_path}-${i}`}
+                    data-testid="search-result-item"
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -266,6 +272,7 @@ export function SearchPanel() {
                 color: 'var(--text-tertiary)',
                 fontSize: '13px',
               }}
+              data-testid="search-no-results"
             >
               No files found for "{searchQuery}"
             </div>

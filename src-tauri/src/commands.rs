@@ -333,3 +333,238 @@ pub fn workspace_stats(workspace_path: String) -> Result<(u64, u64), String> {
     )?;
     Ok((file_count, total_bytes))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::{self, File};
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_read_note_success() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.md");
+        let mut f = File::create(&file_path).unwrap();
+        writeln!(f, "# Hello World").unwrap();
+
+        let result = read_note(file_path.to_string_lossy().to_string());
+        assert!(result.is_ok());
+        assert!(result.unwrap().contains("# Hello World"));
+    }
+
+    #[test]
+    fn test_read_note_nonexistent() {
+        let result = read_note("/tmp/nonexistent_cinder_test_file.md".to_string());
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Failed to read file"));
+    }
+
+    #[test]
+    fn test_write_note_success() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("output.md");
+
+        let result = write_note(
+            file_path.to_string_lossy().to_string(),
+            "# New Content".to_string(),
+        );
+        assert!(result.is_ok());
+        assert_eq!(fs::read_to_string(&file_path).unwrap(), "# New Content");
+    }
+
+    #[test]
+    fn test_create_note_empty_file() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("new.md");
+
+        let result = create_note(file_path.to_string_lossy().to_string());
+        assert!(result.is_ok());
+        assert!(file_path.exists());
+        assert_eq!(fs::read_to_string(&file_path).unwrap(), "");
+    }
+
+    #[test]
+    fn test_create_note_with_nested_dirs() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("sub").join("deep").join("note.md");
+
+        let result = create_note(file_path.to_string_lossy().to_string());
+        assert!(result.is_ok());
+        assert!(file_path.exists());
+    }
+
+    #[test]
+    fn test_rename_note_success() {
+        let dir = tempdir().unwrap();
+        let old_path = dir.path().join("old.md");
+        let new_path = dir.path().join("new.md");
+        File::create(&old_path).unwrap();
+
+        let result = rename_note(
+            old_path.to_string_lossy().to_string(),
+            new_path.to_string_lossy().to_string(),
+        );
+        assert!(result.is_ok());
+        assert!(!old_path.exists());
+        assert!(new_path.exists());
+    }
+
+    #[test]
+    fn test_create_folder_success() {
+        let dir = tempdir().unwrap();
+        let folder_path = dir.path().join("new_folder");
+
+        let result = create_folder(folder_path.to_string_lossy().to_string());
+        assert!(result.is_ok());
+        assert!(folder_path.is_dir());
+    }
+
+    #[test]
+    fn test_create_folder_nested() {
+        let dir = tempdir().unwrap();
+        let folder_path = dir.path().join("a").join("b").join("c");
+
+        let result = create_folder(folder_path.to_string_lossy().to_string());
+        assert!(result.is_ok());
+        assert!(folder_path.is_dir());
+    }
+
+    #[test]
+    fn test_scan_workspace_success() {
+        let dir = tempdir().unwrap();
+        let mut f = File::create(dir.path().join("note.md")).unwrap();
+        writeln!(f, "# Note").unwrap();
+        File::create(dir.path().join("readme.txt")).unwrap();
+
+        let result = scan_workspace(dir.path().to_string_lossy().to_string());
+        assert!(result.is_ok());
+        let entries = result.unwrap();
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].name, "note.md");
+    }
+
+    #[test]
+    fn test_scan_workspace_invalid_path() {
+        let result = scan_workspace("/tmp/nonexistent_cinder_dir".to_string());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_search_workspace_finds_matching_files() {
+        let dir = tempdir().unwrap();
+        File::create(dir.path().join("shopping-list.md")).unwrap();
+        File::create(dir.path().join("diary.md")).unwrap();
+        File::create(dir.path().join("notes.txt")).unwrap(); // not .md naming convention
+
+        let result = search_workspace(
+            dir.path().to_string_lossy().to_string(),
+            "shopping".to_string(),
+        );
+        assert!(result.is_ok());
+        let results = result.unwrap();
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].file_name, "shopping-list.md");
+    }
+
+    #[test]
+    fn test_search_workspace_case_insensitive() {
+        let dir = tempdir().unwrap();
+        File::create(dir.path().join("MyNotes.md")).unwrap();
+
+        let result = search_workspace(
+            dir.path().to_string_lossy().to_string(),
+            "mynotes".to_string(),
+        );
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 1);
+    }
+
+    #[test]
+    fn test_search_workspace_ignores_hidden_files() {
+        let dir = tempdir().unwrap();
+        File::create(dir.path().join(".hidden.md")).unwrap();
+        File::create(dir.path().join("visible.md")).unwrap();
+
+        let result = search_workspace(
+            dir.path().to_string_lossy().to_string(),
+            "hidden".to_string(),
+        );
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+    }
+
+    #[test]
+    fn test_search_workspace_searches_subdirectories() {
+        let dir = tempdir().unwrap();
+        let sub = dir.path().join("subfolder");
+        fs::create_dir(&sub).unwrap();
+        File::create(sub.join("deep-note.md")).unwrap();
+
+        let result = search_workspace(dir.path().to_string_lossy().to_string(), "deep".to_string());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 1);
+    }
+
+    #[test]
+    fn test_workspace_stats_counts_md_files_only() {
+        let dir = tempdir().unwrap();
+        let mut f = File::create(dir.path().join("a.md")).unwrap();
+        write!(f, "hello").unwrap();
+        let mut f2 = File::create(dir.path().join("b.md")).unwrap();
+        write!(f2, "world!").unwrap();
+        File::create(dir.path().join("c.txt")).unwrap();
+
+        let result = workspace_stats(dir.path().to_string_lossy().to_string());
+        assert!(result.is_ok());
+        let (count, bytes) = result.unwrap();
+        assert_eq!(count, 2);
+        assert_eq!(bytes, 11); // "hello" (5) + "world!" (6)
+    }
+
+    #[test]
+    fn test_workspace_stats_ignores_hidden_dirs() {
+        let dir = tempdir().unwrap();
+        let hidden = dir.path().join(".hidden");
+        fs::create_dir(&hidden).unwrap();
+        let mut f = File::create(hidden.join("secret.md")).unwrap();
+        write!(f, "secret").unwrap();
+
+        let result = workspace_stats(dir.path().to_string_lossy().to_string());
+        assert!(result.is_ok());
+        let (count, _) = result.unwrap();
+        assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn test_delete_note_moves_to_trash() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("to_delete.md");
+        let mut f = File::create(&file_path).unwrap();
+        write!(f, "content").unwrap();
+
+        let result = delete_note(
+            file_path.to_string_lossy().to_string(),
+            dir.path().to_string_lossy().to_string(),
+        );
+        assert!(result.is_ok());
+        assert!(!file_path.exists());
+        assert!(dir.path().join(".trash").exists());
+    }
+
+    #[test]
+    fn test_delete_folder_moves_to_trash() {
+        let dir = tempdir().unwrap();
+        let folder_path = dir.path().join("my_folder");
+        fs::create_dir(&folder_path).unwrap();
+        File::create(folder_path.join("note.md")).unwrap();
+
+        let result = delete_folder(
+            folder_path.to_string_lossy().to_string(),
+            dir.path().to_string_lossy().to_string(),
+        );
+        assert!(result.is_ok());
+        assert!(!folder_path.exists());
+        assert!(dir.path().join(".trash").exists());
+    }
+}

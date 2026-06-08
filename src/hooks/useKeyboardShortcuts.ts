@@ -8,14 +8,11 @@
 
 import { useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { useSplitStore } from '../store/useSplitStore';
 
 export function useKeyboardShortcuts() {
   const {
-    activeFileId,
-    activeFileContent,
-    updateFileContent,
     createFile,
-    closeFile,
     toggleExplorerCollapsed,
     createFolder,
     isSearchOpen,
@@ -32,13 +29,21 @@ export function useKeyboardShortcuts() {
         // Cmd+S -- Force save (prevent browser save dialog)
         case 's': {
           e.preventDefault();
+          const splitState = useSplitStore.getState();
+          const pane = splitState.panes[splitState.activePaneId];
+          const activeFileId = pane?.activeFileId;
+          const activeFileContent = pane?.activeFileContent ?? '';
           if (
             activeFileId &&
             !activeFileId.startsWith('cinder-') &&
             activeFileId !== 'welcome'
           ) {
             // Trigger a save by re-writing current content
-            updateFileContent(activeFileId, activeFileContent);
+            splitState.paneUpdateFileContent(
+              splitState.activePaneId,
+              activeFileId,
+              activeFileContent
+            );
           }
           break;
         }
@@ -56,11 +61,16 @@ export function useKeyboardShortcuts() {
           break;
         }
 
-        // Cmd+W -- Close current tab
+        // Cmd+W -- Close current tab in active pane
         case 'w': {
           e.preventDefault();
-          if (activeFileId) {
-            closeFile(activeFileId);
+          const splitState = useSplitStore.getState();
+          const pane = splitState.panes[splitState.activePaneId];
+          if (pane?.activeFileId) {
+            splitState.paneCloseFile(
+              splitState.activePaneId,
+              pane.activeFileId
+            );
           }
           break;
         }
@@ -81,17 +91,26 @@ export function useKeyboardShortcuts() {
           // Plain Cmd+F is left to CodeMirror's built-in find/replace
           break;
         }
+
+        // Cmd+\ -- Split right (horizontal)
+        case '\\': {
+          e.preventDefault();
+          const splitState = useSplitStore.getState();
+          if (e.shiftKey) {
+            // Cmd+Shift+\ -- Split down (vertical)
+            splitState.splitPane(splitState.activePaneId, 'vertical');
+          } else {
+            splitState.splitPane(splitState.activePaneId, 'horizontal');
+          }
+          break;
+        }
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [
-    activeFileId,
-    activeFileContent,
-    updateFileContent,
     createFile,
-    closeFile,
     toggleExplorerCollapsed,
     createFolder,
     isSearchOpen,

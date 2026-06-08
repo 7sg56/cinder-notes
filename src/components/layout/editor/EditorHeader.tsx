@@ -1,22 +1,27 @@
 import { useRef, useEffect, type MutableRefObject } from 'react';
-import { Undo2, Redo2, Eye, Edit2, MoreVertical } from 'lucide-react';
+import { Undo2, Redo2, Eye, Edit2 } from 'lucide-react';
 import { useAppStore } from '../../../store/useAppStore';
+import { useSplitStore } from '../../../store/useSplitStore';
 import { undo, redo } from '@codemirror/commands';
 import type { EditorView } from '@codemirror/view';
 
 interface EditorHeaderProps {
+  paneId: string;
   isPreview: boolean;
   onPreviewToggle: () => void;
   editorViewRef?: MutableRefObject<EditorView | null>;
 }
 
 export function EditorHeader({
+  paneId,
   isPreview,
   onPreviewToggle,
   editorViewRef,
 }: EditorHeaderProps) {
+  const activeFileId = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileId ?? null
+  );
   const {
-    activeFileId,
     getFileBreadcrumb,
     renamingFileId,
     pendingFileId,
@@ -43,6 +48,7 @@ export function EditorHeader({
   return (
     <div
       className="flex items-center justify-between px-6 py-2 shrink-0 border-b"
+      data-testid="editor-header"
       style={{
         backgroundColor: 'var(--editor-bg)',
         borderColor: 'var(--border-primary)',
@@ -60,7 +66,7 @@ export function EditorHeader({
                 className="bg-transparent outline-none font-bold px-1 py-0.5 rounded border border-[var(--editor-header-accent)]"
                 style={{
                   color: 'var(--text-primary)',
-                  caretColor: '#f48c25',
+                  caretColor: 'var(--editor-header-accent)',
                   width: `${Math.max(3, 'Untitled'.length + 1)}ch`,
                   minWidth: '20px',
                 }}
@@ -103,7 +109,11 @@ export function EditorHeader({
                 Untitled
               </span>
             )}
-            <span style={{ color: '#f48c25', opacity: 0.5 }}>&gt;</span>
+            <span
+              style={{ color: 'var(--editor-header-accent)', opacity: 0.5 }}
+            >
+              &gt;
+            </span>
           </div>
         )}
         {!isBlankTab && breadcrumb.length > 0 && (
@@ -116,7 +126,14 @@ export function EditorHeader({
               return (
                 <div key={item.id} className="flex items-center gap-2.5">
                   {index > 0 && (
-                    <span style={{ color: '#f48c25', opacity: 0.5 }}>&gt;</span>
+                    <span
+                      style={{
+                        color: 'var(--editor-header-accent)',
+                        opacity: 0.5,
+                      }}
+                    >
+                      &gt;
+                    </span>
                   )}
                   {renamingFileId === item.id && renameSource === 'editor' ? (
                     <input
@@ -126,7 +143,7 @@ export function EditorHeader({
                       className="bg-transparent outline-none font-bold px-1 py-0.5 rounded border border-[var(--editor-header-accent)]"
                       style={{
                         color: 'var(--text-primary)',
-                        caretColor: '#f48c25',
+                        caretColor: 'var(--editor-header-accent)',
                         width: `${Math.max(3, item.name.replace(/\.md$/, '').length + 1)}ch`,
                         minWidth: '20px',
                       }}
@@ -212,6 +229,7 @@ export function EditorHeader({
               }
             }}
             title="Undo (Cmd+Z)"
+            data-testid="undo-button"
           >
             <Undo2 size={15} strokeWidth={2} />
           </button>
@@ -225,6 +243,7 @@ export function EditorHeader({
               }
             }}
             title="Redo (Cmd+Shift+Z)"
+            data-testid="redo-button"
           >
             <Redo2 size={15} strokeWidth={2} />
           </button>
@@ -239,6 +258,7 @@ export function EditorHeader({
           onClick={onPreviewToggle}
           className="flex items-center justify-center p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-90"
           title={isPreview ? 'Edit' : 'Preview'}
+          data-testid="preview-toggle"
           style={{
             color: isPreview
               ? 'var(--editor-header-accent)'
@@ -246,16 +266,6 @@ export function EditorHeader({
           }}
         >
           {isPreview ? <Edit2 size={16} /> : <Eye size={16} />}
-        </button>
-
-        {/* Updated More Button - Subtle style matching theme */}
-        <button
-          className="flex items-center justify-center p-1.5 rounded-md transition-all duration-200 hover:bg-[var(--bg-hover)] active:scale-95"
-          style={{
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <MoreVertical size={16} />
         </button>
       </div>
     </div>

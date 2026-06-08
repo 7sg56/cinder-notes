@@ -53,6 +53,60 @@ export function normalizeLatex(text: string): string {
   const hasMathToken = (value: string) =>
     /\\|[0-9^_=]|[+\-*/]|[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/u.test(value);
 
+  /**
+   * Detect parenthesis-delimited LaTeX: (\command ...) -> $...$
+   *
+   * ChatGPT copied text often wraps math in plain parentheses instead of
+   * \(...\). We detect these by requiring:
+   * - Opening ( is NOT preceded by a word character (avoids f(x) false positives)
+   * - Content starts with \letter (a LaTeX command like \displaystyle, \int, \frac)
+   * - Content passes hasMathToken validation
+   * - Balanced parentheses (handles nested parens like f(x,y) inside)
+   */
+  const convertParenMath = (input: string): string => {
+    let out = '';
+    let i = 0;
+
+    while (i < input.length) {
+      if (input[i] === '(') {
+        // Skip if preceded by a word character (function call like f(x))
+        if (i > 0 && /\w/.test(input[i - 1])) {
+          out += input[i];
+          i++;
+          continue;
+        }
+
+        // Check if next char starts a LaTeX command
+        if (i + 1 < input.length && input[i + 1] === '\\') {
+          // Find balanced closing )
+          let depth = 1;
+          let j = i + 1;
+          while (j < input.length && depth > 0) {
+            if (input[j] === '(') depth++;
+            else if (input[j] === ')') depth--;
+            j++;
+          }
+
+          if (depth === 0) {
+            const inner = input.substring(i + 1, j - 1);
+            const stripped = stripInvisible(inner).trim();
+
+            if (/^\\[a-zA-Z]/.test(stripped) && hasMathToken(stripped)) {
+              out += `$${inner}$`;
+              i = j;
+              continue;
+            }
+          }
+        }
+      }
+
+      out += input[i];
+      i++;
+    }
+
+    return out;
+  };
+
   const replaceInlineMath = (input: string) => {
     let next = input;
 
@@ -73,6 +127,10 @@ export function normalizeLatex(text: string): string {
         return `$${inner}$`;
       }
     );
+
+    // ChatGPT-style ( \command ... ) -> $...$
+    // Handles balanced parentheses for nested content like f(x,y,z).
+    next = convertParenMath(next);
 
     return next;
   };
@@ -200,9 +258,6 @@ export function normalizeLatex(text: string): string {
   }
 
   result = out.join(lineBreak);
-
-  // 3. Remove \displaystyle keyword (common ChatGPT rendering hint that breaks some renders)
-  result = result.replace(/\\displaystyle\s*/g, '');
 
   // 4. SAFETY NET: Balance check
   // If we have an odd number of $$, assume the last one is unclosed and close it.

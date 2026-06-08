@@ -1,18 +1,24 @@
 import { EditorStatusBarItem } from './EditorStatusBarItem';
 import { useAppStore } from '../../../store/useAppStore';
+import { useSplitStore } from '../../../store/useSplitStore';
 
 interface EditorStatusBarProps {
+  paneId: string;
   isPreview: boolean;
   cursorLine?: number;
   cursorCol?: number;
 }
 
 export function EditorStatusBar({
+  paneId,
   isPreview,
   cursorLine,
   cursorCol,
 }: EditorStatusBarProps) {
-  const { activeFileContent, isAutoSave } = useAppStore();
+  const activeFileContent = useSplitStore(
+    (state) => state.panes[paneId]?.activeFileContent ?? ''
+  );
+  const { isAutoSave } = useAppStore();
 
   // Calculate lines and words
   const lines = activeFileContent ? activeFileContent.split('\n').length : 0;
@@ -52,10 +58,10 @@ export function EditorStatusBar({
             <div
               className="w-1.5 h-1.5 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: isAutoSave ? '#22c55e' : '#f59e0b',
+                backgroundColor: isAutoSave ? '#22c55e' : '#a1a1aa',
                 boxShadow: isAutoSave
                   ? '0 0 4px rgba(34, 197, 94, 0.3)'
-                  : '0 0 4px rgba(245, 158, 11, 0.3)',
+                  : '0 0 4px rgba(161, 161, 170, 0.3)',
               }}
             />
           </div>

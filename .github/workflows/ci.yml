@@ -1,3 +1,5 @@
+# The Orchestrator
+
 name: CI
 
 on:
@@ -5,172 +7,37 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  checks: write
 
 jobs:
-  setup:
-    name: Setup
-    uses: ./.github/workflows/setup.yml
-
-  # ── Frontend checks (run when src/ or config files change) ──
-
-  lint:
-    name: Lint
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
-
-      - name: Lint
-        run: npm run lint
-
-  typecheck:
-    name: Typecheck
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
-
-      - name: Typecheck
-        run: npm run typecheck
-
-  prettier:
-    name: Prettier
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
-
-      - name: Check formatting
-        run: npm run format:check
-
   build:
-    name: Build (Vite)
-    needs: setup
+    name: Build
+    uses: ./.github/workflows/build.yml
+
+  tests:
+    name: Tests
+    uses: ./.github/workflows/tests.yml
+
+  verify-pr:
+    name: verify-pr          # Must match job name in the protection rules
     runs-on: ubuntu-latest
+    needs: [build, tests]
+    if: always()             
+    timeout-minutes: 5
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
-
-      - name: Build
-        run: npm run build
-
-  # ── Tauri build (only when src-tauri/ changes) ──
-
-  check-tauri-changes:
-    name: Check Tauri Changes
-    runs-on: ubuntu-latest
-    outputs:
-      tauri_changed: ${{ steps.filter.outputs.tauri }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Check for src-tauri changes
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            tauri:
-              - 'src-tauri/**'
-
-  tauri-build:
-    name: Build (Tauri)
-    needs: [build, check-tauri-changes]
-    if: needs.check-tauri-changes.outputs.tauri_changed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Restore node_modules
-        uses: actions/cache/restore@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ github.sha }}
-
-      - name: Install system dependencies
+      - name: Check results
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            src-tauri/target
-          key: rust-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
-          restore-keys: rust-${{ runner.os }}-
-
-      - name: Build Tauri app
-        run: npm run tauri:build
-
-  verify:
-    name: Verify PR
-    needs: [lint, typecheck, prettier, build, tauri-build]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check pipeline status
-        run: |
-          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
-            echo "❌ One or more pipeline jobs failed or were cancelled."
+          if [[ "${{ needs.build.result }}" == "success" && "${{ needs.tests.result }}" == "success" ]]; then
+            echo "✅ All checks passed"
+            exit 0
+          else
+            echo "❌ build=${{ needs.build.result }}  tests=${{ needs.tests.result }}"
             exit 1
           fi
-          echo "✅ All jobs completed successfully or were intentionally skipped!"
