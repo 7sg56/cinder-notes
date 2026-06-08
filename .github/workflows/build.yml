@@ -83,5 +83,7 @@ jobs:
           key: rust-${{ runner.os }}-${{ steps.rust-toolchain.outputs.cachekey }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-${{ runner.os }}-${{ steps.rust-toolchain.outputs.cachekey }}-
  
-      - run: npm run tauri:build
+      # Only compile-check on Linux; actual bundles are built in release.yml
+      # on the correct platform (macOS for dmg, Windows for nsis).
+      - run: cargo build --manifest-path src-tauri/Cargo.toml
  
