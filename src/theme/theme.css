@@ -2,17 +2,20 @@
    CINDER DARK (Default)
    Sidebar: #1f1f23 (Lighter)
    Editor:  #141417 (Darker)
+
+   Opaque by default. On macOS, adding
+   .transparency-on to :root enables vibrancy.
    ============================================ */
 :root {
-  /* Aero: 0 = pure vibrancy, 0.5 = tinted, 1 = fully opaque */
-  --aero-opacity: 0.25;
+  /* Aero: 1 = fully opaque (default), lowered by .transparency-on */
+  --aero-opacity: 1;
 
-  /* Surface hierarchy */
+  /* Surface hierarchy (opaque defaults) */
   --bg-primary: rgba(20, 20, 23, var(--aero-opacity));
   /* Editor */
-  --bg-secondary: rgba(31, 31, 35, 0.82);
-  /* Sidebar/Status Bar - Lighter */
-  --bg-tertiary: rgba(26, 26, 28, 0.82);
+  --bg-secondary: #1f1f23;
+  /* Sidebar/Status Bar */
+  --bg-tertiary: #1a1a1c;
   /* Tabs/Popups */
   --bg-hover: rgba(255, 255, 255, 0.05);
   --bg-active: rgba(161, 161, 170, 0.1);
@@ -63,19 +66,26 @@
   --filetree-icon-file: #a1a1aa;
 }
 
+/* ── Cinder Dark: macOS transparency mode ────────────────── */
+:root.transparency-on {
+  --aero-opacity: 0.25;
+  --bg-secondary: rgba(31, 31, 35, 0.82);
+  --bg-tertiary: rgba(26, 26, 28, 0.82);
+}
+
 /* ============================================
    CINDER LIGHT
    Sidebar: #f2efe7 (Darker Beige)
    Editor:  #fdfaf0 (Warm Cream)
    ============================================ */
 :root.theme-cinder-light {
-  --aero-opacity: 0;
-  /* Surface hierarchy */
+  --aero-opacity: 1;
+  /* Surface hierarchy (opaque defaults) */
   --bg-primary: rgba(253, 250, 240, var(--aero-opacity));
   /* Editor - Warm Cream */
-  --bg-secondary: rgba(242, 239, 231, 0.82);
+  --bg-secondary: #f2efe7;
   /* Sidebar - Darker Beige */
-  --bg-tertiary: rgba(232, 229, 221, 0.82);
+  --bg-tertiary: #e8e5dd;
   /* Tabs/Popups */
   --bg-hover: rgba(0, 0, 0, 0.05);
   --bg-active: rgba(161, 161, 170, 0.1);
@@ -118,19 +128,27 @@
   --filetree-icon-file: #71717a;
 }
 
+/* ── Cinder Light: macOS transparency mode ───────────────── */
+:root.theme-cinder-light.transparency-on {
+  --aero-opacity: 0.25;
+  --bg-secondary: rgba(242, 239, 231, 0.82);
+  --bg-tertiary: rgba(232, 229, 221, 0.82);
+}
+
 /* ============================================
    ZEN BLACK
    Sidebar: #0a0a0a (Lighter)
    Editor:  #000000 (Darker - Pitch Black)
+   Always fully opaque. Transparency has no effect.
    ============================================ */
 :root.theme-zen-black {
   --aero-opacity: 0;
   /* Surface hierarchy */
   --bg-primary: rgba(0, 0, 0, var(--aero-opacity));
   /* Pitch Black - Editor */
-  --bg-secondary: rgba(10, 10, 10, 0.82);
-  /* Sidebar - Lighter */
-  --bg-tertiary: rgba(18, 18, 18, 0.82);
+  --bg-secondary: #0a0a0a;
+  /* Sidebar */
+  --bg-tertiary: #121212;
   /* Tabs/Popups */
   --bg-hover: rgba(255, 255, 255, 0.08);
 
@@ -146,458 +164,4 @@
   --vsc-indent-guide: rgba(255, 255, 255, 0.04);
   --vsc-tree-hover: rgba(255, 255, 255, 0.06);
   --vsc-section-header-bg: rgba(255, 255, 255, 0.01);
-}
-
-/* ============================================
-   SYNTHWAVE '84
-   Cyberpunk / Retro aesthetics
-   ============================================ */
-:root.theme-synthwave {
-  --aero-opacity: 0;
-  --bg-primary: rgba(38, 35, 53, var(--aero-opacity));
-  --bg-secondary: rgba(42, 33, 57, 0.82);
-  --bg-tertiary: rgba(36, 27, 47, 0.82);
-
-  --bg-hover: rgba(255, 75, 255, 0.1);
-  --bg-active: rgba(54, 249, 246, 0.1);
-
-  --text-primary: #fffbff;
-  --text-secondary: #b6b1b1;
-  --text-tertiary: #848bbd;
-
-  --editor-header-accent: #ff7edb;
-  /* Neon Pink */
-  --accent-glow: rgba(255, 126, 219, 0.5);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: rgba(54, 249, 246, 0.2);
-  --border-secondary: rgba(255, 75, 255, 0.2);
-  --border-hover: #36f9f6;
-  /* Cyan */
-
-  --markdown-heading: #fed416;
-  --markdown-link: #36f9f6;
-  --markdown-code: #fe4450;
-  --markdown-code-bg: #1f1d2e;
-
-  --editor-bg: #262335;
-  --editor-text: #fffbff;
-  --editor-selection-bg: rgba(255, 75, 255, 0.3);
-  --activity-bar-bg: #1f1d2e;
-
-  --filetree-text-active: #36f9f6;
-  --filetree-bg-active: rgba(54, 249, 246, 0.1);
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(255, 75, 255, 0.08);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #ff7edb;
-  --filetree-icon-file: #b6b1b1;
-}
-
-/* ============================================
-   GITHUB DARK
-   Clean, developer-focused dark theme
-   ============================================ */
-:root.theme-github-dark {
-  --aero-opacity: 0;
-  --bg-primary: rgba(13, 17, 23, var(--aero-opacity));
-  --bg-secondary: rgba(22, 27, 34, 0.82);
-  --bg-tertiary: rgba(1, 4, 9, 0.82);
-
-  --bg-hover: rgba(177, 186, 196, 0.12);
-  --bg-active: rgba(56, 139, 253, 0.1);
-
-  --text-primary: #c9d1d9;
-  --text-secondary: #8b949e;
-  --text-tertiary: #484f58;
-
-  --editor-header-accent: #58a6ff;
-  --accent-glow: rgba(56, 139, 253, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: #30363d;
-  --border-secondary: #21262d;
-  --border-hover: #8b949e;
-
-  --markdown-heading: #c9d1d9;
-  --markdown-link: #58a6ff;
-  --markdown-code: #ff7b72;
-  --markdown-code-bg: rgba(110, 118, 129, 0.3);
-
-  --editor-bg: #0d1117;
-  --editor-text: #c9d1d9;
-  --editor-selection-bg: rgba(56, 139, 253, 0.4);
-  --activity-bar-bg: #0d1117;
-
-  --filetree-text-active: #c9d1d9;
-  --filetree-bg-active: rgba(177, 186, 196, 0.12);
-
-  --vsc-indent-guide: rgba(110, 118, 129, 0.15);
-  --vsc-tree-hover: rgba(177, 186, 196, 0.08);
-  --vsc-section-header-bg: rgba(177, 186, 196, 0.04);
-  --filetree-icon-folder: #54aeff;
-  --filetree-icon-file: #8b949e;
-}
-
-/* ============================================
-   MONOKAI VIBRANT
-   High contrast, vivid colors
-   ============================================ */
-:root.theme-monokai {
-  --aero-opacity: 0;
-  --bg-primary: rgba(39, 40, 34, var(--aero-opacity));
-  --bg-secondary: rgba(30, 31, 28, 0.82);
-  /* Slightly darker */
-  --bg-tertiary: rgba(23, 24, 20, 0.82);
-
-  --bg-hover: rgba(255, 255, 255, 0.1);
-  --bg-active: rgba(253, 151, 31, 0.2);
-
-  --text-primary: #f8f8f2;
-  --text-secondary: #cfcfc2;
-  --text-tertiary: #75715e;
-
-  --editor-header-accent: #a6e22e;
-  /* Green */
-  --accent-glow: rgba(166, 226, 46, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: rgba(255, 255, 255, 0.1);
-  --border-secondary: rgba(255, 255, 255, 0.15);
-  --border-hover: #f92672;
-  /* Pink */
-
-  --markdown-heading: #f92672;
-  --markdown-link: #66d9ef;
-  --markdown-code: #fe4450;
-  --markdown-code-bg: #3e3d32;
-
-  --editor-bg: #272822;
-  --editor-text: #f8f8f2;
-  --editor-selection-bg: #49483e;
-  --activity-bar-bg: #1e1f1c;
-
-  --filetree-text-active: #fd971f;
-  /* Orange */
-  --filetree-bg-active: rgba(255, 255, 255, 0.05);
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(255, 255, 255, 0.06);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #e6db74;
-  --filetree-icon-file: #cfcfc2;
-}
-
-/* ============================================
-   DRACULA
-   Dark purple/blue background
-   ============================================ */
-:root.theme-dracula {
-  --aero-opacity: 0;
-  --bg-primary: rgba(40, 42, 54, var(--aero-opacity));
-  --bg-secondary: rgba(33, 34, 44, 0.82);
-  /* Sidebar */
-  --bg-tertiary: rgba(25, 26, 33, 0.82);
-  /* Status/Darker */
-
-  --bg-hover: rgba(255, 255, 255, 0.1);
-  --bg-active: rgba(189, 147, 249, 0.2);
-
-  --text-primary: #f8f8f2;
-  --text-secondary: #bd93f9;
-  --text-tertiary: #6272a4;
-
-  --editor-header-accent: #ff79c6;
-  /* Pink */
-  --accent-glow: rgba(255, 121, 198, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: #44475a;
-  --border-secondary: #6272a4;
-  --border-hover: #bd93f9;
-  /* Purple */
-
-  --markdown-heading: #bd93f9;
-  --markdown-link: #8be9fd;
-  --markdown-code: #50fa7b;
-  --markdown-code-bg: #44475a;
-
-  --editor-bg: #282a36;
-  --editor-text: #f8f8f2;
-  --editor-selection-bg: #44475a;
-  --activity-bar-bg: #21222c;
-
-  --filetree-text-active: #ff79c6;
-  --filetree-bg-active: #44475a;
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(255, 255, 255, 0.06);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.03);
-  --filetree-icon-folder: #f1fa8c;
-  --filetree-icon-file: #6272a4;
-}
-
-/* ============================================
-   NORD
-   Arctic, north-bluish clean design
-   ============================================ */
-:root.theme-nord {
-  --aero-opacity: 0;
-  --bg-primary: rgba(46, 52, 64, var(--aero-opacity));
-  --bg-secondary: rgba(59, 66, 82, 0.82);
-  --bg-tertiary: rgba(36, 41, 51, 0.82);
-  /* Darker than primary */
-
-  --bg-hover: #434c5e;
-  --bg-active: #4c566a;
-
-  --text-primary: #eceff4;
-  --text-secondary: #d8dee9;
-  --text-tertiary: #4c566a;
-  /* Muted */
-
-  --editor-header-accent: #88c0d0;
-  /* Frost */
-  --accent-glow: rgba(136, 192, 208, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: #434c5e;
-  --border-secondary: #4c566a;
-  --border-hover: #81a1c1;
-
-  --markdown-heading: #eceff4;
-  --markdown-link: #88c0d0;
-  --markdown-code: #a3be8c;
-  --markdown-code-bg: #3b4252;
-
-  --editor-bg: #2e3440;
-  --editor-text: #eceff4;
-  --editor-selection-bg: #4c566a;
-  --activity-bar-bg: #3b4252;
-
-  --filetree-text-active: #81a1c1;
-  --filetree-bg-active: #434c5e;
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(255, 255, 255, 0.05);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #ebcb8b;
-  --filetree-icon-file: #d8dee9;
-}
-
-/* ============================================
-   FOREST
-   Greenish, nature-inspired
-   ============================================ */
-:root.theme-forest {
-  --aero-opacity: 0;
-  /* Surface hierarchy */
-  --bg-primary: rgba(30, 40, 32, var(--aero-opacity));
-  --bg-secondary: rgba(39, 51, 41, 0.82);
-  --bg-tertiary: rgba(22, 30, 24, 0.82);
-
-  --bg-hover: rgba(167, 201, 87, 0.1);
-  --bg-active: rgba(106, 153, 78, 0.2);
-
-  /* Text hierarchy */
-  --text-primary: #f2f7f2;
-  --text-secondary: #a7c957;
-  --text-tertiary: #6a994e;
-  --text-white: #ffffff;
-  --text-light-gray: #d0d0d0;
-
-  --editor-header-accent: #a7c957;
-  /* Light Green */
-  --accent-glow: rgba(167, 201, 87, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: rgba(56, 102, 65, 0.5);
-  --border-secondary: rgba(106, 153, 78, 0.5);
-  --border-hover: #a7c957;
-
-  --markdown-heading: #f2f7f2;
-  --markdown-link: #a7c957;
-  --markdown-code: #bc4749;
-  /* Reddish for contrast */
-  --markdown-code-bg: #222e24;
-  --markdown-strong: #f2f7f2;
-  --markdown-list: #a7c957;
-
-  --editor-bg: #1e2820;
-  --editor-text: #f2f7f2;
-  --editor-selection-bg: rgba(56, 102, 65, 0.5);
-  --activity-bar-bg: #273329;
-  --activity-item-border-active: #a7c957;
-
-  --filetree-text-active: #a7c957;
-  --filetree-bg-active: rgba(56, 102, 65, 0.3);
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(167, 201, 87, 0.08);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #a7c957;
-  --filetree-icon-file: #6a994e;
-}
-
-/* ============================================
-   MUDDY MUSTARD
-   Earthy, yellow/mustard tones
-   ============================================ */
-:root.theme-mustard {
-  --aero-opacity: 0;
-  /* Surface hierarchy */
-  --bg-primary: rgba(45, 42, 30, var(--aero-opacity));
-  --bg-secondary: rgba(59, 55, 40, 0.82);
-  --bg-tertiary: rgba(34, 31, 22, 0.82);
-
-  --bg-hover: rgba(233, 196, 106, 0.1);
-  --bg-active: rgba(212, 163, 115, 0.2);
-
-  /* Text hierarchy */
-  --text-primary: #fefae0;
-  --text-secondary: #e9c46a;
-  --text-tertiary: #dda15e;
-  --text-white: #ffffff;
-  --text-light-gray: #e0e0e0;
-
-  --editor-header-accent: #e9c46a;
-  /* Mustard Yellow */
-  --accent-glow: rgba(233, 196, 106, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: rgba(96, 108, 56, 0.4);
-  --border-secondary: rgba(221, 161, 94, 0.4);
-  --border-hover: #e9c46a;
-
-  --markdown-heading: #fefae0;
-  --markdown-link: #e9c46a;
-  --markdown-code: #bc6c25;
-  --markdown-code-bg: #353024;
-  --markdown-strong: #fefae0;
-  --markdown-list: #e9c46a;
-
-  --editor-bg: #2d2a1e;
-  --editor-text: #fefae0;
-  --editor-selection-bg: rgba(96, 108, 56, 0.4);
-  --activity-bar-bg: #3b3728;
-  --activity-item-border-active: #e9c46a;
-
-  --filetree-text-active: #e9c46a;
-  --filetree-bg-active: rgba(96, 108, 56, 0.3);
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(233, 196, 106, 0.08);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #e9c46a;
-  --filetree-icon-file: #dda15e;
-}
-
-/* ============================================
-   MARINE
-   Deep ocean blues, calm and professional
-   ============================================ */
-:root.theme-marine {
-  --aero-opacity: 0;
-  /* Surface hierarchy */
-  --bg-primary: rgba(15, 23, 42, var(--aero-opacity));
-  --bg-secondary: rgba(30, 41, 59, 0.82);
-  --bg-tertiary: rgba(2, 6, 23, 0.82);
-
-  --bg-hover: rgba(56, 189, 248, 0.1);
-  --bg-active: rgba(14, 165, 233, 0.2);
-
-  /* Text hierarchy */
-  --text-primary: #f8fafc;
-  --text-secondary: #38bdf8;
-  --text-tertiary: #94a3b8;
-  --text-white: #ffffff;
-  --text-light-gray: #cbd5e1;
-
-  --editor-header-accent: #38bdf8;
-  /* Sky Blue */
-  --accent-glow: rgba(56, 189, 248, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: rgba(30, 41, 59, 0.8);
-  --border-secondary: rgba(51, 65, 85, 0.8);
-  --border-hover: #38bdf8;
-
-  --markdown-heading: #f8fafc;
-  --markdown-link: #38bdf8;
-  --markdown-code: #f472b6;
-  /* Pink for contrast */
-  --markdown-code-bg: #1e293b;
-  --markdown-strong: #f8fafc;
-  --markdown-list: #38bdf8;
-
-  --editor-bg: #0f172a;
-  --editor-text: #f8fafc;
-  --editor-selection-bg: rgba(14, 165, 233, 0.3);
-  --activity-bar-bg: #1e293b;
-  --activity-item-border-active: #38bdf8;
-
-  --filetree-text-active: #38bdf8;
-  --filetree-bg-active: rgba(14, 165, 233, 0.15);
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(56, 189, 248, 0.08);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #38bdf8;
-  --filetree-icon-file: #94a3b8;
-}
-
-/* ============================================
-   EMBER / RED
-   Deep red, intense and bold
-   ============================================ */
-:root.theme-ember {
-  --aero-opacity: 0;
-  /* Surface hierarchy */
-  --bg-primary: rgba(43, 17, 17, var(--aero-opacity));
-  /* Very dark red/brown */
-  --bg-secondary: rgba(63, 24, 24, 0.82);
-  --bg-tertiary: rgba(26, 8, 8, 0.82);
-
-  --bg-hover: rgba(252, 165, 165, 0.1);
-  --bg-active: rgba(248, 113, 113, 0.2);
-
-  /* Text hierarchy */
-  --text-primary: #fff1f2;
-  --text-secondary: #fca5a5;
-  --text-tertiary: #f87171;
-  --text-white: #ffffff;
-  --text-light-gray: #e2e8f0;
-
-  --editor-header-accent: #f87171;
-  /* Red-400 */
-  --accent-glow: rgba(248, 113, 113, 0.4);
-
-  --separator: rgba(255, 255, 255, 0.12);
-  --border-primary: rgba(127, 29, 29, 0.4);
-  --border-secondary: rgba(153, 27, 27, 0.4);
-  --border-hover: #ef4444;
-
-  --markdown-heading: #fff1f2;
-  --markdown-link: #fca5a5;
-  --markdown-code: #fbbf24;
-  /* Amber for contrast */
-  --markdown-code-bg: #3f1818;
-  --markdown-strong: #fff1f2;
-  --markdown-list: #f87171;
-
-  --editor-bg: #2b1111;
-  --editor-text: #fff1f2;
-  --editor-selection-bg: rgba(127, 29, 29, 0.5);
-  --activity-bar-bg: #3f1818;
-  --activity-item-border-active: #f87171;
-
-  --filetree-text-active: #fca5a5;
-  --filetree-bg-active: rgba(127, 29, 29, 0.3);
-
-  --vsc-indent-guide: rgba(255, 255, 255, 0.06);
-  --vsc-tree-hover: rgba(252, 165, 165, 0.08);
-  --vsc-section-header-bg: rgba(255, 255, 255, 0.02);
-  --filetree-icon-folder: #f87171;
-  --filetree-icon-file: #fca5a5;
 }

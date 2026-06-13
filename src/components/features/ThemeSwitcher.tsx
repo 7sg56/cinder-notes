@@ -6,15 +6,6 @@ const THEMES = [
   { name: 'Cinder Dark', value: '' },
   { name: 'Cinder Light', value: 'theme-cinder-light' },
   { name: 'Zen Black', value: 'theme-zen-black' },
-  { name: "Synthwave '84", value: 'theme-synthwave' },
-  { name: 'GitHub Dark', value: 'theme-github-dark' },
-  { name: 'Monokai Pro', value: 'theme-monokai' },
-  { name: 'Dracula', value: 'theme-dracula' },
-  { name: 'Nord', value: 'theme-nord' },
-  { name: 'Forest', value: 'theme-forest' },
-  { name: 'Muddy Mustard', value: 'theme-mustard' },
-  { name: 'Marine', value: 'theme-marine' },
-  { name: 'Ember', value: 'theme-ember' },
 ];
 
 export function ThemeSwitcher() {
@@ -87,7 +78,12 @@ export function ThemeSwitcher() {
       document.documentElement.classList.add(currentTheme);
     }
 
-    // 3. Persist
+    // 3. Handle transparency: Zen Black is always opaque
+    if (currentTheme === 'theme-zen-black') {
+      document.documentElement.classList.remove('transparency-on');
+    }
+
+    // 4. Persist
     localStorage.setItem('cinder-theme', currentTheme);
   }, [currentTheme]);
 
