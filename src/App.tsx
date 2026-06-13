@@ -12,7 +12,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFileWatcher } from './hooks/useFileWatcher';
 import { useWorkspace } from './hooks/useWorkspace';
 import { useUpdater } from './hooks/useUpdater';
-import { isTauri } from './util/tauri';
+import { isTauri, isMac } from './util/tauri';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
@@ -69,6 +69,20 @@ function App() {
 
   // Watch workspace directory for external file changes
   useFileWatcher();
+
+  // Initialize transparency class on startup
+  useEffect(() => {
+    const transparencyEnabled =
+      localStorage.getItem('cinder-transparency') === 'true';
+    const currentTheme = localStorage.getItem('cinder-theme') || '';
+    const isZenBlack = currentTheme === 'theme-zen-black';
+
+    if (isMac() && transparencyEnabled && !isZenBlack) {
+      document.documentElement.classList.add('transparency-on');
+    } else {
+      document.documentElement.classList.remove('transparency-on');
+    }
+  }, []);
 
   // Reset split panes when workspace changes
   useEffect(() => {
