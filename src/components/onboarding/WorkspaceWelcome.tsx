@@ -1,6 +1,8 @@
 import { useWorkspace } from '../../hooks/useWorkspace';
 import { useAppStore } from '../../store/useAppStore';
 import { FolderOpen, FolderPlus, X } from 'lucide-react';
+import { WindowsTitleBar } from '../layout/WindowsTitleBar';
+import { isMac } from '../../util/tauri';
 import './WorkspaceWelcome.css';
 
 export function WorkspaceWelcome() {
@@ -11,8 +13,8 @@ export function WorkspaceWelcome() {
     (state) => state.removeRecentWorkspace
   );
 
-  const isMac = navigator.userAgent.includes('Mac');
-  const cmdKey = isMac ? 'Cmd' : 'Ctrl';
+  const isMacOS = isMac();
+  const cmdKey = isMacOS ? 'Cmd' : 'Ctrl';
 
   const handleOpenRecent = async (path: string) => {
     const success = await loadWorkspace(path);
@@ -28,6 +30,19 @@ export function WorkspaceWelcome() {
 
   return (
     <div className="welcome-view" data-testid="welcome-page">
+      {!isMacOS && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 20,
+          }}
+        >
+          <WindowsTitleBar />
+        </div>
+      )}
       <div className="welcome-drag-region" data-tauri-drag-region />
 
       <div className="welcome-content">

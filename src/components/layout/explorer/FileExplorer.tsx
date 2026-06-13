@@ -6,6 +6,7 @@ import { showExplorerContextMenu } from '../../../util/contextMenu';
 
 import { VscSearch } from 'react-icons/vsc';
 import { Plus, FileText, FolderPlus, Settings, Trash2 } from 'lucide-react';
+import { isMac } from '../../../util/tauri';
 
 // Helper to filter nodes recursively
 const filterNodes = (nodes: FileNode[], query: string): FileNode[] => {
@@ -128,8 +129,12 @@ export function FileExplorer() {
       style={{ backgroundColor: 'var(--bg-primary)' }}
       data-testid="file-explorer"
     >
-      {/* Drag region spacer for macOS traffic lights */}
-      <div data-tauri-drag-region className="h-[46px] shrink-0 select-none" />
+      {/* Drag region spacer for macOS traffic lights / Windows top padding */}
+      <div
+        data-tauri-drag-region
+        className={isMac() ? 'h-[46px]' : 'h-[8px]'}
+        style={{ flexShrink: 0 }}
+      />
 
       {/* Search bar + New button (original Cinder style) */}
       <div className="shrink-0 px-3 pb-3 flex items-center gap-1.5">

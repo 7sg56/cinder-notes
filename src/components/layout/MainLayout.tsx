@@ -1,6 +1,7 @@
 import { useRef, useCallback, useState } from 'react';
-// import { ActivityBar } from '../features/activity-bar/ActivityBar';
 import { useAppStore } from '../../store/useAppStore';
+import { WindowsTitleBar } from './WindowsTitleBar';
+import { isMac } from '../../util/tauri';
 
 interface MainLayoutProps {
   sidebarContent: React.ReactNode;
@@ -78,10 +79,11 @@ export function MainLayout({ sidebarContent, editorContent }: MainLayoutProps) {
         color: 'var(--text-primary)',
       }}
     >
+      {/* Windows custom title bar */}
+      {!isMac() && <WindowsTitleBar />}
+
       {/* Main Content Area */}
       <div className="flex-1 flex min-h-0 relative">
-        {/* <ActivityBar /> */}
-
         {/* Sidebar Area */}
         <div
           ref={sidebarRef}
