@@ -334,6 +334,21 @@ pub fn workspace_stats(workspace_path: String) -> Result<(u64, u64), String> {
     Ok((file_count, total_bytes))
 }
 
+/// Get the current platform
+///
+/// # Returns
+/// * `"macos"`, `"windows"`, or `"linux"`
+#[tauri::command]
+pub fn get_platform() -> String {
+    if cfg!(target_os = "macos") {
+        "macos".to_string()
+    } else if cfg!(target_os = "windows") {
+        "windows".to_string()
+    } else {
+        "linux".to_string()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
