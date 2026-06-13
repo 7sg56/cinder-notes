@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0-pre.1] - 2026-06-13
+
+### Added
+
+- macOS-only transparency toggle in Settings (persisted across restarts)
+- Light and dark transparency modes for Cinder Dark and Cinder Light themes
+- Custom Windows title bar with minimize, maximize/restore, and close controls
+- `get_platform` Tauri command for frontend platform detection
+
+### Changed
+
+- Themes reduced to three core variants: Cinder Dark, Cinder Light, and Zen Black
+- All themes are now opaque by default; transparency is opt-in via Settings on macOS
+- Native menu bar is now macOS-only (moves to the system menu bar where it belongs)
+- Window decorations disabled in favor of platform-specific custom chrome
+- Sidebar drag-region spacer is now platform-aware (46px macOS, 8px Windows)
+
+### Removed
+
+- Nine community themes: Synthwave '84, GitHub Dark, Monokai Pro, Dracula, Nord, Forest, Muddy Mustard, Marine, Ember
+- Windows acrylic transparency effect
+- Native Windows menu bar (replaced by keyboard shortcuts and custom title bar)
+- "More themes" expandable section in Settings
+
 ## [0.2.0-pre.1] - 2026-06-07
 
 ### Added
@@ -61,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - File system operations (create, read, write, delete notes)
 - Single theme (Cinder Dark)
 
-[Unreleased]: https://github.com/7sg56/cinder-notes/compare/v0.2.0-pre.1...HEAD
+[Unreleased]: https://github.com/7sg56/cinder-notes/compare/v0.5.0-pre.1...HEAD
+[0.5.0-pre.1]: https://github.com/7sg56/cinder-notes/compare/v0.2.0-pre.1...v0.5.0-pre.1
 [0.2.0-pre.1]: https://github.com/7sg56/cinder-notes/compare/v0.1.2...v0.2.0-pre.1
 [0.1.2]: https://github.com/7sg56/cinder-notes/compare/v0.1.0...v0.1.2
 [0.1.0]: https://github.com/7sg56/cinder-notes/releases/tag/v0.1.0
